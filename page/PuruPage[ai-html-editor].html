@@ -189,7 +189,12 @@
 
                     window.addEventListener('message', (event) => {
                         if (event.data && event.data.type === 'PREVIEW_ERROR') {
-                            this.previewError = event.data.error;
+                            // Akumulasi semua error, bukan hanya satu
+                            if (this.previewError) {
+                                this.previewError = this.previewError + '\n\n' + event.data.error;
+                            } else {
+                                this.previewError = event.data.error;
+                            }
                         }
                     });
                 },
@@ -275,14 +280,43 @@ CONTOH JAWABAN:
 
                     const errorCatcherScript = `
                         <script>
+                            var _allErrors = [];
+                            function _sendErrors() {
+                                if (_allErrors.length > 0) {
+                                    window.parent.postMessage({ type: 'PREVIEW_ERROR', error: _allErrors.join('\\n\\n') }, '*');
+                                }
+                            }
                             window.onerror = function(msg, src, lineno, colno, err) {
-                                window.parent.postMessage({ type: 'PREVIEW_ERROR', error: msg + ' (Line: ' + lineno + ')' }, '*');
-                                return true; 
+                                var detail = '[JS Error] ' + msg;
+                                if (src) detail += '\\n  Source: ' + src.split('/').pop();
+                                if (lineno) detail += '\\n  Line: ' + lineno + (colno ? ', Col: ' + colno : '');
+                                if (err && err.stack) detail += '\\n  Stack: ' + err.stack.split('\\n').slice(0,3).join(' | ');
+                                _allErrors.push(detail);
+                                clearTimeout(window._errTimer);
+                                window._errTimer = setTimeout(_sendErrors, 100);
+                                return true;
                             };
+                            window.addEventListener('unhandledrejection', function(e) {
+                                var detail = '[Unhandled Promise] ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+                                if (e.reason && e.reason.stack) detail += '\\n  Stack: ' + e.reason.stack.split('\\n').slice(0,3).join(' | ');
+                                _allErrors.push(detail);
+                                clearTimeout(window._errTimer);
+                                window._errTimer = setTimeout(_sendErrors, 100);
+                            });
+                            console.error = (function(orig) {
+                                return function() {
+                                    var msg = Array.from(arguments).map(function(a){ return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' ');
+                                    _allErrors.push('[console.error] ' + msg);
+                                    clearTimeout(window._errTimer);
+                                    window._errTimer = setTimeout(_sendErrors, 100);
+                                    orig.apply(console, arguments);
+                                };
+                            })(console.error);
                         <\/script>
                     `;
 
                     let htmlContent = this.codeBase;
+                    this.previewError = null; // Reset sebelum render ulang
                     if (htmlContent.includes('<head>')) {
                         htmlContent = htmlContent.replace('<head>', '<head>' + errorCatcherScript);
                     } else {
