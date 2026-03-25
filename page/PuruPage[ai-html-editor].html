@@ -280,38 +280,108 @@ CONTOH JAWABAN:
 
                     const errorCatcherScript = `
                         <script>
-                            var _allErrors = [];
-                            function _sendErrors() {
-                                if (_allErrors.length > 0) {
-                                    window.parent.postMessage({ type: 'PREVIEW_ERROR', error: _allErrors.join('\\n\\n') }, '*');
+                            (function() {
+                                var _allErrors = [];
+                                var _errTimer = null;
+
+                                function _report(detail) {
+                                    _allErrors.push(detail);
+                                    clearTimeout(_errTimer);
+                                    _errTimer = setTimeout(function() {
+                                        if (_allErrors.length > 0) {
+                                            window.parent.postMessage({ type: 'PREVIEW_ERROR', error: _allErrors.join('\\n\\n---\\n\\n') }, '*');
+                                        }
+                                    }, 200);
                                 }
-                            }
-                            window.onerror = function(msg, src, lineno, colno, err) {
-                                var detail = '[JS Error] ' + msg;
-                                if (src) detail += '\\n  Source: ' + src.split('/').pop();
-                                if (lineno) detail += '\\n  Line: ' + lineno + (colno ? ', Col: ' + colno : '');
-                                if (err && err.stack) detail += '\\n  Stack: ' + err.stack.split('\\n').slice(0,3).join(' | ');
-                                _allErrors.push(detail);
-                                clearTimeout(window._errTimer);
-                                window._errTimer = setTimeout(_sendErrors, 100);
-                                return true;
-                            };
-                            window.addEventListener('unhandledrejection', function(e) {
-                                var detail = '[Unhandled Promise] ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
-                                if (e.reason && e.reason.stack) detail += '\\n  Stack: ' + e.reason.stack.split('\\n').slice(0,3).join(' | ');
-                                _allErrors.push(detail);
-                                clearTimeout(window._errTimer);
-                                window._errTimer = setTimeout(_sendErrors, 100);
-                            });
-                            console.error = (function(orig) {
-                                return function() {
-                                    var msg = Array.from(arguments).map(function(a){ return typeof a === 'object' ? JSON.stringify(a) : String(a); }).join(' ');
-                                    _allErrors.push('[console.error] ' + msg);
-                                    clearTimeout(window._errTimer);
-                                    window._errTimer = setTimeout(_sendErrors, 100);
-                                    orig.apply(console, arguments);
+
+                                function _fmtError(err) {
+                                    if (!err) return '';
+                                    var out = err.name ? err.name + ': ' + err.message : String(err);
+                                    if (err.stack) {
+                                        var lines = err.stack.split('\\n').slice(0, 5).join('\\n  ');
+                                        out += '\\n  Stack:\\n  ' + lines;
+                                    }
+                                    return out;
+                                }
+
+                                // 1. Tangkap runtime error (termasuk cross-origin dengan try/catch langsung)
+                                window.onerror = function(msg, src, lineno, colno, err) {
+                                    var detail;
+                                    if (err) {
+                                        // err object tersedia = bukan cross-origin, ambil full detail
+                                        detail = '[Runtime Error]\\n' + _fmtError(err);
+                                        if (src) detail += '\\n  File: ' + src;
+                                        if (lineno) detail += '\\n  Line: ' + lineno + (colno ? ', Col: ' + colno : '');
+                                    } else if (msg === 'Script error.' || msg === 'Script error') {
+                                        // Cross-origin script error - browser menyembunyikan detail
+                                        detail = '[Cross-Origin Script Error]\\n  Browser menyembunyikan detail error dari script eksternal (CDN/library).\\n  Kemungkinan penyebab:\\n  - Library gagal dimuat (URL salah / CDN down)\\n  - Error di dalam callback library\\n  - TypeError saat memanggil method library\\n  File: ' + (src || 'unknown');
+                                    } else {
+                                        detail = '[Runtime Error] ' + msg;
+                                        if (src) detail += '\\n  File: ' + src;
+                                        if (lineno) detail += '\\n  Line: ' + lineno + (colno ? ', Col: ' + colno : '');
+                                    }
+                                    _report(detail);
+                                    return true;
                                 };
-                            })(console.error);
+
+                                // 2. Unhandled Promise rejections (fetch gagal, async error, dll)
+                                window.addEventListener('unhandledrejection', function(e) {
+                                    var reason = e.reason;
+                                    var detail = '[Unhandled Promise Rejection]\\n';
+                                    if (reason instanceof Error) {
+                                        detail += _fmtError(reason);
+                                    } else {
+                                        detail += String(reason);
+                                    }
+                                    _report(detail);
+                                });
+
+                                // 3. Override console methods
+                                var _origError = console.error.bind(console);
+                                var _origWarn = console.warn.bind(console);
+                                console.error = function() {
+                                    var args = Array.from(arguments);
+                                    var msg = args.map(function(a) {
+                                        return a instanceof Error ? _fmtError(a) : (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a));
+                                    }).join(' ');
+                                    _report('[console.error] ' + msg);
+                                    _origError.apply(console, args);
+                                };
+                                console.warn = function() {
+                                    var args = Array.from(arguments);
+                                    var msg = args.map(function(a) {
+                                        return typeof a === 'object' ? JSON.stringify(a) : String(a);
+                                    }).join(' ');
+                                    _report('[console.warn] ' + msg);
+                                    _origWarn.apply(console, args);
+                                };
+
+                                // 4. Intercept fetch — tangkap network error & non-200 response
+                                var _origFetch = window.fetch;
+                                window.fetch = function(url, opts) {
+                                    return _origFetch.apply(this, arguments).then(function(res) {
+                                        if (!res.ok) {
+                                            _report('[Fetch Error] ' + (opts && opts.method || 'GET') + ' ' + url + '\\n  Status: ' + res.status + ' ' + res.statusText);
+                                        }
+                                        return res;
+                                    }).catch(function(err) {
+                                        _report('[Fetch Failed] ' + url + '\\n  ' + _fmtError(err));
+                                        throw err;
+                                    });
+                                };
+
+                                // 5. Intercept script loading — deteksi library yang gagal dimuat
+                                var _origCreateElement = document.createElement.bind(document);
+                                document.createElement = function(tag) {
+                                    var el = _origCreateElement(tag);
+                                    if (tag.toLowerCase() === 'script') {
+                                        el.addEventListener('error', function() {
+                                            _report('[Script Load Error] Gagal memuat script: ' + (el.src || 'unknown')  + '\\n  Kemungkinan: URL salah, CDN tidak tersedia, atau nama library typo.');
+                                        });
+                                    }
+                                    return el;
+                                };
+                            })();
                         <\/script>
                     `;
 
@@ -327,7 +397,7 @@ CONTOH JAWABAN:
                 },
 
                 sendErrorToAI() {
-                    const errorMessage = `Perbaiki error JavaScript ini: "${this.previewError}". Cari kode penyebabnya dan perbaiki menggunakan format <find>.`;
+                    const errorMessage = `Perbaiki error berikut yang terdeteksi saat preview:\n\n${this.previewError}\n\nAnalisa penyebabnya berdasarkan error di atas, lalu perbaiki kode menggunakan format <find>.`;
                     this.previewError = null;
                     this.tab = 'chat';
                     
