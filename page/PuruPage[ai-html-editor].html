@@ -1,4 +1,4 @@
-<!-- META {"title":"ai-html-editor","desc":"1.0.0-rc01","date":"2026-03-25T05:21:38.072Z"} -->
+<!-- META {"title":"Ai html editor","desc":"Beta 02","date":"2026-03-25T05:39:44.380Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -29,7 +29,7 @@
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Editor
             </h1>
             <div>
-                <label class="cursor-pointer bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium">
+                <label class="cursor-pointer bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium shadow">
                     <i class="fa-solid fa-file-upload"></i> Upload
                     <input type="file" accept=".html" class="hidden" @change="uploadFile">
                 </label>
@@ -53,9 +53,9 @@
                                 
                                 <p class="whitespace-pre-wrap leading-relaxed" x-text="msg.content"></p>
                                 
-                                <!-- Feedback Indicator / Badge (Hanya muncul jika ada action) -->
+                                <!-- Feedback Indicator / Badge -->
                                 <template x-if="msg.action">
-                                    <div class="mt-2 pt-2 border-t border-gray-100 flex items-center gap-1">
+                                    <div class="mt-2 pt-2 border-t border-gray-100/30 flex items-center gap-1">
                                         <span class="text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1"
                                               :class="msg.action === 'Full Rewrite' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700'">
                                             <i class="fa-solid" :class="msg.action === 'Full Rewrite' ? 'fa-file-code' : 'fa-pen-to-square'"></i>
@@ -73,7 +73,7 @@
                         <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
                             <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i>
                             <span class="text-sm text-gray-600">
-                                AI sedang berpikir... 
+                                AI sedang bekerja... 
                                 <span x-show="loopCount > 0" class="text-xs font-bold text-red-500 ml-1">
                                     (Self-Healing: <span x-text="loopCount"></span>/10)
                                 </span>
@@ -133,8 +133,8 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('aiEditor', () => ({
                 tab: 'chat',
-                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n</head>\n<body>\n  <h1>Halo Dunia!</h1>\n</body>\n</html>`,
-                chatHistory: [{role: 'ai', content: 'Halo! Saya adalah AI Editor. Tempelkan kode Anda di tab Code, upload file, atau langsung minta saya membuat/mengubah sesuatu!'}],
+                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n</head>\n<body>\n  <h1>Halo Dunia!</h1>\n  <p>Selamat datang.</p>\n</body>\n</html>`,
+                chatHistory: [{role: 'ai', content: 'Halo! Saya AI Editor. Tempelkan kode Anda di tab Code atau upload file, lalu minta saya menambahkan atau mengubah sesuatu!'}],
                 userInput: '',
                 isProcessing: false,
                 loopCount: 0,
@@ -142,34 +142,44 @@
                 toastMsg: '',
 
                 get systemPrompt() {
-                    return `Kamu adalah AI HTML Editor. Kamu BISA membaca kode, memahami instruksi, dan mengubah kode.
-Saat ini kode yang ada adalah:
+                    return `Kamu adalah AI HTML Editor tingkat lanjut. Kamu dapat membaca, memahami instruksi, dan mengubah kode.
+Saat ini kode yang ada (Codebase) adalah:
 \`\`\`html
 ${this.codeBase}
 \`\`\`
 
 ATURAN SANGAT KETAT:
-1. Kamu hanya boleh membalas menggunakan format XML di bawah ini. JANGAN tambahkan teks apapun di luar tag <execution>.
-2. Bagian <responding> adalah pesan ramah ke user tentang apa yang kamu lakukan.
-3. Untuk mengubah sebagian kode, gunakan <change>. Teks di dalam <find> HARUS identik persis (copy-paste) dengan yang ada di codebase.
-4. Jika perubahannya besar atau rumit, gunakan <code> untuk menulis ulang seluruh kode dari awal sampai akhir.
+1. Balas HANYA menggunakan format XML di bawah. Jangan tambahkan Markdown codeblock (\`\`\`) di luar tag <execution>.
+2. Di dalam <find>, tulis tag <element> (kode lama) dan <change> (kode baru). 
+3. Teks di dalam <element> HARUS IDENTIK PERSIS dengan codebase. Jangan diubah/diterjemahkan entitas HTML-nya (tulis tag murni).
+4. Kamu BISA mengirim LEBIH DARI SATU tag <find> sekaligus jika ingin mengubah beberapa bagian.
+5. Jika perubahannya besar, gunakan <code> untuk Full Rewrite (tulis ulang seluruh file).
 
-CONTOH GANTI SEBAGIAN (Partial Update):
+CONTOH GANTI SEBAGIAN (Bisa Multipel Find):
 <execution>
-<responding>Saya akan mengubah warna teks menjadi merah.</responding>
-<change file="index.html">
+<responding>Saya telah menambahkan ikon FontAwesome dan merubah teks p.</responding>
 <find>
-  <h1>Halo Dunia!</h1>
-</find>
-<insert>
-  <h1 style="color: red;">Halo Dunia!</h1>
-</insert>
+<element>
+  <title>Halo Dunia</title>
+</element>
+<change>
+  <title>Halo Dunia</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </change>
+</find>
+<find>
+<element>
+  <p>Selamat datang.</p>
+</element>
+<change>
+  <p><i class="fas fa-home"></i> Selamat datang kembali!</p>
+</change>
+</find>
 </execution>
 
 CONTOH GANTI SEMUA (Full Rewrite):
 <execution>
-<responding>Saya telah membuat ulang seluruh halaman.</responding>
+<responding>Saya telah menulis ulang seluruh halaman.</responding>
 <code><!DOCTYPE html>...seluruh kode baru...</html></code>
 </execution>`;
                 },
@@ -196,7 +206,7 @@ CONTOH GANTI SEMUA (Full Rewrite):
                         this.tab = 'code';
                     };
                     reader.readAsText(file);
-                    event.target.value = ''; // Reset input file
+                    event.target.value = ''; // Reset input
                 },
 
                 copyCode() {
@@ -222,7 +232,7 @@ CONTOH GANTI SEMUA (Full Rewrite):
                     if (this.loopCount >= this.maxLoops) {
                         this.chatHistory.push({ 
                             role: 'ai', 
-                            content: 'Maaf, saya gagal memodifikasi kode setelah 10 kali percobaan perbaikan diri (Self-Healing). Kode tidak berubah.' 
+                            content: 'Maaf, saya gagal memodifikasi kode setelah 10 kali percobaan self-healing. Kode tidak berubah.' 
                         });
                         this.isProcessing = false;
                         this.scrollToBottom();
@@ -230,11 +240,10 @@ CONTOH GANTI SEMUA (Full Rewrite):
                     }
 
                     try {
-                        // Gabungkan instruksi dasar, codebase, pesan user, dan (jika ada) pesan error loop sebelumnya
                         let finalPrompt = `${this.systemPrompt}\n\nInstruksi User: ${userInstruction}`;
                         
                         if (errorMessage) {
-                            finalPrompt += `\n\n[SISTEM INFO - ERROR PADA PERCOBAAAN SEBELUMNYA]:\n${errorMessage}\n\nTolong perbaiki format XML kamu. Jika teks <find> tidak ketemu, pastikan kamu menyalin teks persis seperti di codebase (termasuk spasi/enter). Atau gunakan saja <code> untuk Full Rewrite!`;
+                            finalPrompt += `\n\n[SISTEM INFO - ERROR PADA PERCOBAAAN SEBELUMNYA]:\n${errorMessage}\n\nTolong perbaiki tag <element> kamu. Pastikan teks identik persis dengan Codebase! Jika kesulitan melakukan partial update, gunakan <code> untuk melakukan Full Rewrite.`;
                         }
 
                         const response = await fetch("https://puruboy-api.vercel.app/api/ai/gemini-v2", {
@@ -244,16 +253,15 @@ CONTOH GANTI SEMUA (Full Rewrite):
                         });
 
                         const data = await response.json();
-                        if (!data.success) throw new Error("API mengembalikan response gagal/error dari server.");
+                        if (!data.success) throw new Error("API error / gagal terhubung ke server.");
 
                         const aiText = data.result.answer;
                         this.parseAndApplyAIResponse(aiText);
 
-                        // BERHASIL: Selesai loop dan bersihkan context otomatis (kembali state normal)
+                        // Berhasil, keluar dari loop
                         this.isProcessing = false;
 
                     } catch (error) {
-                        // GAGAL PARSING: Looping ulang ke AI agar AI memperbaiki dirinya sendiri
                         console.warn(`Loop ${this.loopCount + 1} Gagal:`, error.message);
                         this.loopCount++;
                         await this.runAILoop(userInstruction, error.message);
@@ -263,56 +271,76 @@ CONTOH GANTI SEMUA (Full Rewrite):
                 parseAndApplyAIResponse(aiResponse) {
                     // Cari isi tag <execution>
                     const execMatch = aiResponse.match(/<execution>([\s\S]*?)<\/execution>/i);
-                    if (!execMatch) {
-                        throw new Error("Tag <execution> tidak ditemukan di jawabanmu. Kamu harus menggunakan format <execution>.");
-                    }
-
+                    if (!execMatch) throw new Error("Tag <execution> tidak ditemukan di jawabanmu.");
+                    
                     const execContent = execMatch[1];
 
                     // Ambil teks <responding>
                     const respondMatch = execContent.match(/<responding>([\s\S]*?)<\/responding>/i);
-                    let respondText = respondMatch ? respondMatch[1].trim() : "Tugas selesai dikerjakan.";
+                    let respondText = respondMatch ? respondMatch[1].trim() : "Kode berhasil diperbarui.";
 
-                    // Cek mode FULL REWRITE <code>
+                    // 1. Cek Mode FULL REWRITE <code>
                     const codeMatch = execContent.match(/<code>([\s\S]*?)<\/code>/i);
                     if (codeMatch) {
                         this.codeBase = codeMatch[1].trim();
-                        // Tambahkan indikator Full Rewrite
                         this.chatHistory.push({ role: 'ai', content: respondText, action: 'Full Rewrite' });
                         this.scrollToBottom();
                         return; 
                     }
 
-                    // Cek mode PARTIAL UPDATE <change>
-                    const changeMatch = execContent.match(/<change[^>]*>([\s\S]*?)<\/change>/i);
-                    if (changeMatch) {
-                        const changeContent = changeMatch[1];
-                        
-                        const findMatch = changeContent.match(/<find>([\s\S]*?)<\/find>/i);
-                        const insertMatch = changeContent.match(/<insert>([\s\S]*?)<\/insert>/i);
+                    // 2. Cek Mode PARTIAL UPDATE (Multiple <find>)
+                    // Mengambil semua tag <find> yang dikirim
+                    const findBlocks = [...execContent.matchAll(/<find>([\s\S]*?)<\/find>/gi)];
+                    
+                    if (findBlocks.length > 0) {
+                        // Kita gunakan temporary codebase. Jika 1 blok gagal, jangan rubah kode aslinya.
+                        let tempCodeBase = this.codeBase;
+                        let successCount = 0;
 
-                        if (!findMatch || !insertMatch) {
-                            throw new Error("Di dalam tag <change>, tag <find> atau <insert> tidak valid atau hilang.");
+                        for (let i = 0; i < findBlocks.length; i++) {
+                            const blockContent = findBlocks[i][1];
+                            
+                            const elementMatch = blockContent.match(/<element>([\s\S]*?)<\/element>/i);
+                            const changeMatch = blockContent.match(/<change>([\s\S]*?)<\/change>/i);
+
+                            if (!elementMatch || !changeMatch) {
+                                throw new Error(`Di dalam tag <find> ke-${i+1}, tag <element> atau <change> tidak valid/hilang.`);
+                            }
+
+                            // LLM terkadang lolos dengan spasi berlebih, kita sediakan dua fallback
+                            const rawElementText = elementMatch[1];
+                            const trimmedElementText = rawElementText.trim();
+                            const changeText = changeMatch[1]; // Kita tidak trim change agar format indentasi terjaga jika ada
+
+                            // Cek persis sama
+                            if (tempCodeBase.includes(rawElementText)) {
+                                tempCodeBase = tempCodeBase.replace(rawElementText, changeText);
+                                successCount++;
+                            } 
+                            // Cek versi trimmed (mengabaikan extra enter dari AI)
+                            else if (tempCodeBase.includes(trimmedElementText) && trimmedElementText !== '') {
+                                tempCodeBase = tempCodeBase.replace(trimmedElementText, changeText.trim());
+                                successCount++;
+                            } 
+                            // Jika gagal menemukan
+                            else {
+                                throw new Error(`Teks yang kamu tulis pada blok <find> ke-${i+1} di dalam <element>:\n\n${rawElementText}\n\nTIDAK DITEMUKAN di codebase saat ini. Eksekusi DIBATALKAN. Gunakan teks persis atau gunakan <code>!`);
+                            }
                         }
 
-                        const findText = findMatch[1].trim();
-                        const insertText = insertMatch[1].trim();
-
-                        // Melakukan replace kode
-                        if (this.codeBase.includes(findText)) {
-                            this.codeBase = this.codeBase.replace(findText, insertText);
-                            // Tambahkan indikator Partial Update
-                            this.chatHistory.push({ role: 'ai', content: respondText, action: 'Partial Update' });
-                            this.scrollToBottom();
-                            return; 
-                        } else {
-                            // Melempar error ke AI agar AI mengoreksinya di loop berikutnya
-                            throw new Error(`Teks yang kamu cari di dalam tag <find>:\n${findText}\n\nTIDAK DITEMUKAN di dalam codebase saat ini. Pastikan teks identik persis! Jika kesulitan mencari potongannya, gunakan mode <code> (Full Rewrite).`);
-                        }
+                        // Jika semua blok berhasil di-replace, baru simpan ke state
+                        this.codeBase = tempCodeBase;
+                        this.chatHistory.push({ 
+                            role: 'ai', 
+                            content: respondText, 
+                            action: `Partial Update (${successCount} changes)` 
+                        });
+                        this.scrollToBottom();
+                        return;
                     }
 
-                    // Jika tidak ada mode yang cocok
-                    throw new Error("Kamu belum memasukkan tag <code> atau <change> di dalam <execution>.");
+                    // Jika tidak ada mode <code> atau <find> sama sekali
+                    throw new Error("Kamu harus memasukkan tag <code> atau blok <find> di dalam <execution>.");
                 }
             }));
         });
