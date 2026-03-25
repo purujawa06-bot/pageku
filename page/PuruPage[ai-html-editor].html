@@ -1,4 +1,4 @@
-<!-- META {"title":"Ai html editor","desc":"V3","date":"2026-03-25T08:10:25.062Z"} -->
+<!-- META {"title":"Ai html editor","desc":"Base","date":"2026-03-25T08:15:24.681Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,16 +15,17 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        iframe { border: none; width: 100%; height: 100%; display: block; }
+        iframe { border: none; width: 100%; height: 100%; }
     </style>
 </head>
-<body class="bg-gray-100 flex justify-center h-screen overflow-hidden text-gray-800">
+<!-- Menggunakan h-[100dvh] (Dynamic Viewport Height) agar tidak tenggelam di Mobile Browser -->
+<body class="bg-gray-100 flex justify-center h-[100dvh] overflow-hidden text-gray-800">
 
     <!-- Mobile App Container -->
     <div x-data="aiEditor()" class="w-full max-w-md h-full bg-white shadow-2xl relative flex flex-col">
         
         <!-- Header -->
-        <header class="bg-indigo-600 text-white p-4 flex justify-between items-center shadow-md z-10">
+        <header class="flex-shrink-0 bg-indigo-600 text-white p-4 flex justify-between items-center shadow-md z-10">
             <h1 class="text-lg font-bold flex items-center gap-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Editor
             </h1>
@@ -37,12 +38,12 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-hidden relative bg-gray-50">
+        <main class="flex-1 min-h-0 relative bg-gray-50 flex flex-col overflow-hidden">
             
             <!-- CHAT PAGE -->
-            <div x-show="tab === 'chat'" class="h-full flex flex-col relative" x-transition.opacity>
+            <div x-show="tab === 'chat'" class="h-full flex flex-col" x-transition.opacity>
                 <!-- Chat Messages -->
-                <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-20" id="chat-container">
+                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-container">
                     <template x-for="(msg, index) in chatHistory" :key="index">
                         <div class="flex flex-col" :class="msg.role === 'user' ? 'items-end' : 'items-start'">
                             <span class="text-[10px] text-gray-400 mb-1 font-semibold uppercase tracking-wider" 
@@ -81,8 +82,8 @@
                     </div>
                 </div>
 
-                <!-- Chat Input -->
-                <div class="absolute bottom-0 left-0 w-full bg-white border-t p-3 flex gap-2 items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                <!-- Chat Input (Sekarang memakai flex-shrink-0, tidak lagi absolute bottom-0) -->
+                <div class="flex-shrink-0 bg-white border-t p-3 flex gap-2 items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                     <input type="text" x-model="userInput" @keydown.enter="sendPrompt" :disabled="isProcessing"
                            placeholder="Minta AI ubah kode..." 
                            class="flex-1 bg-gray-100 text-sm rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition">
@@ -95,35 +96,35 @@
 
             <!-- CODE PAGE -->
             <div x-show="tab === 'code'" class="h-full flex flex-col" x-transition.opacity style="display: none;">
-                <div class="bg-[#2d2d2d] text-gray-300 text-xs px-4 py-2 flex justify-between items-center border-b border-black">
+                <div class="flex-shrink-0 bg-[#2d2d2d] text-gray-300 text-xs px-4 py-2 flex justify-between items-center border-b border-black">
                     <span class="font-mono flex items-center gap-2"><i class="fa-brands fa-html5 text-orange-500 text-sm"></i> index.html</span>
                     <button @click="copyCode" class="hover:text-white transition flex items-center gap-1">
                         <i class="fa-regular fa-copy"></i> Salin
                     </button>
                 </div>
                 <textarea x-model="codeBase" spellcheck="false"
-                          class="flex-1 w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono p-4 text-sm outline-none resize-none leading-relaxed"
+                          class="flex-1 w-full h-full min-h-0 bg-[#1e1e1e] text-[#d4d4d4] font-mono p-4 text-sm outline-none resize-none leading-relaxed"
                           placeholder="<!-- Tulis atau tempel kode HTML di sini -->"></textarea>
             </div>
 
             <!-- PREVIEW PAGE -->
             <div x-show="tab === 'preview'" class="h-full flex flex-col bg-white" x-transition.opacity style="display: none;">
-                <div class="bg-gray-200 text-gray-700 text-xs px-4 py-2 flex justify-between items-center border-b border-gray-300">
+                <div class="flex-shrink-0 bg-gray-200 text-gray-700 text-xs px-4 py-2 flex justify-between items-center border-b border-gray-300">
                     <span class="font-semibold flex items-center gap-2"><i class="fa-solid fa-eye text-indigo-500"></i> Hasil Render</span>
                     <button @click="updatePreview" class="hover:text-indigo-600 transition flex items-center gap-1">
                         <i class="fa-solid fa-rotate-right"></i> Refresh
                     </button>
                 </div>
                 <!-- Iframe for preview -->
-                <div class="flex-1 w-full bg-white relative">
-                    <iframe id="preview-frame"></iframe>
+                <div class="flex-1 min-h-0 w-full relative">
+                    <iframe id="preview-frame" class="absolute inset-0 w-full h-full"></iframe>
                 </div>
             </div>
 
         </main>
 
-        <!-- Bottom Navigation -->
-        <nav class="bg-white border-t flex justify-between text-gray-500 text-xs pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20 px-2">
+        <!-- Bottom Navigation (Ditambahkan pb-[env(safe-area-inset-bottom)] untuk iOS safe area) -->
+        <nav class="flex-shrink-0 bg-white border-t flex justify-between text-gray-500 text-xs pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20 px-2">
             <button @click="tab = 'chat'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition"
                     :class="tab === 'chat' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'">
                 <i class="fa-solid fa-message text-lg"></i> Chat
@@ -151,7 +152,7 @@
                     <div class="bg-red-100 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
                     <h2 class="font-bold text-lg">Error Terdeteksi!</h2>
                 </div>
-                <div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200 max-h-32 overflow-y-auto">
+                <div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200">
                     <span x-text="previewError"></span>
                 </div>
                 <p class="text-xs text-gray-500">Kirim error ini ke AI agar diperbaiki otomatis?</p>
@@ -170,7 +171,7 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('aiEditor', () => ({
                 tab: 'chat',
-                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n  <style>\n    section { height: 100vh; padding: 20px; }\n    nav { position: fixed; top: 0; background: #fff; width: 100%; padding: 10px; border-bottom: 1px solid #ccc; }\n  </style>\n</head>\n<body style="margin: 0;">\n  <nav>\n    <a href="#home">Home</a> |\n    <a href="#about">About</a>\n  </nav>\n  \n  <section id="home" style="background: #eef2ff; margin-top: 40px;">\n    <h1>Beranda</h1>\n    <p>Selamat datang di halaman ini.</p>\n  </section>\n  \n  <section id="about" style="background: #fdf4ff;">\n    <h1>Tentang</h1>\n    <button onclick="showAlert()">Klik Saya</button>\n  </section>\n\n  <script>\n    function showAlert() { alert('Halo dari About!'); }\n  <\/script>\n</body>\n</html>`,
+                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n</head>\n<body>\n  <h1>Halo Dunia!</h1>\n  <button onclick="showAlert()">Klik Saya</button>\n  <script>\n    function showAlert() {\n      alert('Halo!');\n    }\n  <\/script>\n</body>\n</html>`,
                 chatHistory: [{role: 'ai', content: 'Halo! Saya AI Editor. Minta saya mengubah bagian mana saja di halaman ini!'}],
                 userInput: '',
                 isProcessing: false,
@@ -178,7 +179,6 @@
                 maxLoops: 10,
                 toastMsg: '',
                 previewError: null,
-                previewBlobUrl: null,
 
                 init() {
                     // Update preview otomatis ketika pindah tab ke Preview atau kode berubah
@@ -193,7 +193,6 @@
                     });
                 },
 
-                // SYSTEM PROMPT LANGSUNG & TO THE POINT
                 get systemPrompt() {
                     return `Kamu adalah AI HTML Editor. Tugasmu HANYA mengubah bagian tertentu dari kode (Partial Update).
 Codebase saat ini:
@@ -224,7 +223,7 @@ CONTOH JAWABAN:
   <button onclick="showAlert()">Klik Saya</button>
 </element>
 <change>
-  <button onclick="showAlert()" class="bg-blue-500 text-white p-2 rounded">Klik Saya</button>
+  <button onclick="showAlert()" class="bg-blue-500">Klik Saya</button>
 </change>
 </find>
 </execution>`;
@@ -264,54 +263,24 @@ CONTOH JAWABAN:
                     const iframe = document.getElementById('preview-frame');
                     if (!iframe) return;
 
-                    // Inject pendeteksi error & PENANGANAN NAVIGASI HASH
+                    // Inject pendeteksi error ke dalam iframe preview
                     const errorCatcherScript = `
                         <script>
-                            // Tangkap error javascript
                             window.onerror = function(msg, src, lineno, colno, err) {
                                 window.parent.postMessage({ type: 'PREVIEW_ERROR', error: msg + ' (Line: ' + lineno + ')' }, '*');
                                 return true; 
                             };
-
-                            // Cegah navigasi URL asli iframe untuk hash links (#) agar tidak error/reload
-                            document.addEventListener('click', function(e) {
-                                const link = e.target.closest('a');
-                                if (link) {
-                                    const href = link.getAttribute('href');
-                                    // Jika link berupa anchor hash
-                                    if (href && href.startsWith('#')) {
-                                        e.preventDefault(); 
-                                        const targetId = href.substring(1);
-                                        if (targetId) {
-                                            const el = document.getElementById(targetId);
-                                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                        }
-                                    } else if (href && !href.startsWith('javascript:')) {
-                                        // Paksa eksternal link terbuka di tab baru agar tidak merusak iframe
-                                        link.target = '_blank';
-                                    }
-                                }
-                            });
                         <\/script>
                     `;
 
                     let htmlContent = this.codeBase;
-                    // Sisipkan script ke dalam <head> secara case-insensitive
-                    if (/<head>/i.test(htmlContent)) {
-                        htmlContent = htmlContent.replace(/<head>/i, '<head>\n' + errorCatcherScript);
+                    if (htmlContent.includes('<head>')) {
+                        htmlContent = htmlContent.replace('<head>', '<head>' + errorCatcherScript);
                     } else {
                         htmlContent = errorCatcherScript + htmlContent;
                     }
 
-                    // Gunakan Blob URL daripada srcdoc agar lebih stabil di semua browser
-                    if (this.previewBlobUrl) {
-                        URL.revokeObjectURL(this.previewBlobUrl); // Bersihkan memory URL lama
-                    }
-                    
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    this.previewBlobUrl = URL.createObjectURL(blob);
-                    
-                    iframe.src = this.previewBlobUrl;
+                    iframe.srcdoc = htmlContent;
                 },
 
                 sendErrorToAI() {
@@ -355,6 +324,7 @@ CONTOH JAWABAN:
                     try {
                         let finalPrompt = `${this.systemPrompt}\n\nInstruksi User: ${userInstruction}`;
                         
+                        // Sisipkan Feedback ke AI jika sebelumnya AI salah format atau salah mencari elemen
                         if (errorFeedback) {
                             finalPrompt += `\n\n[ERROR PADA JAWABANMU SEBELUMNYA]:\n${errorFeedback}\nPerbaiki elemen <find> kamu. Teks <element> WAJIB identik dengan Codebase. Tidak boleh Full Rewrite!`;
                         }
@@ -374,7 +344,7 @@ CONTOH JAWABAN:
                     } catch (error) {
                         console.warn(`[Self-Healing Loop ${this.loopCount + 1}]`, error.message);
                         this.loopCount++;
-                        await this.runAILoop(userInstruction, error.message);
+                        await this.runAILoop(userInstruction, error.message); // Ulangi ke AI beserta pesan errornya
                     }
                 },
 
@@ -406,6 +376,7 @@ CONTOH JAWABAN:
                         const oldCodeTrimmed = oldCode.trim();
                         const newCode = changeMatch[1];
 
+                        // Proses Replace (Pencarian Teks Persis Identik)
                         if (tempCodeBase.includes(oldCode)) {
                             tempCodeBase = tempCodeBase.replace(oldCode, newCode);
                             successCount++;
@@ -413,10 +384,11 @@ CONTOH JAWABAN:
                             tempCodeBase = tempCodeBase.replace(oldCodeTrimmed, newCode.trim());
                             successCount++;
                         } else {
-                            throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK ADA di Codebase. Salin teks persis!`);
+                            throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK ADA di Codebase. Salin teks persis! Jangan memotong baris sembarangan.`);
                         }
                     }
 
+                    // Terapkan semua perubahan ke Codebase utama jika valid semua
                     this.codeBase = tempCodeBase;
                     this.chatHistory.push({ 
                         role: 'ai', 
