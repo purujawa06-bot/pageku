@@ -1,4 +1,4 @@
-<!-- META {"title":"Ai html editor","desc":"V2","date":"2026-03-25T07:54:50.486Z"} -->
+<!-- META {"title":"Ai html editor","desc":"V3","date":"2026-03-25T08:10:25.062Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -15,7 +15,7 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        iframe { border: none; width: 100%; height: 100%; }
+        iframe { border: none; width: 100%; height: 100%; display: block; }
     </style>
 </head>
 <body class="bg-gray-100 flex justify-center h-screen overflow-hidden text-gray-800">
@@ -115,7 +115,9 @@
                     </button>
                 </div>
                 <!-- Iframe for preview -->
-                <iframe id="preview-frame"></iframe>
+                <div class="flex-1 w-full bg-white relative">
+                    <iframe id="preview-frame"></iframe>
+                </div>
             </div>
 
         </main>
@@ -149,7 +151,7 @@
                     <div class="bg-red-100 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
                     <h2 class="font-bold text-lg">Error Terdeteksi!</h2>
                 </div>
-                <div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200">
+                <div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200 max-h-32 overflow-y-auto">
                     <span x-text="previewError"></span>
                 </div>
                 <p class="text-xs text-gray-500">Kirim error ini ke AI agar diperbaiki otomatis?</p>
@@ -168,7 +170,7 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('aiEditor', () => ({
                 tab: 'chat',
-                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n</head>\n<body>\n  <h1>Halo Dunia!</h1>\n  <button onclick="showAlert()">Klik Saya</button>\n  <script>\n    function showAlert() {\n      alert('Halo!');\n    }\n  <\/script>\n</body>\n</html>`,
+                codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n  <style>\n    section { height: 100vh; padding: 20px; }\n    nav { position: fixed; top: 0; background: #fff; width: 100%; padding: 10px; border-bottom: 1px solid #ccc; }\n  </style>\n</head>\n<body style="margin: 0;">\n  <nav>\n    <a href="#home">Home</a> |\n    <a href="#about">About</a>\n  </nav>\n  \n  <section id="home" style="background: #eef2ff; margin-top: 40px;">\n    <h1>Beranda</h1>\n    <p>Selamat datang di halaman ini.</p>\n  </section>\n  \n  <section id="about" style="background: #fdf4ff;">\n    <h1>Tentang</h1>\n    <button onclick="showAlert()">Klik Saya</button>\n  </section>\n\n  <script>\n    function showAlert() { alert('Halo dari About!'); }\n  <\/script>\n</body>\n</html>`,
                 chatHistory: [{role: 'ai', content: 'Halo! Saya AI Editor. Minta saya mengubah bagian mana saja di halaman ini!'}],
                 userInput: '',
                 isProcessing: false,
@@ -176,6 +178,7 @@
                 maxLoops: 10,
                 toastMsg: '',
                 previewError: null,
+                previewBlobUrl: null,
 
                 init() {
                     // Update preview otomatis ketika pindah tab ke Preview atau kode berubah
@@ -190,7 +193,7 @@
                     });
                 },
 
-                // SYSTEM PROMPT: Langsung To The Point (Aturan lama/full write ditiadakan)
+                // SYSTEM PROMPT LANGSUNG & TO THE POINT
                 get systemPrompt() {
                     return `Kamu adalah AI HTML Editor. Tugasmu HANYA mengubah bagian tertentu dari kode (Partial Update).
 Codebase saat ini:
@@ -221,7 +224,7 @@ CONTOH JAWABAN:
   <button onclick="showAlert()">Klik Saya</button>
 </element>
 <change>
-  <button onclick="showAlert()" class="bg-blue-500">Klik Saya</button>
+  <button onclick="showAlert()" class="bg-blue-500 text-white p-2 rounded">Klik Saya</button>
 </change>
 </find>
 </execution>`;
@@ -261,36 +264,54 @@ CONTOH JAWABAN:
                     const iframe = document.getElementById('preview-frame');
                     if (!iframe) return;
 
-                    // Inject pendeteksi error ke dalam iframe preview
+                    // Inject pendeteksi error & PENANGANAN NAVIGASI HASH
                     const errorCatcherScript = `
                         <script>
+                            // Tangkap error javascript
                             window.onerror = function(msg, src, lineno, colno, err) {
                                 window.parent.postMessage({ type: 'PREVIEW_ERROR', error: msg + ' (Line: ' + lineno + ')' }, '*');
                                 return true; 
                             };
+
+                            // Cegah navigasi URL asli iframe untuk hash links (#) agar tidak error/reload
+                            document.addEventListener('click', function(e) {
+                                const link = e.target.closest('a');
+                                if (link) {
+                                    const href = link.getAttribute('href');
+                                    // Jika link berupa anchor hash
+                                    if (href && href.startsWith('#')) {
+                                        e.preventDefault(); 
+                                        const targetId = href.substring(1);
+                                        if (targetId) {
+                                            const el = document.getElementById(targetId);
+                                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                    } else if (href && !href.startsWith('javascript:')) {
+                                        // Paksa eksternal link terbuka di tab baru agar tidak merusak iframe
+                                        link.target = '_blank';
+                                    }
+                                }
+                            });
                         <\/script>
                     `;
 
                     let htmlContent = this.codeBase;
-                    if (htmlContent.includes('<head>')) {
-                        htmlContent = htmlContent.replace('<head>', '<head>' + errorCatcherScript);
+                    // Sisipkan script ke dalam <head> secara case-insensitive
+                    if (/<head>/i.test(htmlContent)) {
+                        htmlContent = htmlContent.replace(/<head>/i, '<head>\n' + errorCatcherScript);
                     } else {
                         htmlContent = errorCatcherScript + htmlContent;
                     }
 
-                    // Gunakan createObjectURL agar navigasi hash (#section) tidak error
+                    // Gunakan Blob URL daripada srcdoc agar lebih stabil di semua browser
+                    if (this.previewBlobUrl) {
+                        URL.revokeObjectURL(this.previewBlobUrl); // Bersihkan memory URL lama
+                    }
+                    
                     const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-
-                    // Cabut URL lama setelah iframe selesai load untuk hindari memory leak
-                    iframe.onload = () => {
-                        if (iframe._blobUrl && iframe._blobUrl !== url) {
-                            URL.revokeObjectURL(iframe._blobUrl);
-                        }
-                        iframe._blobUrl = url;
-                    };
-
-                    iframe.src = url;
+                    this.previewBlobUrl = URL.createObjectURL(blob);
+                    
+                    iframe.src = this.previewBlobUrl;
                 },
 
                 sendErrorToAI() {
@@ -334,7 +355,6 @@ CONTOH JAWABAN:
                     try {
                         let finalPrompt = `${this.systemPrompt}\n\nInstruksi User: ${userInstruction}`;
                         
-                        // Sisipkan Feedback ke AI jika sebelumnya AI salah format atau salah mencari elemen
                         if (errorFeedback) {
                             finalPrompt += `\n\n[ERROR PADA JAWABANMU SEBELUMNYA]:\n${errorFeedback}\nPerbaiki elemen <find> kamu. Teks <element> WAJIB identik dengan Codebase. Tidak boleh Full Rewrite!`;
                         }
@@ -354,7 +374,7 @@ CONTOH JAWABAN:
                     } catch (error) {
                         console.warn(`[Self-Healing Loop ${this.loopCount + 1}]`, error.message);
                         this.loopCount++;
-                        await this.runAILoop(userInstruction, error.message); // Ulangi ke AI beserta pesan errornya
+                        await this.runAILoop(userInstruction, error.message);
                     }
                 },
 
@@ -386,7 +406,6 @@ CONTOH JAWABAN:
                         const oldCodeTrimmed = oldCode.trim();
                         const newCode = changeMatch[1];
 
-                        // Proses Replace (Pencarian Teks Persis Identik)
                         if (tempCodeBase.includes(oldCode)) {
                             tempCodeBase = tempCodeBase.replace(oldCode, newCode);
                             successCount++;
@@ -394,11 +413,10 @@ CONTOH JAWABAN:
                             tempCodeBase = tempCodeBase.replace(oldCodeTrimmed, newCode.trim());
                             successCount++;
                         } else {
-                            throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK ADA di Codebase. Salin teks persis! Jangan memotong baris sembarangan.`);
+                            throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK ADA di Codebase. Salin teks persis!`);
                         }
                     }
 
-                    // Terapkan semua perubahan ke Codebase utama jika valid semua
                     this.codeBase = tempCodeBase;
                     this.chatHistory.push({ 
                         role: 'ai', 
