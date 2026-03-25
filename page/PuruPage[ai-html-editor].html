@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                <!-- Chat Input (Sekarang memakai flex-shrink-0, tidak lagi absolute bottom-0) -->
+                <!-- Chat Input -->
                 <div class="flex-shrink-0 bg-white border-t p-3 flex gap-2 items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
                     <input type="text" x-model="userInput" @keydown.enter="sendPrompt" :disabled="isProcessing"
                            placeholder="Minta AI ubah kode..." 
@@ -126,7 +126,7 @@
 
         </main>
 
-        <!-- Bottom Navigation (Ditambahkan pb-[env(safe-area-inset-bottom)] untuk iOS safe area) -->
+        <!-- Bottom Navigation -->
         <nav class="flex-shrink-0 bg-white border-t flex justify-between text-gray-500 text-xs pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20 px-2">
             <button @click="tab = 'chat'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition"
                     :class="tab === 'chat' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'">
@@ -184,11 +184,9 @@
                 previewError: null,
 
                 init() {
-                    // Update preview otomatis ketika pindah tab ke Preview atau kode berubah
                     this.$watch('tab', (val) => { if (val === 'preview') this.updatePreview(); });
                     this.$watch('codeBase', () => { if (this.tab === 'preview') this.updatePreview(); });
 
-                    // Tangkap pesan Error dari iFrame
                     window.addEventListener('message', (event) => {
                         if (event.data && event.data.type === 'PREVIEW_ERROR') {
                             this.previewError = event.data.error;
@@ -219,14 +217,6 @@ CONTOH JAWABAN:
 </element>
 <change>
   <h1>Dunia Baru!</h1>
-</change>
-</find>
-<find>
-<element>
-  <button onclick="showAlert()">Klik Saya</button>
-</element>
-<change>
-  <button onclick="showAlert()" class="bg-blue-500">Klik Saya</button>
 </change>
 </find>
 </execution>`;
@@ -283,7 +273,6 @@ CONTOH JAWABAN:
                     const iframe = document.getElementById('preview-frame');
                     if (!iframe) return;
 
-                    // Inject pendeteksi error ke dalam iframe preview
                     const errorCatcherScript = `
                         <script>
                             window.onerror = function(msg, src, lineno, colno, err) {
@@ -334,7 +323,7 @@ CONTOH JAWABAN:
                     if (this.loopCount >= this.maxLoops) {
                         this.chatHistory.push({ 
                             role: 'ai', 
-                            content: 'Gagal merubah kode setelah 10x loop perbaikan. Potongan kode yang dicari tidak cocok dengan Codebase.' 
+                            content: 'Gagal merubah kode setelah 10x loop perbaikan. AI terus menerus gagal mencocokkan kode dengan Codebase. Coba beri instruksi yang lebih jelas.' 
                         });
                         this.isProcessing = false;
                         this.scrollToBottom();
@@ -344,9 +333,8 @@ CONTOH JAWABAN:
                     try {
                         let finalPrompt = `${this.systemPrompt}\n\nInstruksi User: ${userInstruction}`;
                         
-                        // Sisipkan Feedback ke AI jika sebelumnya AI salah format atau salah mencari elemen
                         if (errorFeedback) {
-                            finalPrompt += `\n\n[ERROR PADA JAWABANMU SEBELUMNYA]:\n${errorFeedback}\nPerbaiki elemen <find> kamu. Teks <element> WAJIB identik dengan Codebase. Tidak boleh Full Rewrite!`;
+                            finalPrompt += `\n\n[ERROR PADA JAWABANMU SEBELUMNYA]:\n${errorFeedback}\nPerbaiki pencarian teksmu. Jika kau kesulitan, setidaknya salin elemen persis seperti aslinya.`;
                         }
 
                         const response = await fetch("https://puruboy-api.vercel.app/api/ai/gemini-v2", {
@@ -364,7 +352,7 @@ CONTOH JAWABAN:
                     } catch (error) {
                         console.warn(`[Self-Healing Loop ${this.loopCount + 1}]`, error.message);
                         this.loopCount++;
-                        await this.runAILoop(userInstruction, error.message); // Ulangi ke AI beserta pesan errornya
+                        await this.runAILoop(userInstruction, error.message);
                     }
                 },
 
@@ -381,6 +369,7 @@ CONTOH JAWABAN:
 
                     let tempCodeBase = this.codeBase;
                     let successCount = 0;
+                    let isFuzzyUsed = false;
 
                     for (let i = 0; i < findBlocks.length; i++) {
                         const block = findBlocks[i][1];
@@ -396,34 +385,131 @@ CONTOH JAWABAN:
                         const oldCodeTrimmed = oldCode.trim();
                         let newCode = changeMatch[1];
                         
-                        // Normalisasi entitas HTML (Unescape) jika AI tidak sengaja menyisipkannya
                         newCode = newCode.replace(/&amp;/g, '&')
                                          .replace(/&lt;/g, '<')
                                          .replace(/&gt;/g, '>')
                                          .replace(/&quot;/g, '"')
                                          .replace(/&#39;/g, "'");
 
-                        // Proses Replace (Pencarian Teks Persis Identik)
+                        // Tahap 1: Persis & Identik
                         if (tempCodeBase.includes(oldCode)) {
                             tempCodeBase = tempCodeBase.replace(oldCode, newCode);
                             successCount++;
-                        } else if (tempCodeBase.includes(oldCodeTrimmed) && oldCodeTrimmed !== '') {
+                        } 
+                        // Tahap 2: Trim
+                        else if (tempCodeBase.includes(oldCodeTrimmed) && oldCodeTrimmed !== '') {
                             tempCodeBase = tempCodeBase.replace(oldCodeTrimmed, newCode.trim());
                             successCount++;
-                        } else {
-                            throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK ADA di Codebase. Salin teks persis! Jangan memotong baris sembarangan.`);
+                        } 
+                        // Tahap 3: Similarity Fallback (Regex Agnostik & Levenshtein)
+                        else {
+                            const fuzzy = this.fuzzyReplace(tempCodeBase, oldCode, newCode);
+                            if (fuzzy.success) {
+                                tempCodeBase = fuzzy.result;
+                                successCount++;
+                                isFuzzyUsed = true;
+                            } else {
+                                throw new Error(`Isi dari <element> pada <find> ke-${i+1}:\n${oldCode}\n\nTIDAK DITEMUKAN di codebase meskipun fitur Similarity Fallback sudah aktif. Salin teks dengan lebih teliti!`);
+                            }
                         }
                     }
 
-                    // Terapkan semua perubahan ke Codebase utama jika valid semua
                     this.codeBase = tempCodeBase;
                     this.chatHistory.push({ 
                         role: 'ai', 
                         content: respondText, 
-                        action: `Diperbarui (${successCount} bagian)` 
+                        // Menambahkan badge ✨ Auto-Fix jika AI salah memberikan format tetapi diselamatkan oleh sistem kemiripan
+                        action: `Diperbarui (${successCount} bagian) ${isFuzzyUsed ? ' ✨ Auto-Fix' : ''}` 
                     });
                     this.scrollToBottom();
+                },
+
+                // ----------------------------------------------------------------------
+                // ALGORITMA SIMILARITY FALLBACK
+                // ----------------------------------------------------------------------
+                fuzzyReplace(source, search, replacement) {
+                    const searchTrimmed = search.trim();
+                    if (!searchTrimmed) return { success: false, result: source };
+
+                    // Level 1: Whitespace Agnostic Regex 
+                    // Mengabaikan spasi berlebih, baris baru, atau perbedaan tab (Menangani 90% AI Hallucination Formatting)
+                    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const flexibleRegexStr = escapeRegExp(searchTrimmed).replace(/\s+/g, '\\s+');
+                    
+                    try {
+                        const regex = new RegExp(flexibleRegexStr);
+                        if (regex.test(source)) {
+                            return { success: true, result: source.replace(regex, replacement.trim()) };
+                        }
+                    } catch(e) { console.warn("Regex fallback dilewati", e); }
+
+                    // Level 2: Algoritma Sliding Window + Levenshtein Distance
+                    // Akan memindai baris demi baris, ditutup demi performa jika request sangat panjang (>3000 chars)
+                    if (searchTrimmed.length > 3000) return { success: false, result: source };
+
+                    const sourceLines = source.split('\n');
+                    const searchLines = searchTrimmed.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    if (searchLines.length === 0) return { success: false, result: source };
+
+                    let bestMatch = { index: -1, score: 0, length: 0 };
+                    const searchStr = searchLines.join('');
+                    
+                    // Kita cari ukuran blok di dalam original code yang mirip panjangnya dengan AI request
+                    const windowSizes = [searchLines.length - 1, searchLines.length, searchLines.length + 1].filter(s => s > 0);
+                    
+                    for (let i = 0; i < sourceLines.length; i++) {
+                        for(let wSize of windowSizes) {
+                            if (i + wSize > sourceLines.length) continue;
+                            
+                            const windowLines = sourceLines.slice(i, i + wSize);
+                            const windowStr = windowLines.map(l => l.trim()).join('');
+                            
+                            // Hindari perbandingan jika panjangnya terlalu berbeda jauh (Meningkatkan Performa)
+                            if (Math.abs(windowStr.length - searchStr.length) > searchStr.length * 0.5) continue;
+
+                            let score = this.calculateSimilarity(windowStr, searchStr);
+                            if (score > bestMatch.score) {
+                                bestMatch = { index: i, score: score, length: wSize };
+                            }
+                        }
+                    }
+
+                    // Ambang batas kemiripan (Toleransi 70%)
+                    if (bestMatch.score > 0.70) {
+                        sourceLines.splice(bestMatch.index, bestMatch.length, replacement);
+                        return { success: true, result: sourceLines.join('\n') };
+                    }
+
+                    return { success: false, result: source };
+                },
+
+                calculateSimilarity(s1, s2) {
+                    let longer = s1.length > s2.length ? s1 : s2;
+                    let shorter = s1.length > s2.length ? s2 : s1;
+                    if (longer.length == 0) return 1.0;
+                    return (longer.length - this.levenshteinDistance(longer, shorter)) / parseFloat(longer.length);
+                },
+
+                levenshteinDistance(a, b) {
+                    const matrix = [];
+                    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+                    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+                    for (let i = 1; i <= b.length; i++) {
+                        for (let j = 1; j <= a.length; j++) {
+                            if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                                matrix[i][j] = matrix[i - 1][j - 1];
+                            } else {
+                                matrix[i][j] = Math.min(
+                                    matrix[i - 1][j - 1] + 1, // Substitusi
+                                    Math.min(matrix[i][j - 1] + 1, // Penambahan
+                                    matrix[i - 1][j] + 1) // Penghapusan
+                                );
+                            }
+                        }
+                    }
+                    return matrix[b.length][a.length];
                 }
+
             }));
         });
     </script>
