@@ -1,5 +1,171 @@
-<!-- META {"title":"Ai html editor","desc":"V1","date":"2026-03-25T07:46:17.741Z"} -->
-<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AI HTML Editor</title><script src="https://cdn.tailwindcss.com"></script><script defer="defer" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:0 0}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}iframe{border:none;width:100%;height:100%}</style></head><body class="bg-gray-100 flex justify-center h-screen overflow-hidden text-gray-800"><div x-data="aiEditor()" class="w-full max-w-md h-full bg-white shadow-2xl relative flex flex-col"><header class="bg-indigo-600 text-white p-4 flex justify-between items-center shadow-md z-10"><h1 class="text-lg font-bold flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i>AI Editor</h1><div><label class="cursor-pointer bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium shadow"><i class="fa-solid fa-file-upload"></i>Upload <input type="file" accept=".html" class="hidden" @change="uploadFile"></label></div></header><main class="flex-1 overflow-hidden relative bg-gray-50"><div x-show="tab === 'chat'" class="h-full flex flex-col relative" x-transition.opacity><div class="flex-1 overflow-y-auto p-4 space-y-4 pb-20" id="chat-container"><template x-for="(msg, index) in chatHistory" :key="index"><div class="flex flex-col" :class="msg.role === 'user' ? 'items-end' : 'items-start'"><span class="text-[10px] text-gray-400 mb-1 font-semibold uppercase tracking-wider" x-text="msg.role === 'user' ? 'Kamu' : 'AI'"></span><div class="max-w-[85%] p-3 rounded-2xl shadow-sm text-sm" :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : (msg.isErrorPrompt ? 'bg-red-50 text-red-800 border border-red-200 rounded-tr-none' : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none')"><p class="whitespace-pre-wrap leading-relaxed" x-text="msg.content"></p><template x-if="msg.action"><div class="mt-2 pt-2 border-t border-gray-100/30 flex items-center gap-1"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 bg-emerald-100 text-emerald-700"><i class="fa-solid fa-pen-to-square"></i><span x-text="msg.action"></span></span></div></template></div></div></template><div x-show="isProcessing" class="flex items-start"><div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i><span class="text-sm text-gray-600">AI sedang bekerja...<span x-show="loopCount > 0" class="text-xs font-bold text-red-500 ml-1">(Self-Healing:<span x-text="loopCount"></span>/10)</span></span></div></div></div><div class="absolute bottom-0 left-0 w-full bg-white border-t p-3 flex gap-2 items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]"><input type="text" x-model="userInput" @keydown.enter="sendPrompt" :disabled="isProcessing" placeholder="Minta AI ubah kode..." class="flex-1 bg-gray-100 text-sm rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition"><button @click="sendPrompt" :disabled="isProcessing || !userInput.trim()" class="bg-indigo-600 text-white h-10 w-10 rounded-full flex justify-center items-center shadow-md disabled:bg-gray-400 transition transform active:scale-95"><i class="fa-solid fa-paper-plane"></i></button></div></div><div x-show="tab === 'code'" class="h-full flex flex-col" x-transition.opacity style="display:none"><div class="bg-[#2d2d2d] text-gray-300 text-xs px-4 py-2 flex justify-between items-center border-b border-black"><span class="font-mono flex items-center gap-2"><i class="fa-brands fa-html5 text-orange-500 text-sm"></i>index.html</span><button @click="copyCode" class="hover:text-white transition flex items-center gap-1"><i class="fa-regular fa-copy"></i>Salin</button></div><textarea x-model="codeBase" spellcheck="false" class="flex-1 w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono p-4 text-sm outline-none resize-none leading-relaxed" placeholder="<!-- Tulis atau tempel kode HTML di sini -->"></textarea></div><div x-show="tab === 'preview'" class="h-full flex flex-col bg-white" x-transition.opacity style="display:none"><div class="bg-gray-200 text-gray-700 text-xs px-4 py-2 flex justify-between items-center border-b border-gray-300"><span class="font-semibold flex items-center gap-2"><i class="fa-solid fa-eye text-indigo-500"></i>Hasil Render</span><button @click="updatePreview" class="hover:text-indigo-600 transition flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i>Refresh</button></div><iframe id="preview-frame"></iframe></div></main><nav class="bg-white border-t flex justify-between text-gray-500 text-xs pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20 px-2"><button @click="tab = 'chat'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition" :class="tab === 'chat' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'"><i class="fa-solid fa-message text-lg"></i>Chat</button><button @click="tab = 'code'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition" :class="tab === 'code' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'"><i class="fa-solid fa-code text-lg"></i>Code</button><button @click="tab = 'preview'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition" :class="tab === 'preview' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'"><i class="fa-solid fa-play text-lg"></i>Preview</button></nav><div x-show="toastMsg" x-transition.duration.300ms class="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm shadow-xl z-50 whitespace-nowrap"><i class="fa-solid fa-circle-check text-green-400 mr-1"></i><span x-text="toastMsg"></span></div><div x-show="previewError" class="absolute inset-0 bg-black/60 z-50 flex justify-center items-center p-4" x-transition.opacity style="display:none"><div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl flex flex-col gap-3"><div class="flex items-center gap-3 text-red-600"><div class="bg-red-100 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div><h2 class="font-bold text-lg">Error Terdeteksi!</h2></div><div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200"><span x-text="previewError"></span></div><p class="text-xs text-gray-500">Kirim error ini ke AI agar diperbaiki otomatis?</p><div class="flex gap-2 mt-2"><button @click="previewError = null" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Abaikan</button><button @click="sendErrorToAI" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-robot"></i>Send ke AI</button></div></div></div></div><script>document.addEventListener('alpine:init', () => {
+<!-- META {"title":"Ai html editor","desc":"V2","date":"2026-03-25T07:54:50.486Z"} -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI HTML Editor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        iframe { border: none; width: 100%; height: 100%; }
+    </style>
+</head>
+<body class="bg-gray-100 flex justify-center h-screen overflow-hidden text-gray-800">
+
+    <!-- Mobile App Container -->
+    <div x-data="aiEditor()" class="w-full max-w-md h-full bg-white shadow-2xl relative flex flex-col">
+        
+        <!-- Header -->
+        <header class="bg-indigo-600 text-white p-4 flex justify-between items-center shadow-md z-10">
+            <h1 class="text-lg font-bold flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Editor
+            </h1>
+            <div>
+                <label class="cursor-pointer bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium shadow">
+                    <i class="fa-solid fa-file-upload"></i> Upload
+                    <input type="file" accept=".html" class="hidden" @change="uploadFile">
+                </label>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-hidden relative bg-gray-50">
+            
+            <!-- CHAT PAGE -->
+            <div x-show="tab === 'chat'" class="h-full flex flex-col relative" x-transition.opacity>
+                <!-- Chat Messages -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-20" id="chat-container">
+                    <template x-for="(msg, index) in chatHistory" :key="index">
+                        <div class="flex flex-col" :class="msg.role === 'user' ? 'items-end' : 'items-start'">
+                            <span class="text-[10px] text-gray-400 mb-1 font-semibold uppercase tracking-wider" 
+                                  x-text="msg.role === 'user' ? 'Kamu' : 'AI'"></span>
+                            
+                            <div class="max-w-[85%] p-3 rounded-2xl shadow-sm text-sm"
+                                 :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : (msg.isErrorPrompt ? 'bg-red-50 text-red-800 border border-red-200 rounded-tr-none' : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none')">
+                                
+                                <p class="whitespace-pre-wrap leading-relaxed" x-text="msg.content"></p>
+                                
+                                <!-- Feedback Indicator / Badge -->
+                                <template x-if="msg.action">
+                                    <div class="mt-2 pt-2 border-t border-gray-100/30 flex items-center gap-1">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1 bg-emerald-100 text-emerald-700">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                            <span x-text="msg.action"></span>
+                                        </span>
+                                    </div>
+                                </template>
+
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Loading / Loop Indicator -->
+                    <div x-show="isProcessing" class="flex items-start">
+                        <div class="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i>
+                            <span class="text-sm text-gray-600">
+                                AI sedang bekerja... 
+                                <span x-show="loopCount > 0" class="text-xs font-bold text-red-500 ml-1">
+                                    (Self-Healing: <span x-text="loopCount"></span>/10)
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="absolute bottom-0 left-0 w-full bg-white border-t p-3 flex gap-2 items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                    <input type="text" x-model="userInput" @keydown.enter="sendPrompt" :disabled="isProcessing"
+                           placeholder="Minta AI ubah kode..." 
+                           class="flex-1 bg-gray-100 text-sm rounded-full px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 transition">
+                    <button @click="sendPrompt" :disabled="isProcessing || !userInput.trim()"
+                            class="bg-indigo-600 text-white h-10 w-10 rounded-full flex justify-center items-center shadow-md disabled:bg-gray-400 transition transform active:scale-95">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CODE PAGE -->
+            <div x-show="tab === 'code'" class="h-full flex flex-col" x-transition.opacity style="display: none;">
+                <div class="bg-[#2d2d2d] text-gray-300 text-xs px-4 py-2 flex justify-between items-center border-b border-black">
+                    <span class="font-mono flex items-center gap-2"><i class="fa-brands fa-html5 text-orange-500 text-sm"></i> index.html</span>
+                    <button @click="copyCode" class="hover:text-white transition flex items-center gap-1">
+                        <i class="fa-regular fa-copy"></i> Salin
+                    </button>
+                </div>
+                <textarea x-model="codeBase" spellcheck="false"
+                          class="flex-1 w-full bg-[#1e1e1e] text-[#d4d4d4] font-mono p-4 text-sm outline-none resize-none leading-relaxed"
+                          placeholder="<!-- Tulis atau tempel kode HTML di sini -->"></textarea>
+            </div>
+
+            <!-- PREVIEW PAGE -->
+            <div x-show="tab === 'preview'" class="h-full flex flex-col bg-white" x-transition.opacity style="display: none;">
+                <div class="bg-gray-200 text-gray-700 text-xs px-4 py-2 flex justify-between items-center border-b border-gray-300">
+                    <span class="font-semibold flex items-center gap-2"><i class="fa-solid fa-eye text-indigo-500"></i> Hasil Render</span>
+                    <button @click="updatePreview" class="hover:text-indigo-600 transition flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right"></i> Refresh
+                    </button>
+                </div>
+                <!-- Iframe for preview -->
+                <iframe id="preview-frame"></iframe>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bg-white border-t flex justify-between text-gray-500 text-xs pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20 px-2">
+            <button @click="tab = 'chat'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition"
+                    :class="tab === 'chat' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'">
+                <i class="fa-solid fa-message text-lg"></i> Chat
+            </button>
+            <button @click="tab = 'code'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition"
+                    :class="tab === 'code' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'">
+                <i class="fa-solid fa-code text-lg"></i> Code
+            </button>
+            <button @click="tab = 'preview'" class="flex-1 py-3 flex flex-col items-center gap-1.5 transition"
+                    :class="tab === 'preview' ? 'text-indigo-600 font-bold' : 'hover:text-indigo-400'">
+                <i class="fa-solid fa-play text-lg"></i> Preview
+            </button>
+        </nav>
+
+        <!-- Toast Notification -->
+        <div x-show="toastMsg" x-transition.duration.300ms class="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm shadow-xl z-50 whitespace-nowrap">
+            <i class="fa-solid fa-circle-check text-green-400 mr-1"></i>
+            <span x-text="toastMsg"></span>
+        </div>
+
+        <!-- Popup Error Modal -->
+        <div x-show="previewError" class="absolute inset-0 bg-black/60 z-50 flex justify-center items-center p-4" x-transition.opacity style="display: none;">
+            <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl flex flex-col gap-3">
+                <div class="flex items-center gap-3 text-red-600">
+                    <div class="bg-red-100 p-2 rounded-full"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
+                    <h2 class="font-bold text-lg">Error Terdeteksi!</h2>
+                </div>
+                <div class="bg-gray-100 p-3 rounded-lg text-xs font-mono text-gray-700 whitespace-pre-wrap border border-gray-200">
+                    <span x-text="previewError"></span>
+                </div>
+                <p class="text-xs text-gray-500">Kirim error ini ke AI agar diperbaiki otomatis?</p>
+                <div class="flex gap-2 mt-2">
+                    <button @click="previewError = null" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-semibold hover:bg-gray-300">Abaikan</button>
+                    <button @click="sendErrorToAI" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-md flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-robot"></i> Send ke AI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
             Alpine.data('aiEditor', () => ({
                 tab: 'chat',
                 codeBase: `<!DOCTYPE html>\n<html>\n<head>\n  <title>Halo Dunia</title>\n</head>\n<body>\n  <h1>Halo Dunia!</h1>\n  <button onclick="showAlert()">Klik Saya</button>\n  <script>\n    function showAlert() {\n      alert('Halo!');\n    }\n  <\/script>\n</body>\n</html>`,
@@ -112,7 +278,19 @@ CONTOH JAWABAN:
                         htmlContent = errorCatcherScript + htmlContent;
                     }
 
-                    iframe.srcdoc = htmlContent;
+                    // Gunakan createObjectURL agar navigasi hash (#section) tidak error
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+
+                    // Cabut URL lama setelah iframe selesai load untuk hindari memory leak
+                    iframe.onload = () => {
+                        if (iframe._blobUrl && iframe._blobUrl !== url) {
+                            URL.revokeObjectURL(iframe._blobUrl);
+                        }
+                        iframe._blobUrl = url;
+                    };
+
+                    iframe.src = url;
                 },
 
                 sendErrorToAI() {
@@ -230,4 +408,7 @@ CONTOH JAWABAN:
                     this.scrollToBottom();
                 }
             }));
-        });</script></body></html>
+        });
+    </script>
+</body>
+</html>
