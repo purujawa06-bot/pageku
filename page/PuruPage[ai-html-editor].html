@@ -29,7 +29,10 @@
             <h1 class="text-lg font-bold flex items-center gap-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> AI Editor
             </h1>
-            <div>
+            <div class="flex gap-2">
+                <button @click="downloadCode" class="bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium shadow">
+                    <i class="fa-solid fa-file-download"></i> Simpan
+                </button>
                 <label class="cursor-pointer bg-indigo-500 hover:bg-indigo-400 p-2 rounded text-sm transition font-medium shadow">
                     <i class="fa-solid fa-file-upload"></i> Upload
                     <input type="file" accept=".html" class="hidden" @change="uploadFile">
@@ -259,6 +262,23 @@ CONTOH JAWABAN:
                     this.showToast('Kode berhasil disalin!');
                 },
 
+                downloadCode() {
+                    try {
+                        const blob = new Blob([this.codeBase], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'index.html';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        this.showToast('File berhasil diunduh!');
+                    } catch (err) {
+                        this.showToast('Gagal mengunduh file');
+                    }
+                },
+
                 updatePreview() {
                     const iframe = document.getElementById('preview-frame');
                     if (!iframe) return;
@@ -374,7 +394,14 @@ CONTOH JAWABAN:
 
                         const oldCode = elementMatch[1];
                         const oldCodeTrimmed = oldCode.trim();
-                        const newCode = changeMatch[1];
+                        let newCode = changeMatch[1];
+                        
+                        // Normalisasi entitas HTML (Unescape) jika AI tidak sengaja menyisipkannya
+                        newCode = newCode.replace(/&amp;/g, '&')
+                                         .replace(/&lt;/g, '<')
+                                         .replace(/&gt;/g, '>')
+                                         .replace(/&quot;/g, '"')
+                                         .replace(/&#39;/g, "'");
 
                         // Proses Replace (Pencarian Teks Persis Identik)
                         if (tempCodeBase.includes(oldCode)) {
