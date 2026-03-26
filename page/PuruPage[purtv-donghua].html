@@ -1,638 +1,1016 @@
-<!-- META {"title":"PurTV Donghua","desc":"Fix error","date":"2026-03-25T23:41:43.819Z"} -->
-<!DOCTYPE html><html lang="id" x-data="puruTVApp()"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title x-text="title">PuruTV - Nonton Donghua Sub Indo</title><script src="https://cdn.tailwindcss.com"></script><script defer="defer" src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script><style>[x-cloak]{display:none!important}body{background-color:#0f1117;padding-bottom:80px;scroll-behavior:smooth}@media (min-width:768px){body{padding-bottom:20px}}.aspect-poster{aspect-ratio:2/3}.glass{background:rgba(22,25,34,.9);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}.grid-responsive{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}@media (min-width:640px){.grid-responsive{grid-template-columns:repeat(3,1fr)}}@media (min-width:1024px){.grid-responsive{grid-template-columns:repeat(5,1fr)}}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#3b82f6;border-radius:10px}.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.ai-modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}@media (min-width:768px){.ai-modal-overlay{align-items:center}}.ai-modal-panel{background:#161922;border:1px solid rgba(59,130,246,.25);border-radius:2rem 2rem 0 0;width:100%;max-width:780px;max-height:85vh;overflow-y:auto;padding:2rem;box-shadow:0 -20px 80px rgba(59,130,246,.15);animation:slideUp .35s cubic-bezier(.16,1,.3,1)}@media (min-width:768px){.ai-modal-panel{border-radius:2rem;max-height:80vh;margin:1rem}}@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}.ai-btn-ring{position:relative}.ai-btn-ring::before{content:'';position:absolute;inset:-3px;border-radius:inherit;background:linear-gradient(135deg,#6366f1,#3b82f6,#06b6d4);z-index:-1;animation:rotateBorder 3s linear infinite;border-radius:1rem}@keyframes rotateBorder{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}.md-content{color:#d1d5db;line-height:1.75;font-size:.9rem}.md-content h1,.md-content h2,.md-content h3,.md-content h4{font-weight:900;color:#f9fafb;margin:1.25rem 0 .5rem}.md-content h3{font-size:1rem;color:#60a5fa;text-transform:uppercase;letter-spacing:.05em}.md-content h2{font-size:1.1rem}.md-content p{margin-bottom:.75rem}.md-content strong{color:#e2e8f0;font-weight:800}.md-content em{color:#a5b4fc;font-style:italic}.md-content ol,.md-content ul{padding-left:1.25rem;margin-bottom:.75rem}.md-content li{margin-bottom:.35rem}.md-content hr{border-color:#374151;margin:1rem 0}.md-content code{background:#1f232d;color:#60a5fa;padding:.15rem .4rem;border-radius:.35rem;font-size:.8em}.md-content blockquote{border-left:3px solid #3b82f6;padding-left:1rem;color:#9ca3af;margin:.75rem 0}.dot-pulse span{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin:0 2px;animation:dotBounce 1.2s infinite ease-in-out}.dot-pulse span:nth-child(2){animation-delay:.15s}.dot-pulse span:nth-child(3){animation-delay:.3s}@keyframes dotBounce{0%,100%,60%{transform:translateY(0);opacity:.5}30%{transform:translateY(-8px);opacity:1}}.confirm-modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem}.confirm-modal-panel{background:#161922;border:1px solid rgba(239,68,68,.25);border-radius:1.5rem;width:100%;max-width:400px;padding:2rem;box-shadow:0 0 60px rgba(239,68,68,.15);animation:slideUp .25s cubic-bezier(.16,1,.3,1)}.trash-item-enter{animation:trashIn .3s ease}.trash-restore-glow{box-shadow:0 0 0 2px rgba(59,130,246,.5)}@keyframes trashIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}.wave-loader-container{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70vh;gap:1.5rem}.wave-text-wrapper{position:relative;font-size:3.5rem;font-weight:900;letter-spacing:-2px;color:rgba(31,35,45,0.8);text-transform:uppercase}.wave-text-wrapper::after{content:"PURUTV";position:absolute;left:0;top:0;width:100%;height:100%;color:#3b82f6;overflow:hidden;animation:waveFill 2.5s ease-in-out infinite;border-bottom:4px solid #3b82f6;filter:drop-shadow(0 0 10px rgba(59,130,246,0.5))}@keyframes waveFill{0%,100%{height:0%;filter:hue-rotate(0deg)}50%{height:100%;filter:hue-rotate(20deg)}}.wave-sub{font-size:10px;font-weight:900;color:#3b82f6;text-transform:uppercase;letter-spacing:0.4em;opacity:0.6;animation:pulse 1.5s infinite}</style></head><body class="text-gray-200 font-sans antialiased" :class="page === 'chat' ? '!pb-0' : ''"><header x-show="page !== 'chat'" class="hidden md:block bg-[#161922] border-b border-gray-800 sticky top-0 z-50"><div class="container mx-auto px-4 py-4 flex items-center justify-between"><div class="flex items-center space-x-2 cursor-pointer" @click="setHash('home')"><div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/20"><i class="fas fa-tv text-white"></i></div><span class="text-2xl font-black text-white tracking-tighter">Puru<span class="text-blue-500">TV</span></span></div><nav class="flex space-x-10 items-center font-bold text-sm uppercase tracking-widest"><a href="javascript:void(0)" @click="setHash('home')" class="transition" :class="page === 'home' ? 'text-blue-500' : 'hover:text-blue-400'">Home</a><a href="javascript:void(0)" @click="setHash('genres')" class="transition" :class="['genres', 'results'].includes(page) ? 'text-blue-500' : 'hover:text-blue-400'">Genre</a><a href="javascript:void(0)" @click="setHash('schedule')" class="transition" :class="page === 'schedule' ? 'text-blue-500' : 'hover:text-blue-400'">Jadwal</a><a href="javascript:void(0)" @click="setHash('chat')" class="transition flex items-center gap-1.5" :class="page === 'chat' ? 'text-blue-500' : 'hover:text-blue-400'"><i class="fas fa-robot text-xs"></i>Puru AI</a><a href="javascript:void(0)" @click="setHash('history')" class="transition flex items-center gap-1.5" :class="['history', 'trash'].includes(page) ? 'text-blue-500' : 'hover:text-blue-400'"><i class="fas fa-history text-xs"></i>History<span x-show="watchHistory.length > 0" class="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full leading-none" x-text="watchHistory.length"></span></a></nav><div class="flex items-center gap-3"><button @click="setHash('chat')" class="w-10 h-10 flex items-center justify-center bg-[#1f232d] border border-gray-700 rounded-xl text-blue-500 hover:text-blue-400 transition-all shadow-lg shadow-blue-500/10" title="Puru AI Chat"><i class="fas fa-robot"></i></button><div class="relative w-64" @click.away="showSuggestions = false">
-    <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchSuggestions()" @keyup.enter="startSearch()" @focus="suggestions.length > 0 && (showSuggestions = true)" placeholder="Cari donghua..." class="w-full bg-[#0f1117] border border-gray-700 rounded-xl py-2 px-4 pl-11 focus:outline-none focus:border-blue-500 text-sm transition">
-    <i class="fas fa-search absolute left-4 top-3 text-gray-500"></i>
-    <!-- Suggestions Dropdown -->
-    <div x-show="showSuggestions && suggestions.length > 0" x-transition x-cloak class="absolute top-full left-0 right-0 mt-2 bg-[#161922] border border-gray-800 rounded-xl overflow-hidden z-[60] shadow-2xl">
-        <template x-for="s in suggestions" :key="s">
-            <div @click="searchQuery = s; startSearch()" class="px-4 py-2.5 hover:bg-blue-600/10 cursor-pointer text-[11px] font-bold text-gray-400 hover:text-blue-400 border-b border-gray-800/50 last:border-0 transition-colors" x-text="s"></div>
-        </template>
-    </div>
-</div></div></div></header><div x-show="page !== 'chat'" class="md:hidden bg-[#161922] p-4 flex justify-between items-center sticky top-0 z-50 border-b border-gray-800"><span class="text-xl font-black text-white tracking-tighter" @click="setHash('home')">Puru<span class="text-blue-500">TV</span></span><div class="flex items-center gap-2"><button @click="setHash('chat')" class="text-blue-500 w-10 h-10 flex items-center justify-center bg-[#1f232d] rounded-full shadow-lg shadow-blue-500/10"><i class="fas fa-robot"></i></button><button @click="showSearch = !showSearch" class="text-gray-400 w-10 h-10 flex items-center justify-center bg-[#1f232d] rounded-full"><i class="fas fa-search"></i></button></div></div><div x-show="showSearch" x-transition x-cloak class="md:hidden fixed top-[65px] left-0 right-0 z-50 p-4 bg-[#1f232d] border-b border-gray-800 shadow-2xl shadow-black/60" @click.away="showSuggestions = false">
-    <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchSuggestions()" @keyup.enter="startSearch(); showSearch=false" @keyup.escape="showSearch=false" placeholder="Ketik judul donghua..." class="w-full bg-[#0f1117] border border-gray-700 rounded-xl py-3 px-4 focus:border-blue-500 outline-none text-sm" x-ref="searchInput" x-effect="showSearch && $nextTick(() => $refs.searchInput.focus())">
-    <!-- Mobile Suggestions Dropdown -->
-    <div x-show="showSuggestions && suggestions.length > 0" class="mt-2 bg-[#161922] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-        <template x-for="s in suggestions" :key="s">
-            <div @click="searchQuery = s; startSearch(); showSearch=false" class="px-4 py-3 hover:bg-blue-600/10 cursor-pointer text-xs font-bold text-gray-400 hover:text-blue-400 border-b border-gray-800/50 last:border-0" x-text="s"></div>
-        </template>
-    </div>
-</div><main class="container mx-auto" :class="page === 'chat' ? 'px-0 py-0 !max-w-full' : 'px-4 py-8'"><div x-show="loading" x-cloak><div class="wave-loader-container"><div class="wave-text-wrapper">PuruTV</div><div class="wave-sub">Sedang Memuat Pengalaman Anda...</div></div></div><div x-show="!loading"><template x-if="page === 'home'"><div class="space-y-12"><div class="relative rounded-[2rem] overflow-hidden h-[300px] md:h-[450px] shadow-2xl group"><template x-if="homeData.featuredSlider && homeData.featuredSlider.length > 0"><div class="h-full relative"><img :src="homeData.featuredSlider[0].thumbnail" class="w-full h-full object-cover brightness-[0.4]"><div class="absolute inset-0 bg-gradient-to-t from-[#0f1117] via-transparent p-6 md:p-16 flex flex-col justify-end"><h2 class="text-3xl md:text-5xl font-black text-white mb-2" x-text="cleanTitle(homeData.featuredSlider[0].title)"></h2><p class="text-gray-400 text-sm md:text-base max-w-2xl line-clamp-2 mb-6" x-text="homeData.featuredSlider[0].description"></p><button @click="setHash('detail', homeData.featuredSlider[0].url)" class="w-max bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-black transition transform hover:scale-105 shadow-xl shadow-blue-600/30">DETAIL SERIES</button></div></div></template></div><section><div class="flex items-center space-x-3 mb-6"><i class="fas fa-fire text-orange-500 text-xl"></i><h3 class="text-xl font-black uppercase italic tracking-wider">Populer Hari Ini</h3></div><div class="grid grid-cols-2 md:grid-cols-5 gap-4"><template x-for="(item, idx) in (homeData.popularToday || [])" :key="'pop-'+idx"><div @click="setHash('stream', item.url)" class="relative group cursor-pointer overflow-hidden rounded-2xl"><img :src="item.thumbnail" class="w-full aspect-video object-cover group-hover:scale-110 transition duration-500 brightness-75 group-hover:brightness-100"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent flex flex-col justify-end p-3"><p class="text-[10px] font-bold text-blue-400 uppercase" x-text="item.episode"></p><h4 class="text-xs font-black line-clamp-1 text-white" x-text="cleanTitle(item.title)"></h4></div></div></template></div></section><div class="flex flex-col lg:flex-row gap-10"><div class="lg:w-3/4"><div class="flex items-center space-x-3 mb-8"><div class="h-6 w-1.5 bg-blue-600 rounded-full"></div><h3 class="text-xl font-black uppercase italic">Update Terbaru</h3></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"><template x-for="(item, idx) in (homeData.latestReleases || [])" :key="'lat-'+idx"><div @click="setHash('stream', item.url)" class="bg-[#161922] rounded-2xl overflow-hidden cursor-pointer group hover:ring-2 hover:ring-blue-600 transition-all duration-300"><div class="relative aspect-poster overflow-hidden"><img :src="item.thumbnail" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"><div class="absolute top-2 left-2 bg-blue-600 text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg" x-text="item.episode"></div><div class="absolute inset-0 bg-blue-900/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><i class="fas fa-play text-4xl text-white/80"></i></div></div><div class="p-3"><h4 class="text-xs font-bold line-clamp-2 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4></div></div></template></div></div><div class="lg:w-1/4"><div class="bg-[#161922] rounded-[2rem] p-6 border border-gray-800 sticky top-24"><h3 class="text-sm font-black uppercase mb-6 text-blue-500 tracking-widest border-b border-gray-800 pb-2">Series Ongoing</h3><div class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scroll"><template x-for="(item, idx) in (homeData.ongoingSidebar || [])" :key="'side-'+idx"><div @click="setHash('stream', item.url)" class="flex items-center space-x-3 group cursor-pointer border-b border-gray-800/50 pb-3 last:border-0"><div class="flex-1"><h4 class="text-[11px] font-bold line-clamp-1 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4><p class="text-[9px] text-gray-500 font-bold mt-1" x-text="item.episode"></p></div><i class="fas fa-chevron-right text-[10px] text-gray-700 group-hover:text-blue-500"></i></div></template></div></div></div></div><div x-show="samehadakuLoading" class="pt-8 space-y-12 animate-pulse-slow"><div class="space-y-6"><div class="skeleton h-6 w-48 rounded-lg"></div><div class="grid grid-cols-2 md:grid-cols-5 gap-6"><template x-for="i in 5" :key="i"><div class="space-y-3"><div class="skeleton aspect-poster rounded-2xl w-full"></div><div class="skeleton h-3 w-full rounded"></div></div></template></div></div><div class="space-y-6"><div class="skeleton h-6 w-48 rounded-lg"></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"><template x-for="i in 6" :key="i"><div class="space-y-3"><div class="skeleton aspect-poster rounded-2xl w-full"></div><div class="skeleton h-3 w-full rounded"></div></div></template></div></div></div><section x-show="!samehadakuLoading && samehadakuData.top10Weekly" class="pt-8 border-t border-gray-800/50"><div class="flex items-center justify-between mb-8"><div><h3 class="text-xl font-black uppercase italic tracking-wider flex items-center gap-3"><i class="fas fa-trophy text-yellow-500"></i>Top 10 Pekan Ini</h3><p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mt-1">Anime Terpopuler Samehadaku</p></div></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"><template x-for="(item, idx) in samehadakuData.top10Weekly" :key="item.url"><div @click="setHash('detail', item.url)" class="relative group cursor-pointer bg-[#161922] rounded-2xl overflow-hidden border border-gray-800 hover:border-yellow-500/50 transition-all duration-300"><div class="aspect-poster relative overflow-hidden"><img :src="item.thumbnail" class="w-full h-full object-cover group-hover:scale-110 transition duration-700"><div class="absolute top-0 left-0 bg-yellow-500 text-black font-black px-3 py-1 rounded-br-xl text-xs shadow-lg" x-text="'#' + item.rank"></div><div class="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded-lg text-[10px] font-black text-yellow-500 flex items-center gap-1"><i class="fas fa-star text-[8px]"></i><span x-text="item.rating"></span></div></div><div class="p-3"><h4 class="text-xs font-bold line-clamp-1 group-hover:text-yellow-500 transition" x-text="item.title"></h4></div></div></template></div></section><section x-show="!samehadakuLoading && samehadakuData && samehadakuData.latestUpdates" class="pt-8"><div class="flex items-center space-x-3 mb-8"><div class="h-6 w-1.5 bg-red-600 rounded-full"></div><h3 class="text-xl font-black uppercase italic">Update Anime</h3></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"><template x-for="(item, idx) in (samehadakuData.latestUpdates || [])" :key="'same-upd-'+idx"><div @click="setHash('detail', item.url)" class="bg-[#161922] rounded-2xl overflow-hidden cursor-pointer group hover:ring-2 hover:ring-red-600 transition-all duration-300 shadow-xl shadow-black/40"><div class="relative aspect-poster overflow-hidden"><img :src="item.thumbnail" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"><div class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-lg" x-text="'Episode ' + item.episode"></div><div class="absolute inset-0 bg-red-900/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><i class="fas fa-play text-3xl text-white/80"></i></div></div><div class="p-3 bg-[#1c202b]"><h4 class="text-[11px] font-bold line-clamp-2 group-hover:text-red-400 transition min-h-[32px]" x-text="item.title"></h4><p class="text-[9px] text-gray-500 mt-2 flex items-center gap-1.5 font-bold"><i class="far fa-clock text-[8px]"></i><span x-text="item.released"></span></p></div></div></template></div></section>
+<!-- META {"title":"PurTV Donghua","desc":"Lebih ringan PWA donghua only by anichin\n\nDi bangun menggunakan Alphine.js","date":"2026-03-26T17:37:48.897Z"} -->
+<!-- META {"title":"PurTV Donghua","desc":"Refactored - Modern & Compact","date":"2026-03-26T00:00:00.000Z"} -->
+<!DOCTYPE html>
+<html lang="id" x-data="puruTVApp()">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0f1117">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PurTV">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1038/1038100.png">
+<link rel="manifest" href='data:application/manifest+json,{"name":"PurTV Donghua","short_name":"PurTV","description":"Refactored - Modern & Compact","start_url":".","display":"standalone","background_color":"#0f1117","theme_color":"#3b82f6","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1038/1038100.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+<title x-text="title">PurTV - Nonton Donghua Sub Indo</title>
+<script>
+  /* Suppress Tailwind CSS CDN warning */
+  (function() {
+    const originalWarn = console.warn;
+    console.warn = (...args) => {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+      originalWarn(...args);
+    };
+  })();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+[x-cloak]{display:none!important}
+:root{--bg:#0f1117;--card:#161922;--card2:#1f232d;--blue:#3b82f6;--border:#1f2535}
+body{background:var(--bg);padding-bottom:80px;scroll-behavior:smooth}
+@media(min-width:768px){body{padding-bottom:20px}}
+.aspect-poster{aspect-ratio:2/3}
+.glass{background:rgba(22,25,34,.9);backdrop-filter:blur(15px)}
+.grid-r{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(min-width:640px){.grid-r{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.grid-r{grid-template-columns:repeat(5,1fr)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--blue);border-radius:10px}
+.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 
-<section x-show="!samehadakuLoading && samehadakuData && samehadakuData.projectMovies" class="pt-8 pb-12"><div class="flex items-center space-x-3 mb-8"><div class="h-6 w-1.5 bg-purple-600 rounded-full"></div><h3 class="text-xl font-black uppercase italic">Project & Movie</h3></div><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"><template x-for="(item, idx) in (samehadakuData.projectMovies || [])" :key="'same-mov-'+idx"><div @click="setHash('detail', item.url)" class="bg-[#161922] rounded-2xl overflow-hidden cursor-pointer group hover:ring-2 hover:ring-purple-600 transition-all duration-300 shadow-xl shadow-black/40"><div class="relative aspect-poster overflow-hidden"><img :src="item.thumbnail" class="w-full h-full object-cover group-hover:scale-110 transition duration-500"><div class="absolute top-2 left-2 bg-purple-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-lg">MOVIE</div><div class="absolute inset-0 bg-purple-900/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><i class="fas fa-film text-3xl text-white/80"></i></div></div><div class="p-3 bg-[#1c202b]"><h4 class="text-[11px] font-bold line-clamp-2 group-hover:text-purple-400 transition min-h-[32px]" x-text="item.title"></h4><p class="text-[9px] text-gray-500 mt-2 flex items-center gap-1.5 font-bold"><i class="fas fa-calendar-alt text-[8px]"></i><span x-text="item.release_date"></span></p></div></div></template></div></section></div></template><template x-if="page === 'genres'"><div class="max-w-4xl mx-auto"><h2 class="text-2xl font-black mb-10 text-center uppercase tracking-widest"><i class="fas fa-tags text-blue-500 mr-3"></i>Telusuri Genre</h2><div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"><template x-for="g in allGenres" :key="g.slug"><button @click="setHash('genre', g.slug)" class="bg-[#161922] hover:bg-blue-600 border border-gray-800 p-4 rounded-xl text-xs font-black transition" x-text="g.name"></button></template></div></div></template><template x-if="page === 'results'"><div><div class="flex items-center justify-between mb-8"><h2 class="text-xl font-black uppercase italic" x-text="searchTitle"></h2><div class="text-[10px] font-black text-gray-500 bg-[#161922] px-3 py-1 rounded-lg">Hal<span x-text="currentPage"></span></div></div><div x-show="listData.length === 0" class="flex flex-col items-center justify-center py-20 text-center"><div class="w-20 h-20 rounded-[2rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6 shadow-xl text-gray-700"><i class="fas fa-search text-3xl"></i></div><h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Hasil Tidak Ditemukan</h3><p class="text-[10px] text-gray-600 font-bold max-w-xs uppercase tracking-[0.2em] leading-loose">Maaf, kami tidak dapat menemukan apa yang kamu cari. Coba gunakan kata kunci lain.</p></div><div x-show="listData.length > 0" class="grid-responsive"><template x-for="(item, idx) in listData" :key="'res-'+idx"><div @click="setHash('detail', item.url)" class="bg-[#161922] rounded-2xl overflow-hidden cursor-pointer group hover:ring-2 hover:ring-blue-600 transition shadow-xl"><div class="relative aspect-poster"><img :src="item.thumbnail" class="w-full h-full object-cover"><div class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9px] font-black text-yellow-500 uppercase" x-text="item.type"></div></div><div class="p-3"><h4 class="text-xs font-bold line-clamp-2" x-text="cleanTitle(item.title)"></h4><div class="flex items-center justify-between mt-3"><span class="text-[9px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded font-black uppercase" x-text="item.status"></span><span class="text-[9px] text-blue-500 font-black" x-text="item.episode"></span></div></div></div></template></div><div x-show="listData.length > 0" class="mt-12 flex justify-center items-center space-x-3"><button @click="changePage(currentPage - 1)" :disabled="currentPage <= 1" class="p-4 bg-[#161922] rounded-xl disabled:opacity-20"><i class="fas fa-arrow-left"></i></button><div class="bg-blue-600 px-6 py-2 rounded-xl font-black text-xs uppercase">Halaman<span x-text="currentPage"></span></div><button @click="changePage(currentPage + 1)" :disabled="!hasNextPage" class="p-4 bg-[#161922] rounded-xl disabled:opacity-20"><i class="fas fa-arrow-right"></i></button></div></div></template><template x-if="page === 'detail'"><div class="max-w-6xl mx-auto"><div class="flex flex-col md:flex-row gap-8 lg:gap-14"><div class="w-full md:w-1/3 lg:w-1/4"><img :src="animeDetail.thumbnail" class="w-full rounded-[2.5rem] shadow-2xl ring-1 ring-gray-800"><div class="mt-6 bg-[#161922] p-6 rounded-[2rem] border border-gray-800 space-y-4"><div class="flex items-center justify-between"><span class="text-yellow-500 font-black text-xl"><i class="fas fa-star mr-2"></i><span x-text="animeDetail.rating"></span></span><span class="text-[10px] bg-blue-600 px-2 py-1 rounded font-black uppercase" x-text="animeDetail.metadata?.type || '-'"></span></div><div class="text-xs space-y-3 pt-4 border-t border-gray-800"><p><span class="text-gray-500 block">Status</span><strong x-text="animeDetail.metadata?.status || '-'"></strong></p><p><span class="text-gray-500 block">Studio</span><strong x-text="animeDetail.metadata?.studio || '-'"></strong></p><p><span class="text-gray-500 block">Update</span><strong x-text="animeDetail.metadata?.updated_on || '-'"></strong></p></div></div></div><div class="w-full md:w-2/3 lg:w-3/4"><h1 class="text-3xl md:text-5xl font-black mb-4 leading-tight" x-text="animeDetail.title"></h1><div class="flex flex-wrap gap-2 mb-8"><template x-for="genre in animeDetail.genres" :key="genre"><button @click="setHash('genre', genre.toLowerCase().replace(/\s+/g, '-'))" class="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all cursor-pointer shadow-sm hover:shadow-blue-500/20" x-text="genre"></button></template></div><div class="bg-[#161922] p-8 rounded-[2rem] border border-gray-800 mb-6"><h3 class="text-xs font-black uppercase text-blue-500 mb-3 tracking-widest">Sinopsis</h3><p class="text-gray-400 text-sm md:text-base leading-relaxed" x-text="animeDetail.synopsis"></p></div><div class="mb-10"><button @click="openAIPanel(animeDetail.title)" class="ai-btn-ring relative w-full flex items-center justify-center gap-3 bg-[#0f1117] hover:bg-[#1a1f2e] py-4 px-6 rounded-[1rem] font-black text-sm uppercase tracking-widest transition-all duration-300 hover:shadow-lg hover:shadow-blue-600/20 group"><span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform"><i class="fas fa-robot text-white text-xs"></i></span><span class="text-gray-200 group-hover:text-white" x-text="'Penjelasan AI tentang ' + currentType + ' ini'">Penjelasan AI tentang donghua ini</span><i class="fas fa-sparkles text-blue-400 text-xs ml-auto opacity-70 group-hover:opacity-100"></i></button></div><h3 class="text-lg font-black mb-6 uppercase italic"><i class="fas fa-list-ol text-blue-500 mr-3"></i>Daftar Episode</h3><div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2 max-h-[400px] overflow-y-auto pr-2"><template x-for="ep in animeDetail.episodeList" :key="ep.url"><div @click="setHash('stream', ep.url)" class="bg-[#1f232d] hover:bg-blue-600 p-3 rounded-lg text-center cursor-pointer transition text-[11px] font-black border border-gray-800"><span x-text="ep.episode || ep.episode_number"></span></div></template></div></div></div></div></template><template x-if="page === 'stream'"><div class="max-w-5xl mx-auto"><div class="mb-6"><h1 class="text-xl md:text-2xl font-black text-white" x-text="streamData.title"></h1><button @click="setHash('detail', streamData.series_url)" class="text-blue-500 text-xs font-bold hover:underline mt-1" x-text="streamData.series"></button></div><div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl mb-8 aspect-video ring-1 ring-gray-800"><iframe :src="activeServer" class="w-full h-full" allowfullscreen frameborder="0"></iframe></div><div class="flex flex-wrap gap-2 mb-10"><template x-for="(server, sIdx) in (streamData.streamingLinks || [])" :key="'srv-'+sIdx"><button @click="changeServer(server.link, server.server, server.isProxy)" class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all" :class="preferredServerHost === server.server ? 'bg-blue-600 text-white shadow-lg' : 'bg-[#161922] hover:bg-gray-700'" x-text="server.server"></button></template></div><div class="grid grid-cols-3 gap-4 bg-[#161922] p-4 rounded-2xl border border-gray-800 mb-10"><button @click="setHash('stream', streamData.navigation?.prevEpisode)" :disabled="!streamData.navigation?.prevEpisode" class="bg-[#0f1117] py-3 rounded-xl disabled:opacity-20 font-black text-[10px] uppercase tracking-widest transition">Prev</button><button @click="setHash('detail', streamData.navigation?.allEpisodes)" class="bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">List</button><button @click="setHash('stream', streamData.navigation?.nextEpisode)" :disabled="!streamData.navigation?.nextEpisode" class="bg-[#0f1117] py-3 rounded-xl disabled:opacity-20 font-black text-[10px] uppercase tracking-widest transition">Next</button></div><div class="bg-[#161922] rounded-[2rem] p-8 border border-gray-800 shadow-xl"><h3 class="text-sm font-black uppercase mb-6 flex items-center"><i class="fas fa-download text-blue-500 mr-3"></i>Link Download</h3><div class="space-y-6"><template x-for="(dl, dIdx) in (streamData.downloadLinks || [])" :key="'dlq-'+dIdx"><div class="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-800 pb-4 last:border-0"><div class="bg-blue-600/10 text-blue-500 px-4 py-1 rounded-lg text-xs font-black min-w-[80px] text-center" x-text="dl.quality"></div><div class="flex flex-wrap gap-2"><template x-for="(link, lIdx) in (dl.links || [])" :key="'dll-'+dIdx+'-'+lIdx"><a :href="link.link" target="_blank" class="bg-[#1f232d] hover:bg-blue-600 px-4 py-2 rounded-lg text-[10px] font-bold transition flex items-center"><i class="fas fa-external-link-alt mr-2 opacity-50"></i><span x-text="link.host"></span></a></template></div></div></template></div></div></div></template><template x-if="page === 'history'"><div class="max-w-3xl mx-auto"><div class="flex items-center justify-between mb-8 flex-wrap gap-3"><div class="flex items-center gap-3"><i class="fas fa-history text-blue-500 text-2xl"></i><div><h2 class="text-2xl font-black uppercase italic tracking-tight">Riwayat Nonton</h2><p class="text-gray-500 text-xs font-bold mt-0.5" x-text="watchHistory.length + ' dari 20 tersimpan'"></p></div></div><div class="flex items-center gap-2 flex-wrap"><a href="javascript:void(0)" @click="setHash('trash')" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-red-400 bg-[#161922] hover:bg-red-500/10 border border-gray-800 hover:border-red-500/30 px-4 py-2 rounded-xl transition relative"><i class="fas fa-trash-alt"></i>Sampah<span x-show="trashHistory.length > 0" class="bg-red-600 text-white text-[9px] px-1.5 rounded-full" x-text="trashHistory.length"></span></a><button @click="exportHistory()" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-green-400 bg-[#161922] hover:bg-green-500/10 border border-gray-800 hover:border-green-500/30 px-4 py-2 rounded-xl transition"><i class="fas fa-file-export"></i>Export</button><label class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-yellow-400 bg-[#161922] hover:bg-yellow-500/10 border border-gray-800 hover:border-yellow-500/30 px-4 py-2 rounded-xl transition cursor-pointer"><i class="fas fa-file-import"></i>Import<input type="file" accept=".json" class="hidden" @change="importHistory($event)"></label><button x-show="watchHistory.length > 0" @click="confirmClearHistory()" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-red-400 bg-[#161922] hover:bg-red-500/10 border border-gray-800 hover:border-red-500/30 px-4 py-2 rounded-xl transition"><i class="fas fa-trash-alt"></i>Bersihkan</button></div></div><div x-show="watchHistory.length === 0" class="flex flex-col items-center justify-center py-32 text-center"><div class="w-20 h-20 rounded-[1.5rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6 shadow-xl"><i class="fas fa-film text-3xl text-gray-700"></i></div><h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Belum ada riwayat</h3><p class="text-xs text-gray-600 font-bold max-w-xs">Mulai nonton donghua favoritmu dan riwayatnya akan muncul di sini.</p><a href="javascript:void(0)" @click="setHash('home')" class="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">Jelajahi Donghua</a></div><div x-show="watchHistory.length > 0" class="space-y-2"><template x-for="(item, idx) in watchHistory" :key="item.seriesTitle + idx"><div class="group flex items-center gap-4 bg-[#161922] hover:bg-[#1c2030] border border-gray-800/60 hover:border-blue-600/40 rounded-2xl px-5 py-4 transition-all duration-200 cursor-pointer" @click="setHash('stream', item.url)"><div class="flex-shrink-0 w-8 h-8 rounded-xl bg-[#0f1117] border border-gray-800 flex items-center justify-center"><span class="text-[10px] font-black text-gray-600" x-text="idx + 1"></span></div><div class="flex-1 min-w-0"><h4 class="text-sm font-black group-hover:text-blue-400 transition leading-tight" x-text="item.seriesTitle"></h4><div class="flex items-center gap-2 mt-1.5"><template x-if="item.epNum"><span class="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[9px] font-black uppercase flex-shrink-0" x-text="item.epNum"></span></template></div></div><div class="flex-shrink-0 text-right hidden sm:block"><p class="text-[10px] font-black text-gray-400" x-text="formatDate(item.watchedAt)"></p><p class="text-[9px] text-gray-600 font-bold mt-0.5" x-text="formatDate(item.watchedAt, 'time')"></p></div><div class="flex-shrink-0 text-right sm:hidden"><p class="text-[9px] font-bold text-gray-500" x-text="formatDate(item.watchedAt, 'short')"></p></div><div class="flex-shrink-0 flex items-center gap-2"><button @click.stop="confirmRemoveHistory(idx)" class="w-8 h-8 rounded-xl bg-[#0f1117] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition-all duration-200 text-gray-500 border border-gray-800 hover:border-red-500/30"><i class="fas fa-times text-[10px]"></i></button><div class="w-8 h-8 rounded-xl bg-blue-600/0 group-hover:bg-blue-600 flex items-center justify-center transition-all duration-200 text-gray-700 group-hover:text-white"><i class="fas fa-play text-[10px] ml-0.5"></i></div></div></div></template></div></div></template><template x-if="page === 'trash'"><div class="max-w-3xl mx-auto"><div class="flex items-center justify-between mb-8 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center"><i class="fas fa-trash-alt text-red-400 text-lg"></i></div><div><h2 class="text-2xl font-black uppercase italic tracking-tight">Tong Sampah</h2><p class="text-gray-500 text-xs font-bold mt-0.5">History tersimpan 3 hari sebelum dihapus permanen</p></div></div><div class="flex items-center gap-2 flex-wrap justify-end"><a href="javascript:void(0)" @click="setHash('history')" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-white bg-[#161922] border border-gray-800 px-4 py-2 rounded-xl transition"><i class="fas fa-arrow-left text-[10px]"></i>Kembali</a><button x-show="trashHistory.length > 0" @click="restoreAllTrash()" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-400 bg-[#161922] hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/30 px-4 py-2 rounded-xl transition"><i class="fas fa-undo"></i>Restore Semua</button><button x-show="trashHistory.length > 0" @click="confirmEmptyTrash()" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-red-400 bg-[#161922] hover:bg-red-500/10 border border-gray-800 hover:border-red-500/30 px-4 py-2 rounded-xl transition"><i class="fas fa-fire-alt"></i>Kosongkan</button></div></div><div x-show="trashHistory.length === 0" class="flex flex-col items-center justify-center py-32 text-center"><div class="w-20 h-20 rounded-[1.5rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6 shadow-xl"><i class="fas fa-trash text-3xl text-gray-700"></i></div><h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Tong sampah kosong</h3><p class="text-xs text-gray-600 font-bold max-w-xs">History yang dihapus akan muncul di sini selama 3 hari.</p></div><div x-show="trashHistory.length > 0" class="space-y-2"><template x-for="(item, idx) in trashHistory" :key="item.seriesTitle + idx"><div class="trash-item-enter flex items-center gap-4 bg-[#161922] border border-red-900/30 rounded-2xl px-5 py-4 transition-all duration-200 opacity-90 hover:opacity-100"><div class="flex-shrink-0 w-8 h-8 rounded-xl bg-red-500/10 border border-red-900/40 flex items-center justify-center"><i class="fas fa-trash-alt text-red-700 text-[10px]"></i></div><div class="flex-1 min-w-0"><h4 class="text-sm font-black text-gray-400 leading-tight" x-text="item.seriesTitle"></h4><div class="flex items-center gap-2 mt-1.5"><template x-if="item.epNum"><span class="bg-gray-700 text-gray-400 px-2 py-0.5 rounded-md text-[9px] font-black uppercase flex-shrink-0" x-text="item.epNum"></span></template><span class="text-[9px] text-red-700 font-black" x-text="'Hapus ' + formatDate(item.deletedAt)"></span></div></div><div class="flex-shrink-0 text-right hidden sm:block"><p class="text-[9px] text-red-800 font-black" x-text="trashExpiry(item.deletedAt)"></p></div><div class="flex-shrink-0 flex items-center gap-2"><button @click="restoreFromTrash(idx)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600 border border-blue-700/30 hover:border-blue-500 text-blue-400 hover:text-white text-[10px] font-black uppercase transition-all"><i class="fas fa-undo text-[9px]"></i>Restore</button><button @click="confirmDeletePermanent(idx)" class="w-8 h-8 rounded-xl bg-[#0f1117] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition text-gray-600 border border-gray-800 hover:border-red-500/30"><i class="fas fa-times text-[10px]"></i></button></div></div></template></div></div></template><template x-if="page === 'schedule'"><div class="space-y-16"><div><div class="flex items-center justify-center gap-3 mb-8"><div class="h-px w-12 bg-blue-600"></div><h2 class="text-2xl font-black uppercase italic tracking-tighter">Jadwal Rilis Donghua</h2><div class="h-px w-12 bg-blue-600"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4"><template x-for="day in scheduleData" :key="'ani-'+day.day"><div class="bg-[#161922] rounded-2xl overflow-hidden border border-gray-800"><div class="bg-blue-600 p-3 text-center text-[10px] font-black uppercase" x-text="day.day"></div><div class="p-3 space-y-3"><template x-for="item in day.list" :key="item.title"><div @click="setHash('detail', item.url)" class="p-2.5 hover:bg-blue-600/10 rounded-xl cursor-pointer transition border border-transparent hover:border-blue-500/20"><p class="text-[10px] font-bold line-clamp-2 leading-tight" x-text="cleanTitle(item.title)"></p><p class="text-[8px] text-gray-600 mt-1 font-black uppercase" x-text="item.releaseTime"></p></div></template></div></div></template></div></div><div><div class="flex items-center justify-center gap-3 mb-8"><div class="h-px w-12 bg-red-600"></div><h2 class="text-2xl font-black uppercase italic tracking-tighter">Jadwal Rilis Anime</h2><div class="h-px w-12 bg-red-600"></div></div><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4"><template x-for="day in samehadakuSchedule" :key="'same-'+day.day"><div class="bg-[#161922] rounded-2xl overflow-hidden border border-gray-800"><div class="bg-red-600 p-3 text-center text-[10px] font-black uppercase" x-text="day.day"></div><div class="p-3 space-y-3"><template x-for="item in day.list" :key="item.title"><div @click="setHash('detail', item.url)" class="p-2.5 hover:bg-red-600/10 rounded-xl cursor-pointer transition border border-transparent hover:border-red-500/20"><p class="text-[10px] font-bold line-clamp-2 leading-tight" x-text="item.title"></p><div class="flex items-center justify-between mt-1"><p class="text-[8px] text-gray-600 font-black uppercase" x-text="item.time"></p><p class="text-[8px] text-yellow-500 font-black" x-text="item.score"></p></div></div></template></div></div></template></div></div></div></template><template x-if="page === 'chat'"><div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0" class="max-w-4xl mx-auto h-screen md:h-[85vh] md:mt-4 flex flex-col bg-[#161922] md:rounded-[2rem] border-x border-gray-800 md:border shadow-2xl overflow-hidden"><div class="p-5 border-b border-gray-800 flex items-center justify-between bg-[#1f232d]"><div class="flex items-center gap-3"><button @click="window.history.length > 1 ? window.history.back() : setHash('home')" class="w-8 h-8 rounded-lg bg-[#0f1117] text-gray-400 flex items-center justify-center border border-gray-800 hover:text-white transition-colors"><i class="fas fa-arrow-left text-xs"></i></button><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg"><i class="fas fa-robot text-white"></i></div><div><h2 class="text-sm font-black uppercase tracking-widest text-white">Puru AI Chat</h2><p class="text-[9px] text-blue-400 font-bold uppercase">Asisten Donghua Anda</p></div></div><button @click="chatMessages = []" class="w-8 h-8 rounded-lg bg-[#0f1117] text-gray-500 hover:text-red-400 transition flex items-center justify-center border border-gray-800"><i class="fas fa-trash-alt text-xs"></i></button></div><div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scroll" x-ref="chatBox"><template x-if="chatMessages.length === 0"><div class="h-full flex flex-col items-center justify-center text-center px-10 opacity-40"><div class="w-20 h-20 rounded-3xl bg-[#1f232d] flex items-center justify-center mb-6 border border-gray-800"><i class="fas fa-comments text-4xl"></i></div><p class="text-xs font-black uppercase tracking-[0.2em] mb-2">Belum ada obrolan</p><p class="text-[10px] font-bold max-w-[200px]">Tanyakan rekomendasi donghua atau detail cerita favoritmu!</p></div></template><template x-for="(msg, i) in chatMessages" :key="i"><div :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'"><div :class="msg.role === 'user' ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none' : 'bg-[#1f232d] text-gray-200 rounded-2xl rounded-tl-none border border-gray-800'" class="max-w-[90%] md:max-w-[80%] p-4 shadow-xl"><div class="md-content text-sm leading-relaxed" x-html="typeof marked !== 'undefined' ? marked.parse(msg.text) : msg.text"></div></div></div></template><div x-show="chatLoading" class="flex justify-start">
-    <div class="bg-[#1f232d] px-5 py-4 rounded-2xl rounded-tl-none border border-gray-800 shadow-xl flex items-center gap-3">
-        <div class="flex gap-1">
-            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s]"></div>
-            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.2s]"></div>
-            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:0.4s]"></div>
+/* AI Modal */
+.ai-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:768px){.ai-overlay{align-items:center}}
+.ai-panel{background:var(--card);border:1px solid rgba(59,130,246,.25);border-radius:2rem 2rem 0 0;width:100%;max-width:780px;max-height:85vh;overflow-y:auto;padding:2rem;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+@media(min-width:768px){.ai-panel{border-radius:2rem;max-height:80vh;margin:1rem}}
+
+/* AI button ring */
+.ai-ring{position:relative}
+.ai-ring::before{content:'';position:absolute;inset:-3px;border-radius:inherit;background:linear-gradient(135deg,#6366f1,#3b82f6,#06b6d4);z-index:-1;animation:hueRot 3s linear infinite;border-radius:1rem}
+@keyframes hueRot{to{filter:hue-rotate(360deg)}}
+
+/* Markdown */
+.md-content{color:#d1d5db;line-height:1.75;font-size:.9rem}
+.md-content h1,.md-content h2,.md-content h3,.md-content h4{font-weight:900;color:#f9fafb;margin:1.25rem 0 .5rem}
+.md-content h3{font-size:1rem;color:#60a5fa;text-transform:uppercase;letter-spacing:.05em}
+.md-content h2{font-size:1.1rem}
+.md-content p{margin-bottom:.75rem}
+.md-content strong{color:#e2e8f0;font-weight:800}
+.md-content em{color:#a5b4fc}
+.md-content ol,.md-content ul{padding-left:1.25rem;margin-bottom:.75rem}
+.md-content li{margin-bottom:.35rem}
+.md-content hr{border-color:#374151;margin:1rem 0}
+.md-content code{background:#1f232d;color:#60a5fa;padding:.15rem .4rem;border-radius:.35rem;font-size:.8em}
+.md-content blockquote{border-left:3px solid var(--blue);padding-left:1rem;color:#9ca3af;margin:.75rem 0}
+
+/* Confirm Modal */
+.confirm-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem}
+.confirm-panel{background:var(--card);border:1px solid rgba(239,68,68,.25);border-radius:1.5rem;width:100%;max-width:400px;padding:2rem;animation:slideUp .25s cubic-bezier(.16,1,.3,1)}
+
+/* Wave Loader */
+.wave-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70vh;gap:1.5rem}
+.wave-txt{position:relative;font-size:3.5rem;font-weight:900;letter-spacing:-2px;color:rgba(31,35,45,.8);text-transform:uppercase}
+.wave-txt::after{content:"PURTV";position:absolute;left:0;top:0;width:100%;height:100%;color:var(--blue);overflow:hidden;animation:waveFill 2.5s ease-in-out infinite;border-bottom:4px solid var(--blue);filter:drop-shadow(0 0 10px rgba(59,130,246,.5))}
+@keyframes waveFill{0%,100%{height:0%;filter:hue-rotate(0)}50%{height:100%;filter:hue-rotate(20deg)}}
+.wave-sub{font-size:10px;font-weight:900;color:var(--blue);text-transform:uppercase;letter-spacing:.4em;opacity:.6;animation:pulse 1.5s infinite}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+
+/* Trash */
+.trash-in{animation:trashIn .3s ease}
+@keyframes trashIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body class="text-gray-200 font-sans antialiased">
+
+<!-- DESKTOP HEADER -->
+<header class="hidden md:block bg-[#161922] border-b border-gray-800 sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-2 cursor-pointer" @click="go('home')">
+      <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/20"><i class="fas fa-tv text-white"></i></div>
+      <span class="text-2xl font-black text-white tracking-tighter">Pur<span class="text-blue-500">TV</span></span>
+    </div>
+    <nav class="flex gap-8 items-center font-bold text-sm uppercase tracking-widest">
+      <template x-for="n in navLinks" :key="n.view">
+        <a href="#" @click.prevent="go(n.view)" :class="isActive(n.match)?'text-blue-500':'text-gray-400 hover:text-blue-400'" class="transition flex items-center gap-1.5">
+          <i :class="n.icon+' text-xs'" x-show="n.icon"></i><span x-text="n.label"></span>
+          <span x-show="n.view==='history' && watchHistory.length>0" class="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full" x-text="watchHistory.length"></span>
+        </a>
+      </template>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button @click="go('schedule')" class="w-10 h-10 flex items-center justify-center bg-[#0f1117] border border-gray-700 rounded-xl text-gray-400 hover:text-blue-500 hover:border-blue-500 transition shadow-sm" title="Jadwal Rilis">
+        <i class="fas fa-calendar-day"></i>
+      </button>
+      <div class="relative w-64" @click.away="showSuggestions=false">
+        <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchSuggestions()" @keyup.enter="startSearch()" @focus="suggestions.length>0&&(showSuggestions=true)" placeholder="Cari donghua..." class="w-full bg-[#0f1117] border border-gray-700 rounded-xl py-2 px-4 pl-11 focus:outline-none focus:border-blue-500 text-sm transition">
+        <i class="fas fa-search absolute left-4 top-3 text-gray-500"></i>
+        <div x-show="showSuggestions&&suggestions.length>0" x-transition x-cloak class="absolute top-full left-0 right-0 mt-2 bg-[#161922] border border-gray-800 rounded-xl overflow-hidden z-[60] shadow-2xl">
+          <template x-for="s in suggestions" :key="s">
+            <div @click="searchQuery=s;startSearch()" class="px-4 py-2.5 hover:bg-blue-600/10 cursor-pointer text-[11px] font-bold text-gray-400 hover:text-blue-400 border-b border-gray-800/50 last:border-0 transition-colors" x-text="s"></div>
+          </template>
         </div>
-        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Mengetik</span>
+      </div>
     </div>
-</div></div><div class="p-4 bg-[#0f1117] border-t border-gray-800"><form @submit.prevent="sendChat()" class="relative max-w-3xl mx-auto"><input type="text" x-model="chatInput" placeholder="Ketik pertanyaan seputar donghua..." class="w-full bg-[#161922] border border-gray-700 rounded-2xl py-4 pl-6 pr-16 focus:outline-none focus:border-blue-500 text-sm transition shadow-inner placeholder:text-gray-600"><button type="submit" :disabled="chatLoading || !chatInput.trim()" class="absolute right-2 top-2 w-12 h-12 bg-blue-600 hover:bg-blue-700 disabled:opacity-30 disabled:grayscale text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-blue-600/20"><i class="fas fa-paper-plane text-sm"></i></button></form></div></div></template></div></main><nav x-show="page !== 'chat'" class="md:hidden fixed bottom-0 w-full glass border-t border-gray-800 z-50 flex justify-around items-center py-4 rounded-t-3xl shadow-2xl"><a href="javascript:void(0)" @click="setHash('home')" class="flex flex-col items-center space-y-1" :class="page === 'home' ? 'text-blue-500' : 'text-gray-500'"><i class="fas fa-home text-xl"></i><span class="text-[9px] font-black uppercase">Home</span></a><a href="javascript:void(0)" @click="setHash('genres')" class="flex flex-col items-center space-y-1" :class="['genres', 'results'].includes(page) ? 'text-blue-500' : 'text-gray-500'"><i class="fas fa-th-large text-xl"></i><span class="text-[9px] font-black uppercase">Genre</span></a><a href="javascript:void(0)" @click="setHash('schedule')" class="flex flex-col items-center space-y-1" :class="page === 'schedule' ? 'text-blue-500' : 'text-gray-500'"><i class="fas fa-calendar-day text-xl"></i><span class="text-[9px] font-black uppercase">Jadwal</span></a><a href="javascript:void(0)" @click="setHash('history')" class="flex flex-col items-center space-y-1 relative" :class="['history', 'trash'].includes(page) ? 'text-blue-500' : 'text-gray-500'"><span class="relative"><i class="fas fa-history text-xl"></i><span x-show="watchHistory.length > 0" x-cloak class="absolute -top-1.5 -right-2.5 bg-blue-600 text-white text-[8px] font-black px-1 rounded-full leading-tight" x-text="watchHistory.length"></span></span><span class="text-[9px] font-black uppercase">History</span></a></nav><div x-show="confirmModal.show" x-cloak class="confirm-modal-overlay" @click.self="confirmModal.show = false"><div class="confirm-modal-panel"><div class="flex items-center gap-3 mb-5"><div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" :class="confirmModal.danger ? 'bg-red-500/15 border border-red-500/30' : 'bg-yellow-500/15 border border-yellow-500/30'"><i class="text-lg" :class="confirmModal.danger ? 'fas fa-exclamation-triangle text-red-400' : 'fas fa-question-circle text-yellow-400'"></i></div><div><h3 class="font-black text-white text-base leading-tight" x-text="confirmModal.title"></h3><p class="text-gray-500 text-xs font-bold mt-0.5" x-text="confirmModal.subtitle"></p></div></div><p class="text-gray-400 text-sm mb-6 leading-relaxed" x-text="confirmModal.message"></p><div class="flex gap-3"><button @click="confirmModal.show = false" class="flex-1 py-3 rounded-xl bg-[#1f232d] hover:bg-gray-700 text-gray-300 font-black text-xs uppercase tracking-widest transition">Batal</button><button @click="confirmModal.action(); confirmModal.show = false" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition" :class="confirmModal.danger ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20' : 'bg-blue-600 hover:bg-blue-700 text-white'" x-text="confirmModal.confirmText"></button></div></div></div><div x-show="importToast.show" x-cloak x-transition class="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[300] px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center gap-2" :class="importToast.ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"><i :class="importToast.ok ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i><span x-text="importToast.msg"></span></div><div x-show="aiPanel" x-cloak class="ai-modal-overlay" @click.self="aiPanel = false"><div class="ai-modal-panel"><div class="flex items-center justify-between mb-6"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0"><i class="fas fa-robot text-white text-sm"></i></div><div><p class="text-[10px] text-blue-400 font-black uppercase tracking-widest" x-text="'AI Gemini - ' + currentType"></p><h4 class="text-sm font-black text-white leading-tight" x-text="'Penjelasan: ' + aiTitle"></h4></div></div><button @click="aiPanel = false" class="w-9 h-9 rounded-xl bg-[#1f232d] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition text-gray-400 flex-shrink-0"><i class="fas fa-times text-sm"></i></button></div><div x-show="aiLoading" class="py-16 flex flex-col items-center justify-center gap-4">
-    <div class="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
-    <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest animate-pulse">AI sedang menganalisis...</p>
-</div><div x-show="!aiLoading && aiError" x-cloak class="py-8 text-center"><i class="fas fa-exclamation-triangle text-3xl text-yellow-500 mb-3"></i><p class="text-sm text-gray-400" x-text="aiError"></p><button @click="openAIPanel(aiTitle)" class="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl text-xs font-black uppercase transition">Coba Lagi</button></div><div x-show="!aiLoading && !aiError && aiResult" x-cloak><div class="border-t border-gray-800 mb-6"></div><div class="md-content" x-html="typeof marked !== 'undefined' ? aiResult : ''"></div><div x-show="aiChoices.length > 0" class="mt-6 pt-5 border-t border-blue-900/40"><p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fas fa-hand-pointer"></i>Pilih pertanyaan lanjutan</p><div class="flex flex-col gap-2"><template x-for="(choice, i) in aiChoices" :key="i"><button @click="askFollowUp(choice)" class="w-full text-left flex items-start gap-3 bg-[#1a1f2e] hover:bg-blue-600/20 border border-gray-800 hover:border-blue-500/50 px-4 py-3 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition-all duration-200 group"><span class="flex-shrink-0 w-6 h-6 rounded-lg bg-blue-600/20 group-hover:bg-blue-600 flex items-center justify-center text-blue-400 group-hover:text-white font-black text-[10px] transition-all" x-text="i+1"></span><span x-text="choice" class="leading-snug pt-0.5"></span></button></template></div></div><div class="mt-6 pt-4 border-t border-gray-800 flex items-center gap-2"><i class="fas fa-info-circle text-gray-600 text-xs"></i><p class="text-[10px] text-gray-600 font-bold">Jawaban dihasilkan oleh AI. Bisa saja tidak 100% akurat.</p></div></div></div></div><script>function puruTVApp() {
-            return {
-                title: 'PuruTV',
-                page: 'home',
-                loading: true,
-                showSearch: false,
-                searchQuery: '',
-                searchTitle: '',
-                suggestions: [],
-                showSuggestions: false,
-                activeServer: '',
-                currentPage: 1,
-                hasNextPage: false,
-                homeData: {},
-                animeDetail: { metadata: {}, genres: [], episodeList: [] },
-                streamData: { navigation: {} },
-                scheduleData: [],
-                samehadakuSchedule: [],
-                allGenres: [],
-                listData: [],
-                samehadakuData: {},
-                samehadakuLoading: false,
-                preferredServerHost: '',
+  </div>
+</header>
 
-                // Chat AI state
-                chatMessages: [],
-                chatInput: '',
-                chatLoading: false,
-                chatSessionId: 'puru-user-' + Math.random().toString(36).substring(7),
+<!-- MOBILE HEADER -->
+<div class="md:hidden bg-[#161922] p-4 flex justify-between items-center sticky top-0 z-50 border-b border-gray-800">
+  <span class="text-xl font-black text-white tracking-tighter cursor-pointer flex items-center gap-2" @click="go('home')">
+    <i class="fas fa-tv text-blue-500"></i>
+    <span>Pur<span class="text-blue-500">TV</span></span>
+  </span>
+  <div class="flex items-center gap-2">
+    <button @click="go('schedule')" class="w-10 h-10 flex items-center justify-center bg-[#1f232d] rounded-xl text-gray-400"><i class="fas fa-calendar-day"></i></button>
+    <button @click="showSearch=!showSearch" class="w-10 h-10 flex items-center justify-center bg-[#1f232d] rounded-full text-gray-400"><i class="fas fa-search"></i></button>
+  </div>
+</div>
 
-                // AI Panel state
-                aiPanel: false,
-                aiLoading: false,
-                aiResult: '',
-                aiError: '',
-                aiTitle: '',
-                aiChoices: [],
-                _lastRawAnswer: '',
+<!-- MOBILE SEARCH BAR -->
+<div x-show="showSearch" x-transition x-cloak class="md:hidden fixed top-[65px] left-0 right-0 z-50 p-4 bg-[#1f232d] border-b border-gray-800 shadow-2xl" @click.away="showSuggestions=false">
+  <input type="text" x-model="searchQuery" @input.debounce.300ms="fetchSuggestions()" @keyup.enter="startSearch();showSearch=false" @keyup.escape="showSearch=false" placeholder="Ketik judul donghua..." class="w-full bg-[#0f1117] border border-gray-700 rounded-xl py-3 px-4 focus:border-blue-500 outline-none text-sm" x-ref="searchInput" x-effect="showSearch&&$nextTick(()=>$refs.searchInput.focus())">
+  <div x-show="showSuggestions&&suggestions.length>0" class="mt-2 bg-[#161922] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+    <template x-for="s in suggestions" :key="s">
+      <div @click="searchQuery=s;startSearch();showSearch=false" class="px-4 py-3 hover:bg-blue-600/10 cursor-pointer text-xs font-bold text-gray-400 hover:text-blue-400 border-b border-gray-800/50 last:border-0" x-text="s"></div>
+    </template>
+  </div>
+</div>
 
-                // Watch history
-                watchHistory: [],
-                trashHistory: [],
+<!-- MAIN -->
+<main class="container mx-auto px-4 py-8">
 
-                // Confirm modal
-                confirmModal: { show: false, title: '', subtitle: '', message: '', confirmText: 'Hapus', danger: true, action: () => {} },
+  <!-- LOADER -->
+  <div x-show="loading" x-cloak>
+    <div class="wave-wrap">
+      <div class="wave-txt">PurTV</div>
+      <div class="wave-sub">Sedang Memuat Pengalaman Anda...</div>
+    </div>
+  </div>
 
-                // Import toast
-                importToast: { show: false, ok: true, msg: '' },
+  <div x-show="!loading">
 
-                get currentType() {
-                    return window.location.hash.includes('samehadaku') ? 'Anime' : 'Donghua';
-                },
+    <!-- ===== HOME ===== -->
+    <template x-if="page==='home'">
+      <div class="space-y-12">
+        <!-- Featured Banner -->
+        <div class="relative rounded-[2rem] overflow-hidden h-[300px] md:h-[450px] shadow-2xl">
+          <template x-if="homeData.featuredSlider&&homeData.featuredSlider.length>0">
+            <div class="h-full relative">
+              <img :src="homeData.featuredSlider[0].thumbnail" class="w-full h-full object-cover brightness-[0.4]">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0f1117] via-transparent p-6 md:p-16 flex flex-col justify-end">
+                <h2 class="text-3xl md:text-5xl font-black text-white mb-2" x-text="cleanTitle(homeData.featuredSlider[0].title)"></h2>
+                <p class="text-gray-400 text-sm max-w-2xl line-clamp-2 mb-6" x-text="homeData.featuredSlider[0].description"></p>
+                <button @click="go('detail',homeData.featuredSlider[0].url)" class="w-max bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-black transition hover:scale-105 shadow-xl shadow-blue-600/30">
+                  <i class="fas fa-info-circle mr-2"></i>Detail Series
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
 
-                init() {
-                    this.watchHistory = JSON.parse(localStorage.getItem('puruTV_history') || '[]');
-                    this.trashHistory = JSON.parse(localStorage.getItem('puruTV_trash') || '[]');
-                    this.preferredServerHost = localStorage.getItem('puruTV_preferredServer') || '';
-                    this._purgeExpiredTrash();
-                    window.addEventListener('hashchange', () => this.routeHandler());
-                    this.routeHandler();
-                },
+        <!-- Popular Today -->
+        <section>
+          <div class="sec-head"><i class="fas fa-fire text-orange-500 text-xl"></i><h3 class="text-xl font-black uppercase italic tracking-wider">Populer Hari Ini</h3></div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <template x-for="(item,i) in (homeData.popularToday||[])" :key="'pop-'+i">
+              <div @click="go('stream',item.url)" class="relative group cursor-pointer overflow-hidden rounded-2xl border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10">
+                <img :src="item.thumbnail" class="w-full aspect-video object-cover group-hover:scale-110 transition duration-700 brightness-75 group-hover:brightness-100">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0f1117] via-transparent to-transparent opacity-80"></div>
+                <div class="absolute inset-0 flex flex-col justify-end p-3">
+                  <p class="text-[9px] font-black text-blue-400 uppercase tracking-tighter" x-text="item.episode"></p>
+                  <h4 class="text-xs font-black line-clamp-1 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4>
+                </div>
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                   <div class="bg-blue-600 rounded-full p-1.5 shadow-lg"><i class="fas fa-play text-[8px] text-white"></i></div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </section>
 
-                cleanTitle(text) {
-                    if (!text) return '';
-                    return text.split('\t')[0].trim();
-                },
+        <!-- Latest + Sidebar -->
+        <div class="flex flex-col lg:flex-row gap-10">
+          <div class="lg:w-3/4">
+            <div class="sec-head"><div class="h-6 w-1.5 bg-blue-600 rounded-full"></div><h3 class="text-xl font-black uppercase italic">Update Terbaru</h3></div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              <template x-for="(item,i) in (homeData.latestReleases||[])" :key="'lat-'+i">
+                <div @click="go('stream',item.url)" class="card-poster group">
+                  <div class="relative aspect-poster overflow-hidden">
+                    <img :src="item.thumbnail" class="w-full h-full object-cover">
+                    <div class="ep-badge bg-blue-600" x-text="item.episode"></div>
+                    <div class="play-overlay"><div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-300"><i class="fas fa-play text-white text-xl ml-1"></i></div></div>
+                  </div>
+                  <div class="p-3"><h4 class="text-[11px] font-bold line-clamp-2 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4></div>
+                </div>
+              </template>
+            </div>
+          </div>
+          <!-- Sidebar Ongoing -->
+          <div class="lg:w-1/4">
+            <div class="bg-[#161922] rounded-[2rem] p-6 border border-gray-800 sticky top-24">
+              <h3 class="text-sm font-black uppercase mb-6 text-blue-500 tracking-widest border-b border-gray-800 pb-2"><i class="fas fa-broadcast-tower mr-2"></i>Series Ongoing</h3>
+              <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                <template x-for="(item,i) in (homeData.ongoingSidebar||[])" :key="'side-'+i">
+                  <div @click="go('stream',item.url)" class="flex items-center gap-3 group cursor-pointer border-b border-gray-800/50 pb-3 last:border-0">
+                    <div class="flex-1">
+                      <h4 class="text-[11px] font-bold line-clamp-1 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4>
+                      <p class="text-[9px] text-gray-500 font-bold mt-1" x-text="item.episode"></p>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-700 group-hover:text-blue-500"></i>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                formatDate(iso, type = 'full') {
-                    if (!iso) return '-';
-                    const d = new Date(iso), now = new Date(), diff = (now - d) / 60000;
-                    if (type === 'time') return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    if (type === 'short') {
-                        if (diff < 1) return 'Baru saja';
-                        if (diff < 60) return `${Math.floor(diff)} mnt lalu`;
-                        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
-                        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-                    }
-                    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-                },
+      </div>
+    </template>
 
-                async routeHandler() {
-                    const [view, query] = (window.location.hash || '#home').split('?'), params = new URLSearchParams(query || '');
-                    const url = params.get('url'), slug = params.get('slug'), q = params.get('q'), page = +params.get('page') || 1;
-                    Object.assign(this, { homeData:{}, animeDetail:{}, streamData:{}, listData:[], scheduleData:[], samehadakuSchedule:[], loading:true, aiPanel:false, currentPage:page });
-                    try {
-                        this.page = view.slice(1) || 'home';
-                        if (this.page === 'home') await Promise.all([this.fetchHome(), this.fetchSamehadakuHome()]);
-                        else if (this.page === 'detail') await this.fetchDetail(url);
-                        else if (this.page === 'stream') await this.fetchStream(url);
-                        else if (this.page === 'schedule') await this.fetchSchedule();
-                        else if (this.page === 'genres') await this.fetchGenres();
-                        else if (this.page === 'genre') { this.page = 'results'; await this.fetchByGenre(slug, page); }
-                        else if (this.page === 'search') { this.page = 'results'; await this.fetchSearch(q, page); }
-                        else if (this.page === 'chat') this.$nextTick(() => this.$refs.chatBox & (this.$refs.chatBox.scrollTop = this.$refs.chatBox.scrollHeight));
-                        else if (this.page === 'trash') this._purgeExpiredTrash();
-                    } catch (e) { console.error(e); }
-                    this.loading = false; window.scrollTo(0,0);
-                },
+    <!-- ===== GENRES ===== -->
+    <template x-if="page==='genres'">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-black mb-10 text-center uppercase tracking-widest"><i class="fas fa-layer-group text-blue-500 mr-3"></i>Telusuri Genre</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <template x-for="g in allGenres" :key="g.slug">
+            <button @click="go('genre',g.slug)" class="bg-[#161922] hover:bg-blue-600 border border-gray-800 p-4 rounded-xl text-xs font-black transition flex items-center justify-center gap-2">
+              <i class="fas fa-tag text-blue-400 group-hover:text-white text-[10px]"></i><span x-text="g.name"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </template>
 
-                setHash(view, paramValue) {
-                    if (view === 'detail' || view === 'stream') {
-                        let cleanUrl = paramValue;
-                        if (paramValue.includes('url=')) {
-                            cleanUrl = paramValue.split('url=')[1];
-                        } else if (paramValue.includes('anichin.cafe')) {
-                            const urlParts = new URL(paramValue);
-                            cleanUrl = urlParts.pathname;
-                        }
-                        window.location.hash = `#${view}?url=${encodeURIComponent(cleanUrl)}`;
-                    } else if (view === 'genre') {
-                        window.location.hash = `#genre?slug=${paramValue}&page=1`;
-                    } else {
-                        window.location.hash = `#${view}`;
-                    }
-                },
+    <!-- ===== RESULTS ===== -->
+    <template x-if="page==='results'">
+      <div>
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-xl font-black uppercase italic" x-text="searchTitle"></h2>
+          <div class="text-[10px] font-black text-gray-500 bg-[#161922] px-3 py-1 rounded-lg"><i class="fas fa-file-alt mr-1"></i>Hal <span x-text="currentPage"></span></div>
+        </div>
+        <!-- Empty State -->
+        <div x-show="listData.length===0" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-20 h-20 rounded-[2rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6 text-gray-700">
+            <i class="fas fa-search text-3xl"></i>
+          </div>
+          <h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Hasil Tidak Ditemukan</h3>
+          <p class="text-[10px] text-gray-600 font-bold max-w-xs uppercase tracking-[.2em] leading-loose">Coba gunakan kata kunci lain.</p>
+        </div>
+        <!-- Grid -->
+        <div x-show="listData.length>0" class="grid-r">
+          <template x-for="(item,i) in listData" :key="'res-'+i">
+            <div @click="go('detail',item.url)" class="card-poster group">
+              <div class="relative aspect-poster">
+                <img :src="item.thumbnail" class="w-full h-full object-cover">
+                <div class="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded text-[9px] font-black text-yellow-500 uppercase border border-white/10" x-text="item.type"></div>
+                <div class="play-overlay"><div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-300"><i class="fas fa-info text-white text-lg"></i></div></div>
+              </div>
+              <div class="p-3">
+                <h4 class="text-[11px] font-bold line-clamp-2 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></h4>
+                <div class="flex items-center justify-between mt-3">
+                  <span class="text-[9px] bg-gray-800 group-hover:bg-blue-600/20 group-hover:text-blue-400 text-gray-400 px-1.5 py-0.5 rounded font-black uppercase transition" x-text="item.status"></span>
+                  <span class="text-[9px] text-blue-500 font-black" x-text="item.episode"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+        <!-- Pagination -->
+        <div x-show="listData.length>0" class="mt-12 flex justify-center items-center gap-3">
+          <button @click="changePage(currentPage-1)" :disabled="currentPage<=1" class="w-11 h-11 bg-[#161922] rounded-xl disabled:opacity-20 flex items-center justify-center"><i class="fas fa-arrow-left"></i></button>
+          <div class="bg-blue-600 px-6 py-2 rounded-xl font-black text-xs uppercase"><i class="fas fa-book-open mr-2"></i>Hal <span x-text="currentPage"></span></div>
+          <button @click="changePage(currentPage+1)" :disabled="!hasNextPage" class="w-11 h-11 bg-[#161922] rounded-xl disabled:opacity-20 flex items-center justify-center"><i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </template>
 
-                changePage(newPage) {
-                    const params = new URLSearchParams(window.location.hash.split('?')[1]);
-                    params.set('page', newPage);
-                    const base = window.location.hash.split('?')[0];
-                    window.location.hash = `${base}?${params.toString()}`;
-                },
+    <!-- ===== DETAIL ===== -->
+    <template x-if="page==='detail'">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row gap-8 lg:gap-14">
+          <!-- Poster & Meta -->
+          <div class="w-full md:w-1/3 lg:w-1/4">
+            <img :src="animeDetail.thumbnail" class="w-full rounded-[2.5rem] shadow-2xl ring-1 ring-gray-800">
+            <div class="mt-6 bg-[#161922] p-6 rounded-[2rem] border border-gray-800 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-yellow-500 font-black text-xl"><i class="fas fa-star mr-2"></i><span x-text="animeDetail.rating"></span></span>
+                <span class="text-[10px] bg-blue-600 px-2 py-1 rounded font-black uppercase" x-text="animeDetail.metadata?.type||'-'"></span>
+              </div>
+              <div class="text-xs space-y-3 pt-4 border-t border-gray-800">
+                <p><span class="text-gray-500 flex items-center gap-1 mb-0.5"><i class="fas fa-signal text-[9px]"></i> Status</span><strong x-text="animeDetail.metadata?.status||'-'"></strong></p>
+                <p><span class="text-gray-500 flex items-center gap-1 mb-0.5"><i class="fas fa-building text-[9px]"></i> Studio</span><strong x-text="animeDetail.metadata?.studio||'-'"></strong></p>
+                <p><span class="text-gray-500 flex items-center gap-1 mb-0.5"><i class="fas fa-sync-alt text-[9px]"></i> Update</span><strong x-text="animeDetail.metadata?.updated_on||'-'"></strong></p>
+              </div>
+            </div>
+          </div>
+          <!-- Info -->
+          <div class="w-full md:w-2/3 lg:w-3/4">
+            <h1 class="text-3xl md:text-5xl font-black mb-4 leading-tight" x-text="animeDetail.title"></h1>
+            <div class="flex flex-wrap gap-2 mb-8">
+              <template x-for="g in animeDetail.genres" :key="g">
+                <button @click="go('genre',g.toLowerCase().replace(/\s+/g,'-'))" class="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition" x-text="g"></button>
+              </template>
+            </div>
+            <div class="bg-[#161922] p-8 rounded-[2rem] border border-gray-800 mb-6">
+              <h3 class="text-xs font-black uppercase text-blue-500 mb-3 tracking-widest"><i class="fas fa-align-left mr-2"></i>Sinopsis</h3>
+              <p class="text-gray-400 text-sm leading-relaxed" x-text="animeDetail.synopsis"></p>
+            </div>
+            <!-- AI Button -->
+            <div class="mb-10">
+              <button @click="openAIPanel(animeDetail.title)" class="ai-ring relative w-full flex items-center justify-center gap-3 bg-[#0f1117] hover:bg-[#1a1f2e] py-4 px-6 rounded-[1rem] font-black text-sm uppercase tracking-widest transition group">
+                <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 shadow-lg group-hover:scale-110 transition">
+                  <i class="fas fa-robot text-white text-xs"></i>
+                </span>
+                <span class="text-gray-200 group-hover:text-white" x-text="'Penjelasan AI tentang '+currentType+' ini'"></span>
+                <i class="fas fa-wand-magic-sparkles text-blue-400 text-xs ml-auto opacity-70 group-hover:opacity-100"></i>
+              </button>
+            </div>
+            <!-- Episode List -->
+            <h3 class="text-lg font-black mb-6 uppercase italic"><i class="fas fa-list-ol text-blue-500 mr-3"></i>Daftar Episode</h3>
+            <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-2 max-h-[400px] overflow-y-auto pr-2">
+              <template x-for="ep in animeDetail.episodeList" :key="ep.url">
+                <div @click="go('stream',ep.url)" class="bg-[#1f232d] hover:bg-blue-600 p-3 rounded-lg text-center cursor-pointer transition text-[11px] font-black border border-gray-800 flex items-center justify-center gap-1">
+                  <i class="fas fa-play text-[8px] opacity-60"></i><span x-text="ep.episode||ep.episode_number"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
 
-                async fetchSuggestions() {
-                    if (this.searchQuery.length < 2) {
-                        this.suggestions = [];
-                        this.showSuggestions = false;
-                        return;
-                    }
-                    try {
-                        const res = await fetch(`https://puruboy-api.vercel.app/api/search/suggest?q=${encodeURIComponent(this.searchQuery)}`);
-                        const data = await res.json();
-                        if (data.success) {
-                            this.suggestions = data.result;
-                            this.showSuggestions = true;
-                        }
-                    } catch (e) { console.error("Suggest Error:", e); }
-                },
+    <!-- ===== STREAM ===== -->
+    <template x-if="page==='stream'">
+      <div class="max-w-5xl mx-auto">
+        <div class="mb-6">
+          <h1 class="text-xl md:text-2xl font-black text-white" x-text="streamData.title"></h1>
+          <button @click="go('detail',streamData.series_url)" class="text-blue-500 text-xs font-bold hover:underline mt-1 flex items-center gap-1">
+            <i class="fas fa-arrow-left text-[10px]"></i><span x-text="streamData.series"></span>
+          </button>
+        </div>
+        <!-- Player -->
+        <div class="bg-black rounded-[2rem] overflow-hidden shadow-2xl mb-8 aspect-video ring-1 ring-gray-800">
+          <iframe :src="activeServer" class="w-full h-full" allowfullscreen frameborder="0"></iframe>
+        </div>
+        <!-- Server Selector -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <template x-for="(srv,si) in (streamData.streamingLinks||[])" :key="'srv-'+si">
+            <button @click="changeServer(srv.link,srv.server,srv.isProxy)"
+              class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition flex items-center gap-1.5"
+              :class="preferredServerHost===srv.server?'bg-blue-600 text-white shadow-lg':'bg-[#161922] hover:bg-gray-700'">
+              <i class="fas fa-server text-[8px]"></i><span x-text="srv.server"></span>
+            </button>
+          </template>
+        </div>
+        <!-- Navigation -->
+        <div class="grid grid-cols-3 gap-3 bg-[#161922] p-3 rounded-2xl border border-gray-800 mb-10">
+          <button @click="go('stream',streamData.navigation?.prevEpisode)" :disabled="!streamData.navigation?.prevEpisode"
+            class="bg-[#0f1117] py-3 rounded-xl disabled:opacity-20 font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-1.5">
+            <i class="fas fa-step-backward"></i> Prev
+          </button>
+          <button @click="go('detail',streamData.navigation?.allEpisodes)"
+            class="bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5">
+            <i class="fas fa-th-list"></i> Semua Eps
+          </button>
+          <button @click="go('stream',streamData.navigation?.nextEpisode)" :disabled="!streamData.navigation?.nextEpisode"
+            class="bg-[#0f1117] py-3 rounded-xl disabled:opacity-20 font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-1.5">
+            Next <i class="fas fa-step-forward"></i>
+          </button>
+        </div>
+        <!-- Downloads -->
+        <div class="bg-[#161922] rounded-[2rem] p-8 border border-gray-800">
+          <h3 class="text-sm font-black uppercase mb-6 flex items-center gap-2"><i class="fas fa-download text-blue-500"></i>Link Download</h3>
+          <div class="space-y-6">
+            <template x-for="(dl,di) in (streamData.downloadLinks||[])" :key="'dlq-'+di">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-gray-800 pb-4 last:border-0">
+                <div class="bg-blue-600/10 text-blue-500 px-4 py-1 rounded-lg text-xs font-black min-w-[80px] text-center" x-text="dl.quality"></div>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="(lnk,li) in (dl.links||[])" :key="'dll-'+di+'-'+li">
+                    <a :href="lnk.link" target="_blank" class="bg-[#1f232d] hover:bg-blue-600 px-4 py-2 rounded-lg text-[10px] font-bold transition flex items-center gap-1.5">
+                      <i class="fas fa-cloud-download-alt opacity-60"></i><span x-text="lnk.host"></span>
+                    </a>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </template>
 
-                startSearch() {
-                    if (this.searchQuery.length < 2) return;
-                    window.location.hash = `#search?q=${this.searchQuery}&page=1`;
-                    this.searchQuery = '';
-                    this.suggestions = [];
-                    this.showSuggestions = false;
-                },
+    <!-- ===== HISTORY ===== -->
+    <template x-if="page==='history'">
+      <div class="max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-8 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-history text-blue-500 text-2xl"></i>
+            <div>
+              <h2 class="text-2xl font-black uppercase italic tracking-tight">Riwayat Nonton</h2>
+              <p class="text-gray-500 text-xs font-bold mt-0.5" x-text="watchHistory.length+' dari 20 tersimpan'"></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button @click="go('trash')" class="icon-btn text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30 relative">
+              <i class="fas fa-trash-alt"></i> Sampah
+              <span x-show="trashHistory.length>0" class="bg-red-600 text-white text-[9px] px-1.5 rounded-full" x-text="trashHistory.length"></span>
+            </button>
+            <button @click="exportHistory()" class="icon-btn text-gray-400 hover:text-green-400 hover:bg-green-500/10 hover:border-green-500/30">
+              <i class="fas fa-file-export"></i> Export
+            </button>
+            <label class="icon-btn text-gray-400 hover:text-yellow-400 hover:bg-yellow-500/10 hover:border-yellow-500/30 cursor-pointer">
+              <i class="fas fa-file-import"></i> Import
+              <input type="file" accept=".json" class="hidden" @change="importHistory($event)">
+            </label>
+            <button x-show="watchHistory.length>0" @click="confirmClearHistory()" class="icon-btn text-gray-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30">
+              <i class="fas fa-broom"></i> Bersihkan
+            </button>
+          </div>
+        </div>
+        <!-- Empty -->
+        <div x-show="watchHistory.length===0" class="flex flex-col items-center justify-center py-32 text-center">
+          <div class="w-20 h-20 rounded-[1.5rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6">
+            <i class="fas fa-film text-3xl text-gray-700"></i>
+          </div>
+          <h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Belum ada riwayat</h3>
+          <p class="text-xs text-gray-600 font-bold max-w-xs mb-6">Mulai nonton donghua favoritmu dan riwayatnya akan muncul di sini.</p>
+          <button @click="go('home')" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition">
+            <i class="fas fa-compass mr-2"></i>Jelajahi Donghua
+          </button>
+        </div>
+        <!-- List -->
+        <div x-show="watchHistory.length>0" class="space-y-2">
+          <template x-for="(item,i) in watchHistory" :key="item.seriesTitle+i">
+            <div class="group flex items-center gap-4 bg-[#161922] hover:bg-[#1c2030] border border-gray-800/60 hover:border-blue-600/40 rounded-2xl px-5 py-4 transition cursor-pointer" @click="go('stream',item.url)">
+              <div class="w-8 h-8 rounded-xl bg-[#0f1117] border border-gray-800 flex items-center justify-center flex-shrink-0">
+                <span class="text-[10px] font-black text-gray-600" x-text="i+1"></span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-black group-hover:text-blue-400 transition leading-tight" x-text="item.seriesTitle"></h4>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <template x-if="item.epNum">
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[9px] font-black uppercase" x-text="item.epNum"></span>
+                  </template>
+                </div>
+              </div>
+              <div class="flex-shrink-0 text-right hidden sm:block">
+                <p class="text-[10px] font-black text-gray-400" x-text="formatDate(item.watchedAt)"></p>
+                <p class="text-[9px] text-gray-600 font-bold mt-0.5" x-text="formatDate(item.watchedAt,'time')"></p>
+              </div>
+              <div class="flex-shrink-0 sm:hidden">
+                <p class="text-[9px] font-bold text-gray-500" x-text="formatDate(item.watchedAt,'short')"></p>
+              </div>
+              <div class="flex-shrink-0 flex items-center gap-2">
+                <button @click.stop="confirmRemoveHistory(i)" class="w-8 h-8 rounded-xl bg-[#0f1117] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition text-gray-500 border border-gray-800">
+                  <i class="fas fa-times text-[10px]"></i>
+                </button>
+                <div class="w-8 h-8 rounded-xl bg-blue-600/0 group-hover:bg-blue-600 flex items-center justify-center transition text-gray-700 group-hover:text-white">
+                  <i class="fas fa-play text-[10px] ml-0.5"></i>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
 
-                // ✦ AI PANEL ✦
-                parseAIJson(raw) {
-                    // Bersihkan berbagai format kotor dari AI
-                    let s = raw.trim();
-                    // Hapus ```json ... ``` atau ``` ... ```
-                    s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
-                    // Potong ke { ... } pertama & terakhir
-                    const a = s.indexOf('{'), b = s.lastIndexOf('}');
-                    if (a === -1 || b === -1) return null;
-                    s = s.substring(a, b + 1);
-                    try {
-                        const p = JSON.parse(s);
-                        return {
-                            respon: p.respon || p.response || p.jawaban || '',
-                            choice: Array.isArray(p.choice) ? p.choice : []
-                        };
-                    } catch(e) { return null; }
-                },
+    <!-- ===== TRASH ===== -->
+    <template x-if="page==='trash'">
+      <div class="max-w-3xl mx-auto">
+        <div class="flex items-center justify-between mb-8 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+              <i class="fas fa-trash-alt text-red-400 text-lg"></i>
+            </div>
+            <div>
+              <h2 class="text-2xl font-black uppercase italic tracking-tight">Tong Sampah</h2>
+              <p class="text-gray-500 text-xs font-bold mt-0.5">History tersimpan 3 hari sebelum dihapus permanen</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button @click="go('history')" class="icon-btn text-gray-400 hover:text-white">
+              <i class="fas fa-arrow-left text-[10px]"></i> Kembali
+            </button>
+            <button x-show="trashHistory.length>0" @click="restoreAllTrash()" class="icon-btn text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/30">
+              <i class="fas fa-undo"></i> Restore Semua
+            </button>
+            <button x-show="trashHistory.length>0" @click="confirmEmptyTrash()" class="icon-btn text-gray-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30">
+              <i class="fas fa-fire-alt"></i> Kosongkan
+            </button>
+          </div>
+        </div>
+        <div x-show="trashHistory.length===0" class="flex flex-col items-center justify-center py-32 text-center">
+          <div class="w-20 h-20 rounded-[1.5rem] bg-[#161922] border border-gray-800 flex items-center justify-center mb-6">
+            <i class="fas fa-trash text-3xl text-gray-700"></i>
+          </div>
+          <h3 class="text-lg font-black text-gray-500 uppercase tracking-widest mb-2">Tong sampah kosong</h3>
+          <p class="text-xs text-gray-600 font-bold max-w-xs">History yang dihapus akan muncul di sini selama 3 hari.</p>
+        </div>
+        <div x-show="trashHistory.length>0" class="space-y-2">
+          <template x-for="(item,i) in trashHistory" :key="item.seriesTitle+i">
+            <div class="trash-in flex items-center gap-4 bg-[#161922] border border-red-900/30 rounded-2xl px-5 py-4 opacity-90 hover:opacity-100 transition">
+              <div class="w-8 h-8 rounded-xl bg-red-500/10 border border-red-900/40 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-trash-alt text-red-700 text-[10px]"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-black text-gray-400 leading-tight" x-text="item.seriesTitle"></h4>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <template x-if="item.epNum">
+                    <span class="bg-gray-700 text-gray-400 px-2 py-0.5 rounded-md text-[9px] font-black uppercase" x-text="item.epNum"></span>
+                  </template>
+                  <span class="text-[9px] text-red-700 font-black" x-text="'Hapus '+formatDate(item.deletedAt)"></span>
+                </div>
+              </div>
+              <p class="text-[9px] text-red-800 font-black hidden sm:block" x-text="trashExpiry(item.deletedAt)"></p>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button @click="restoreFromTrash(i)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600 border border-blue-700/30 text-blue-400 hover:text-white text-[10px] font-black uppercase transition">
+                  <i class="fas fa-undo text-[9px]"></i> Restore
+                </button>
+                <button @click="confirmDeletePermanent(i)" class="w-8 h-8 rounded-xl bg-[#0f1117] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition text-gray-600 border border-gray-800">
+                  <i class="fas fa-times text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
 
-                async openAIPanel(title) {
-                    this.aiTitle = this.cleanTitle(title);
-                    this.aiPanel = true;
-                    this.aiLoading = true;
-                    this.aiResult = '';
-                    this.aiError = '';
-                    this.aiChoices.splice(0);
-                    this._lastRawAnswer = '';
+    <!-- SCHEDULE PANEL (SIDE MODAL) -->
+    <div x-show="showSchedulePanel" x-cloak class="side-overlay" @click="showSchedulePanel=false"></div>
+    <div class="side-panel" :class="showSchedulePanel ? 'open' : ''" x-cloak>
+      <div class="p-6 border-b border-gray-800 flex items-center justify-between bg-[#161922]">
+        <h2 class="text-xl font-black uppercase italic tracking-tighter flex items-center gap-3">
+          <i class="fas fa-calendar-day text-blue-500"></i>
+          <span>Jadwal Rilis</span>
+        </h2>
+        <button @click="showSchedulePanel=false" class="w-10 h-10 rounded-2xl bg-[#1f232d] hover:bg-red-500/20 hover:text-red-400 transition flex items-center justify-center">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Day Filter -->
+      <div class="px-6 py-4 bg-[#0f1117] border-b border-gray-800">
+        <select x-model="selectedScheduleDay" class="w-full bg-[#161922] border border-gray-700 rounded-xl px-4 py-2.5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-blue-500 transition cursor-pointer text-gray-300">
+          <option value="all">Semua Hari</option>
+          <option value="Monday">Senin</option>
+          <option value="Tuesday">Selasa</option>
+          <option value="Wednesday">Rabu</option>
+          <option value="Thursday">Kamis</option>
+          <option value="Friday">Jumat</option>
+          <option value="Saturday">Sabtu</option>
+          <option value="Sunday">Minggu</option>
+        </select>
+      </div>
 
-                    const type = this.currentType;
-                    const firstPrompt = `Kamu adalah asisten AI spesialis ${type.toLowerCase()}. Jawab dalam Bahasa Indonesia. HANYA balas dengan JSON valid, tanpa teks apapun di luar JSON. Format wajib: {"respon":"<isi jawaban markdown>","choice":["<pilihan 1>","<pilihan 2>","<pilihan 3>"]}. Minimal 3 pilihan relevan di array choice. Pertanyaan: ${type} "${this.aiTitle}" menceritakan tentang apa? Jelaskan sinopsis, karakter utama, tema, dan hal menarik lainnya.`;
+      <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+        <template x-for="day in (selectedScheduleDay === 'all' ? scheduleData : scheduleData.filter(d => d.day === selectedScheduleDay))" :key="day.day">
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500" x-text="translateDay(day.day)"></span>
+              <div class="h-px flex-1 bg-gray-800"></div>
+              <span class="text-[9px] font-bold text-gray-600" x-text="day.totalCount + ' Series'"></span>
+            </div>
+            
+            <div class="grid gap-2">
+              <template x-for="item in day.list" :key="item.title">
+                <div @click="showSchedulePanel=false; go('detail',item.url)" class="group flex gap-3 p-2.5 rounded-2xl cursor-pointer transition bg-[#161922] border border-gray-800/50 hover:border-blue-500/40">
+                  <div class="w-12 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-[#0f1117]">
+                     <img :src="item.thumbnail" class="w-full h-full object-cover">
+                  </div>
+                  <div class="flex-1 min-w-0 flex flex-col justify-center">
+                    <p class="text-[11px] font-bold line-clamp-1 text-gray-300 group-hover:text-blue-400 transition" x-text="cleanTitle(item.title)"></p>
+                    <div class="flex items-center justify-between mt-2">
+                       <p class="text-[9px] text-gray-500 font-black uppercase flex items-center gap-1">
+                         <i class="far fa-clock text-[8px]"></i>
+                         <span x-text="item.releaseTime"></span>
+                       </p>
+                       <template x-if="item.nextEpisode && item.nextEpisode !== '??'">
+                         <span class="text-[8px] bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded-lg font-black" x-text="'EP '+item.nextEpisode"></span>
+                       </template>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
 
-                    await this._sendAIMessage(firstPrompt);
-                },
 
-                async askFollowUp(choiceLabel) {
-                    if (this.aiLoading) return;
-                    this.aiLoading = true;
-                    this.aiChoices.splice(0);
+  </div>
+</main>
 
-                    const type = this.currentType;
-                    const followPrompt = `Kamu adalah asisten AI spesialis ${type.toLowerCase()}. Jawab dalam Bahasa Indonesia. HANYA balas dengan JSON valid, tanpa teks apapun di luar JSON. Format wajib: {"respon":"<isi jawaban markdown>","choice":["<pilihan 1>","<pilihan 2>","<pilihan 3>"]}. Minimal 3 pilihan relevan. Konteks: kita membahas ${type.toLowerCase()} "${this.aiTitle}". Pertanyaan: ${choiceLabel}`;
+<!-- MOBILE BOTTOM NAV -->
+<nav class="md:hidden fixed bottom-0 w-full glass border-t border-gray-800 z-50 flex justify-around items-center py-4 rounded-t-3xl shadow-2xl">
+  <template x-for="n in navLinks.filter(x=>x.mobile)" :key="'mn-'+n.view">
+    <a href="#" @click.prevent="go(n.view)" class="flex flex-col items-center gap-1 relative transition-colors duration-300" :class="isActive(n.match)?'text-blue-500':'text-gray-500'">
+      <span class="relative transition-transform duration-300" :class="isActive(n.match) ? 'scale-125 -translate-y-1.5' : ''">
+        <i :class="n.icon+' text-xl'"></i>
+        <span x-show="n.view==='history'&&watchHistory.length>0" x-cloak class="absolute -top-1.5 -right-2.5 bg-blue-600 text-white text-[8px] font-black px-1 rounded-full" x-text="watchHistory.length"></span>
+      </span>
+      <span class="text-[9px] font-black uppercase" x-text="n.label"></span>
+    </a>
+  </template>
+</nav>
 
-                    await this._sendAIMessage(followPrompt);
-                },
+<!-- CONFIRM MODAL -->
+<div x-show="confirmModal.show" x-cloak class="confirm-overlay" @click.self="confirmModal.show=false">
+  <div class="confirm-panel">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" :class="confirmModal.danger?'bg-red-500/15 border border-red-500/30':'bg-yellow-500/15 border border-yellow-500/30'">
+        <i class="text-lg" :class="confirmModal.danger?'fas fa-exclamation-triangle text-red-400':'fas fa-question-circle text-yellow-400'"></i>
+      </div>
+      <div>
+        <h3 class="font-black text-white text-base leading-tight" x-text="confirmModal.title"></h3>
+        <p class="text-gray-500 text-xs font-bold mt-0.5" x-text="confirmModal.subtitle"></p>
+      </div>
+    </div>
+    <p class="text-gray-400 text-sm mb-6 leading-relaxed" x-text="confirmModal.message"></p>
+    <div class="flex gap-3">
+      <button @click="confirmModal.show=false" class="flex-1 py-3 rounded-xl bg-[#1f232d] hover:bg-gray-700 text-gray-300 font-black text-xs uppercase tracking-widest transition">
+        <i class="fas fa-times mr-1"></i>Batal
+      </button>
+      <button @click="confirmModal.action();confirmModal.show=false" class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition" :class="confirmModal.danger?'bg-red-600 hover:bg-red-700 text-white':'bg-blue-600 hover:bg-blue-700 text-white'" x-text="confirmModal.confirmText"></button>
+    </div>
+  </div>
+</div>
 
-                async _sendAIMessage(prompt) {
-                    try {
-                        const res = await fetch('https://puruboy-api.vercel.app/api/ai/gemini', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ prompt })
-                        });
-                        const data = await res.json();
+<!-- TOAST -->
+<div x-show="importToast.show" x-cloak x-transition class="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 z-[300] px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center gap-2" :class="importToast.ok?'bg-green-600 text-white':'bg-red-600 text-white'">
+  <i :class="importToast.ok?'fas fa-check-circle':'fas fa-times-circle'"></i>
+  <span x-text="importToast.msg"></span>
+</div>
 
-                        if (data.success && data.result && data.result.answer) {
-                            const raw = data.result.answer;
-                            this._lastRawAnswer = raw;
-                            const parsed = this.parseAIJson(raw);
-                            if (parsed && parsed.respon) {
-                                this.aiResult = marked.parse(parsed.respon);
-                                this.aiChoices.splice(0, this.aiChoices.length, ...parsed.choice);
-                            } else {
-                                // Fallback jika JSON gagal parse
-                                this.aiResult = marked.parse(raw);
-                                this.aiChoices.splice(0);
-                            }
-                        } else {
-                            this.aiError = 'Gagal mendapat respons dari AI. Silakan coba lagi.';
-                        }
-                    } catch (err) {
-                        console.error('AI fetch error:', err);
-                        this.aiError = 'Koneksi gagal. Pastikan internet aktif dan coba lagi.';
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
+<!-- AI PANEL MODAL -->
+<div x-show="aiPanel" x-cloak class="ai-overlay" @click.self="aiPanel=false">
+  <div class="ai-panel">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0">
+          <i class="fas fa-robot text-white text-sm"></i>
+        </div>
+        <div>
+          <p class="text-[10px] text-blue-400 font-black uppercase tracking-widest" x-text="'AI Gemini - '+currentType"></p>
+          <h4 class="text-sm font-black text-white leading-tight" x-text="'Penjelasan: '+aiTitle"></h4>
+        </div>
+      </div>
+      <button @click="aiPanel=false" class="w-9 h-9 rounded-xl bg-[#1f232d] hover:bg-red-500/20 hover:text-red-400 flex items-center justify-center transition text-gray-400">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+    <div x-show="aiLoading" class="py-16 flex flex-col items-center gap-4">
+      <div class="w-10 h-10 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
+      <p class="text-gray-500 text-[10px] font-black uppercase tracking-widest animate-pulse">AI sedang menganalisis...</p>
+    </div>
+    <div x-show="!aiLoading&&aiError" x-cloak class="py-8 text-center">
+      <i class="fas fa-exclamation-triangle text-3xl text-yellow-500 mb-3"></i>
+      <p class="text-sm text-gray-400" x-text="aiError"></p>
+      <button @click="openAIPanel(aiTitle)" class="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl text-xs font-black uppercase transition">
+        <i class="fas fa-redo mr-1"></i>Coba Lagi
+      </button>
+    </div>
+    <div x-show="!aiLoading&&!aiError&&aiResult" x-cloak>
+      <div class="border-t border-gray-800 mb-6"></div>
+      <div class="md-content" x-html="typeof marked!=='undefined'?aiResult:''"></div>
+      <div x-show="aiChoices.length>0" class="mt-6 pt-5 border-t border-blue-900/40">
+        <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+          <i class="fas fa-hand-pointer"></i>Pertanyaan lanjutan
+        </p>
+        <div class="flex flex-col gap-2">
+          <template x-for="(choice,i) in aiChoices" :key="i">
+            <button @click="askFollowUp(choice)" class="w-full text-left flex items-start gap-3 bg-[#1a1f2e] hover:bg-blue-600/20 border border-gray-800 hover:border-blue-500/50 px-4 py-3 rounded-xl text-xs font-bold text-gray-300 hover:text-white transition group">
+              <span class="flex-shrink-0 w-6 h-6 rounded-lg bg-blue-600/20 group-hover:bg-blue-600 flex items-center justify-center text-blue-400 group-hover:text-white font-black text-[10px] transition" x-text="i+1"></span>
+              <span x-text="choice" class="leading-snug pt-0.5"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+      <div class="mt-6 pt-4 border-t border-gray-800 flex items-center gap-2">
+        <i class="fas fa-circle-info text-gray-600 text-xs"></i>
+        <p class="text-[10px] text-gray-600 font-bold">Jawaban dihasilkan oleh AI. Bisa saja tidak 100% akurat.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-                // ✦ WATCH HISTORY ✦
-                _saveAll() {
-                    localStorage.setItem('puruTV_history', JSON.stringify(this.watchHistory));
-                    localStorage.setItem('puruTV_trash', JSON.stringify(this.trashHistory));
-                },
+<!-- SHARED CSS UTILITIES via Tailwind arbitrary classes need to be inline -->
+<style>
+.sec-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.card-poster{background:var(--card);border-radius:1.25rem;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);border:1px solid rgba(255,255,255,0.03);position:relative}
+.card-poster:hover{transform:translateY(-8px);box-shadow:0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(59,130,246,0.2);border-color:rgba(59,130,246,0.4)}
+.card-poster img{transition:transform .6s cubic-bezier(0.4, 0, 0.2, 1)}
+.card-poster:hover img{transform:scale(1.1)}
+.ep-badge{position:absolute;top:.75rem;left:.75rem;color:#fff;font-size:.6rem;font-weight:900;padding:.2rem .6rem;border-radius:.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.5);z-index:10}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:.3s;background:linear-gradient(to top, rgba(59,130,246,0.4), transparent);z-index:5}
+.card-poster:hover .play-overlay{opacity:1}
+.icon-btn{display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;background:var(--card);border:1px solid #374151;padding:.5rem 1rem;border-radius:.75rem;transition:all .2s}
 
-                _purgeExpiredTrash() {
-                    const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
-                    const now = Date.now();
-                    this.trashHistory = this.trashHistory.filter(item => {
-                        return item.deletedAt && (now - new Date(item.deletedAt).getTime()) < threeDaysMs;
-                    });
-                    localStorage.setItem('puruTV_trash', JSON.stringify(this.trashHistory));
-                },
+/* Side Schedule Panel */
+.side-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+.side-panel{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:400px;background:var(--bg);z-index:160;border-left:1px solid var(--border);box-shadow:-20px 0 40px rgba(0,0,0,0.6);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .5s cubic-bezier(0.16,1,0.3,1)}
+.side-panel.open{transform:translateX(0)}
+.custom-scrollbar::-webkit-scrollbar{width:4px}
+.custom-scrollbar::-webkit-scrollbar-thumb{background:#1f232d;border-radius:10px}
+</style>
 
-                trashExpiry(deletedAt) {
-                    if (!deletedAt) return '';
-                    const expiry = new Date(new Date(deletedAt).getTime() + 3 * 24 * 60 * 60 * 1000);
-                    const diff = expiry - Date.now();
-                    if (diff <= 0) return 'Kedaluwarsa';
-                    const hrs = Math.floor(diff / 3600000);
-                    if (hrs < 24) return `Hapus dalam ${hrs}j`;
-                    return `Hapus dalam ${Math.floor(hrs/24)}h`;
-                },
+<script>
+function puruTVApp() {
+  return {
+    title: 'PurTV',
+    page: 'home', loading: true,
+    showSearch: false, searchQuery: '', suggestions: [], showSuggestions: false,
+    activeServer: '', currentPage: 1, hasNextPage: false,
+    homeData: {}, animeDetail: { metadata:{}, genres:[], episodeList:[] },
+    streamData: { navigation:{} }, scheduleData: [],
+    allGenres: [], listData: [],
+    preferredServerHost: '', searchTitle: '',
+    aiPanel: false, aiLoading: false, aiResult: '', aiError: '', aiTitle: '', aiChoices: [],
 
-                saveHistory() {
-                    const s = this.streamData;
-                    if (!s || !s.series) return;
+    aiHistory: [],
+    showSchedulePanel: false,
+    selectedScheduleDay: 'all',
+    watchHistory: [], trashHistory: [],
 
-                    const seriesTitle = this.cleanTitle(s.series);
-                    const episode     = s.title || '';
-                    const watchedAt   = new Date().toISOString();
-                    const urlParam    = new URLSearchParams(
-                        (window.location.hash.split('?')[1] || '')
-                    ).get('url') || '';
+    confirmModal: { show:false, title:'', subtitle:'', message:'', confirmText:'Hapus', danger:true, action:()=>{} },
+    importToast: { show:false, ok:true, msg:'' },
 
-                    let epNum = '';
-                    const epMatch = urlParam.match(/episode-(\d+)/);
-                    if (epMatch) {
-                        epNum = 'Ep. ' + epMatch[1];
-                    } else if (episode.toLowerCase().includes('episode')) {
-                        const parts = episode.split(/episode/i);
-                        if (parts[1]) epNum = 'Ep. ' + parts[1].trim().split(' ')[0];
-                    }
+    navLinks: [
+      { view:'home',   label:'Home',    icon:'fas fa-home',         match:['home'],              mobile:true  },
+      { view:'genres', label:'Genre',   icon:'fas fa-layer-group',  match:['genres','results'],  mobile:true  },
+      { view:'history',label:'History', icon:'fas fa-history',      match:['history','trash'],   mobile:true  },
+    ],
 
-                    const idx = this.watchHistory.findIndex(h => h.seriesTitle === seriesTitle);
-                    if (idx !== -1) this.watchHistory.splice(idx, 1);
+    isActive(matches) { return matches.includes(this.page); },
 
-                    this.watchHistory.unshift({ seriesTitle, episode, epNum, watchedAt, url: urlParam });
-                    if (this.watchHistory.length > 20) this.watchHistory.length = 20;
+    translateDay(d) {
+      const days = { Monday: 'Senin', Tuesday: 'Selasa', Wednesday: 'Rabu', Thursday: 'Kamis', Friday: 'Jumat', Saturday: 'Sabtu', Sunday: 'Minggu' };
+      return days[d] || d;
+    },
 
-                    this._saveAll();
-                },
+    get currentType() { return 'Donghua'; },
 
-                _getProvider(u) { return (u && /samehadaku/.test(decodeURIComponent(u))) ? 'samehadaku' : 'anichin'; },
+    init() {
+      this.watchHistory  = JSON.parse(localStorage.getItem('puruTV_history') || '[]');
+      this.trashHistory  = JSON.parse(localStorage.getItem('puruTV_trash')   || '[]');
+      this.preferredServerHost = localStorage.getItem('puruTV_preferredServer') || '';
+      this._purgeExpiredTrash();
+      window.addEventListener('hashchange', () => this.routeHandler());
+      this.routeHandler();
+    },
 
-                // Confirm helpers
-                confirmRemoveHistory(idx) {
-                    const item = this.watchHistory[idx];
-                    this.confirmModal = {
-                        show: true, danger: true,
-                        title: 'Hapus Riwayat?',
-                        subtitle: item.seriesTitle,
-                        message: 'History ini akan dipindahkan ke Tong Sampah dan bisa dikembalikan dalam 3 hari.',
-                        confirmText: 'Pindah ke Sampah',
-                        action: () => this.removeHistory(idx)
-                    };
-                },
+    cleanTitle(t) { return t ? t.split('\t')[0].trim() : ''; },
 
-                confirmClearHistory() {
-                    this.confirmModal = {
-                        show: true, danger: true,
-                        title: 'Hapus Semua Riwayat?',
-                        subtitle: `${this.watchHistory.length} riwayat akan dihapus`,
-                        message: 'Semua history akan dipindahkan ke Tong Sampah. Kamu bisa mengembalikannya dalam 3 hari.',
-                        confirmText: 'Hapus Semua',
-                        action: () => this.clearHistory()
-                    };
-                },
+    formatDate(iso, type='full') {
+      if (!iso) return '-';
+      const d=new Date(iso), diff=(Date.now()-d)/60000;
+      if (type==='time') return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      if (type==='short') {
+        if (diff<1) return 'Baru saja';
+        if (diff<60) return `${Math.floor(diff)} mnt lalu`;
+        if (diff<1440) return `${Math.floor(diff/60)} jam lalu`;
+        return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+      }
+      return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+    },
 
-                confirmEmptyTrash() {
-                    this.confirmModal = {
-                        show: true, danger: true,
-                        title: 'Kosongkan Tong Sampah?',
-                        subtitle: `${this.trashHistory.length} item akan dihapus permanen`,
-                        message: 'Tindakan ini tidak bisa dibatalkan. Semua history di tong sampah akan dihapus selamanya.',
-                        confirmText: 'Hapus Permanen',
-                        action: () => this.emptyTrash()
-                    };
-                },
+    async routeHandler() {
+      const [view,query] = (window.location.hash||'#home').split('?');
+      const params = new URLSearchParams(query||'');
+      const url=params.get('url'), slug=params.get('slug'), q=params.get('q'), page=+params.get('page')||1;
+      Object.assign(this,{homeData:{},animeDetail:{},streamData:{},listData:[],scheduleData:[],loading:true,aiPanel:false,currentPage:page});
+      try {
+        this.page = view.slice(1)||'home';
+        if      (this.page==='home')     await this.fetchHome();
+        else if (this.page==='detail')   await this.fetchDetail(url);
+        else if (this.page==='stream')   await this.fetchStream(url);
+        else if (this.page==='schedule') await this.fetchSchedule();
+        else if (this.page==='genres')   await this.fetchGenres();
+        else if (this.page==='genre')    { this.page='results'; await this.fetchByGenre(slug,page); }
+        else if (this.page==='search')   { this.page='results'; await this.fetchSearch(q,page); }
+        else if (this.page==='trash')    this._purgeExpiredTrash();
+      } catch(e){ console.error(e); }
+      this.loading=false; window.scrollTo(0,0);
+    },
 
-                confirmDeletePermanent(idx) {
-                    const item = this.trashHistory[idx];
-                    this.confirmModal = {
-                        show: true, danger: true,
-                        title: 'Hapus Permanen?',
-                        subtitle: item.seriesTitle,
-                        message: 'History ini akan dihapus selamanya dan tidak bisa dikembalikan.',
-                        confirmText: 'Hapus Permanen',
-                        action: () => { this.trashHistory.splice(idx, 1); this._saveAll(); }
-                    };
-                },
+    go(view, paramValue) {
+      if (view === 'schedule') {
+        this.showSchedulePanel = true;
+        if (!this.scheduleData.length) this.fetchSchedule();
+        return;
+      }
+      if (view==='detail'||view==='stream') {
+        let p = paramValue||'';
+        if (p.includes('url=')) p = p.split('url=')[1];
+        else if (p.includes('://')) { try { p = new URL(p).pathname; } catch(e){} }
+        window.location.hash = `#${view}?url=${encodeURIComponent(p)}`;
+      } else if (view==='genre') {
+        window.location.hash = `#genre?slug=${paramValue}&page=1`;
+      } else {
+        window.location.hash = `#${view}`;
+      }
+    },
 
-                removeHistory(idx) {
-                    const [removed] = this.watchHistory.splice(idx, 1);
-                    removed.deletedAt = new Date().toISOString();
-                    this.trashHistory.unshift(removed);
-                    this._saveAll();
-                },
+    changePage(n) {
+      const params=new URLSearchParams(window.location.hash.split('?')[1]);
+      params.set('page',n);
+      window.location.hash = `${window.location.hash.split('?')[0]}?${params}`;
+    },
 
-                clearHistory() {
-                    const now = new Date().toISOString();
-                    const withDeleted = this.watchHistory.map(h => ({ ...h, deletedAt: now }));
-                    this.trashHistory.unshift(...withDeleted);
-                    this.watchHistory = [];
-                    this._saveAll();
-                },
+    async fetchSuggestions() {
+      if (this.searchQuery.length<2) { this.suggestions=[]; this.showSuggestions=false; return; }
+      try {
+        const d=await fetch(`https://puruboy-api.vercel.app/api/search/suggest?q=${encodeURIComponent(this.searchQuery)}`).then(r=>r.json());
+        if (d.success) { this.suggestions=d.result; this.showSuggestions=true; }
+      } catch(e){}
+    },
 
-                restoreFromTrash(idx) {
-                    const item = { ...this.trashHistory[idx] };
-                    delete item.deletedAt;
-                    this.trashHistory.splice(idx, 1);
-                    // Remove dupe in history if any
-                    const dupIdx = this.watchHistory.findIndex(h => h.seriesTitle === item.seriesTitle);
-                    if (dupIdx !== -1) this.watchHistory.splice(dupIdx, 1);
-                    this.watchHistory.unshift(item);
-                    if (this.watchHistory.length > 20) this.watchHistory.length = 20;
-                    this._saveAll();
-                },
+    startSearch() {
+      if (this.searchQuery.length<2) return;
+      window.location.hash=`#search?q=${this.searchQuery}&page=1`;
+      this.searchQuery=''; this.suggestions=[]; this.showSuggestions=false;
+    },
 
-                restoreAllTrash() {
-                    this.trashHistory.forEach(item => {
-                        const clean = { ...item };
-                        delete clean.deletedAt;
-                        const dupIdx = this.watchHistory.findIndex(h => h.seriesTitle === clean.seriesTitle);
-                        if (dupIdx !== -1) this.watchHistory.splice(dupIdx, 1);
-                        this.watchHistory.unshift(clean);
-                    });
-                    if (this.watchHistory.length > 20) this.watchHistory.length = 20;
-                    this.trashHistory = [];
-                    this._saveAll();
-                },
+    parseAIJson(raw) {
+      let s=raw.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```\s*$/,'').trim();
+      const a=s.indexOf('{'),b=s.lastIndexOf('}');
+      if (a===-1||b===-1) return null;
+      try {
+        const p=JSON.parse(s.substring(a,b+1));
+        return { respon:p.respon||p.response||p.jawaban||'', choice:Array.isArray(p.choice)?p.choice:[] };
+      } catch(e){ return null; }
+    },
 
-                emptyTrash() {
-                    this.trashHistory = [];
-                    this._saveAll();
-                },
+    async openAIPanel(title) {
+      this.aiTitle=this.cleanTitle(title); this.aiPanel=true; this.aiLoading=true;
+      this.aiResult=''; this.aiError=''; this.aiChoices.splice(0); this._lastRaw='';
+      const t=this.currentType;
+      await this._sendAIMessage(`Kamu adalah asisten AI spesialis ${t.toLowerCase()}. Jawab dalam Bahasa Indonesia. HANYA balas dengan JSON valid tanpa teks lain. Format: {"respon":"<markdown>","choice":["<p1>","<p2>","<p3>"]}. Pertanyaan: ${t} "${this.aiTitle}" menceritakan tentang apa? Jelaskan sinopsis, karakter, tema, hal menarik.`);
+    },
 
-                // Import / Export
-                exportHistory() {
-                    const data = {
-                        exported: new Date().toISOString(),
-                        version: 1,
-                        history: this.watchHistory
-                    };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `puruTV-history-${new Date().toISOString().slice(0,10)}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
-                },
+    async askFollowUp(choice) {
+      if (this.aiLoading) return;
+      this.aiLoading=true; this.aiChoices.splice(0);
+      const t=this.currentType;
+      await this._sendAIMessage(`Kamu adalah asisten AI spesialis ${t.toLowerCase()}. Bahasa Indonesia. HANYA JSON valid. Format: {"respon":"<markdown>","choice":["<p1>","<p2>","<p3>"]}. Konteks: ${t.toLowerCase()} "${this.aiTitle}". Pertanyaan: ${choice}`);
+    },
 
-                importHistory(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const parsed = JSON.parse(e.target.result);
-                            const items = parsed.history || (Array.isArray(parsed) ? parsed : null);
-                            if (!items) throw new Error('Format tidak valid');
-                            let added = 0;
-                            items.forEach(item => {
-                                if (!item.seriesTitle) return;
-                                const dupIdx = this.watchHistory.findIndex(h => h.seriesTitle === item.seriesTitle);
-                                if (dupIdx !== -1) this.watchHistory.splice(dupIdx, 1);
-                                this.watchHistory.push(item);
-                                added++;
-                            });
-                            // Sort by watchedAt desc
-                            this.watchHistory.sort((a,b) => new Date(b.watchedAt) - new Date(a.watchedAt));
-                            if (this.watchHistory.length > 20) this.watchHistory.length = 20;
-                            this._saveAll();
-                            this._showToast(true, `${added} riwayat berhasil diimpor!`);
-                        } catch(err) {
-                            this._showToast(false, 'File tidak valid atau rusak.');
-                        }
-                        event.target.value = '';
-                    };
-                    reader.readAsText(file);
-                },
+    async _sendAIMessage(prompt) {
+      try {
+        const d=await fetch('https://puruboy-api.vercel.app/api/ai/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})}).then(r=>r.json());
+        if (d.success&&d.result?.answer) {
+          const parsed=this.parseAIJson(d.result.answer);
+          const hasMarked = typeof marked !== 'undefined';
+          if (parsed?.respon) { 
+            this.aiResult = hasMarked ? marked.parse(parsed.respon) : parsed.respon; 
+            this.aiChoices.splice(0,this.aiChoices.length,...parsed.choice); 
+          } else { 
+            this.aiResult = hasMarked ? marked.parse(d.result.answer) : d.result.answer; 
+            this.aiChoices.splice(0); 
+          }
+        } else { this.aiError='Gagal mendapat respons AI. Silakan coba lagi.'; }
+      } catch(e){ this.aiError='Koneksi gagal. Pastikan internet aktif.'; }
+      finally { this.aiLoading=false; }
+    },
 
-                _showToast(ok, msg) {
-                    this.importToast = { show: true, ok, msg };
-                    setTimeout(() => { this.importToast.show = false; }, 3000);
-                },
+    _saveAll() {
+      localStorage.setItem('puruTV_history',JSON.stringify(this.watchHistory));
+      localStorage.setItem('puruTV_trash',  JSON.stringify(this.trashHistory));
+    },
 
-                // API FETCHERS
-                async fetchHome() {
-                    const res = await fetch('https://puruboy-api.vercel.app/api/anime/anichin/home');
-                    const data = await res.json();
-                    this.homeData = data.result;
-                },
-                async fetchSamehadakuHome() {
-                    this.samehadakuLoading = true;
-                    try {
-                        const res = await fetch('https://puruboy-api.vercel.app/api/anime/samehadaku/home');
-                        const data = await res.json();
-                        this.samehadakuData = data.result;
-                    } catch (e) { console.error("Samehadaku fetch error", e); }
-                    finally { this.samehadakuLoading = false; }
-                },
-                async fetchGenres() {
-                    const res = await fetch('https://puruboy-api.vercel.app/api/anime/anichin/genres');
-                    const data = await res.json();
-                    this.allGenres = data.result;
-                },
-                async fetchByGenre(slug, page) {
-                    this.searchTitle = `Genre: ${slug.replace(/-/g, ' ')}`;
-                    const res = await fetch(`https://puruboy-api.vercel.app/api/anime/anichin/genre?slug=${slug}&page=${page}`);
-                    const data = await res.json();
-                    this.listData = data.result.data;
-                    this.hasNextPage = data.result.hasNextPage;
-                },
-                async fetchSearch(q, page) {
-                    this.searchTitle = `Hasil Cari: ${q}`;
-                    const res = await Promise.all(['anichin', 'samehadaku'].map(p => fetch(`https://puruboy-api.vercel.app/api/anime/${p}/search?q=${q}&page=${page}`).then(r => r.json()).catch(() => ({}))));
-                    this.listData = res.flatMap(r => (r.success ? r.result.data : []));
-                    this.hasNextPage = res.some(r => r.success && r.result.hasNextPage);
-                },
-                async fetchDetail(url) {
-                    const provider = this._getProvider(url);
-                    const res = await fetch(`https://puruboy-api.vercel.app/api/anime/${provider}/detail?url=${encodeURIComponent(decodeURIComponent(url))}`);
-                    const data = await res.json();
-                    if (provider === 'samehadaku' && data.result.details) {
-                        data.result.metadata = {
-                            type: data.result.details.type,
-                            status: data.result.details.status,
-                            studio: data.result.details.studio,
-                            updated_on: data.result.details.released
-                        };
-                    }
-                    this.animeDetail = data.result;
-                },
-                async fetchStream(url) {
-                    const provider = this._getProvider(url);
-                    const currentUrlRaw = decodeURIComponent(url);
-                    const res = await fetch(`https://puruboy-api.vercel.app/api/anime/${provider}/stream?url=${encodeURIComponent(currentUrlRaw)}`);
-                    const data = await res.json();
-                    
-                    if (provider === 'samehadaku') {
-                        // Logic Navigasi Manual untuk Samehadaku
-                        try {
-                            const detailRes = await fetch(data.result.series_url);
-                            const detailData = await detailRes.json();
-                            const epList = detailData.result.episodeList || [];
-                            
-                            // Helper untuk membandingkan slug URL
-                            const getSlug = (u) => {
-                                const dec = decodeURIComponent(u);
-                                return dec.includes('url=') ? dec.split('url=')[1].replace(/\/$/, '') : dec.replace(/\/$/, '');
-                            };
+    _purgeExpiredTrash() {
+      const limit=3*24*60*60*1000;
+      this.trashHistory=this.trashHistory.filter(i=>i.deletedAt&&(Date.now()-new Date(i.deletedAt).getTime())<limit);
+      localStorage.setItem('puruTV_trash',JSON.stringify(this.trashHistory));
+    },
 
-                            const currentSlug = getSlug(currentUrlRaw);
-                            const currentIndex = epList.findIndex(e => getSlug(e.url) === currentSlug);
+    trashExpiry(deletedAt) {
+      if (!deletedAt) return '';
+      const diff=new Date(new Date(deletedAt).getTime()+3*24*60*60*1000)-Date.now();
+      if (diff<=0) return 'Kedaluwarsa';
+      const h=Math.floor(diff/3600000);
+      return h<24?`Hapus dalam ${h}j`:`Hapus dalam ${Math.floor(h/24)}h`;
+    },
 
-                            data.result.series = detailData.result.title;
-                            data.result.navigation = {
-                                // List biasanya urutan terbaru ke lama (index 0 = episode terbaru)
-                                prevEpisode: currentIndex !== -1 && currentIndex < epList.length - 1 ? epList[currentIndex + 1].url : null,
-                                nextEpisode: currentIndex !== -1 && currentIndex > 0 ? epList[currentIndex - 1].url : null,
-                                allEpisodes: data.result.series_url
-                            };
-                        } catch (e) {
-                            console.error("Samehadaku Navigation Error:", e);
-                            data.result.navigation = { prevEpisode: null, nextEpisode: null, allEpisodes: data.result.series_url };
-                        }
+    saveHistory() {
+      const s=this.streamData;
+      if (!s?.series) return;
+      const seriesTitle=this.cleanTitle(s.series), episode=s.title||'', watchedAt=new Date().toISOString();
+      const urlParam=new URLSearchParams((window.location.hash.split('?')[1]||'')).get('url')||'';
+      let epNum='';
+      const m=urlParam.match(/episode-(\d+)/);
+      if (m) epNum='Ep. '+m[1];
+      else if (episode.toLowerCase().includes('episode')) epNum='Ep. '+(episode.split(/episode/i)[1]||'').trim().split(' ')[0];
+      const idx=this.watchHistory.findIndex(h=>h.seriesTitle===seriesTitle);
+      if (idx!==-1) this.watchHistory.splice(idx,1);
+      this.watchHistory.unshift({seriesTitle,episode,epNum,watchedAt,url:urlParam});
+      if (this.watchHistory.length>20) this.watchHistory.length=20;
+      this._saveAll();
+    },
 
-                        data.result.streamingLinks = (data.result.serverOptions || []).map(o => ({
-                            server: o.name, link: o.embed_proxy, isProxy: true
-                        }));
-                        const normDl = [];
-                        (data.result.downloadLinks || []).forEach(f => {
-                            f.list.forEach(i => normDl.push({
-                                quality: `${f.format} ${i.quality}`,
-                                links: i.servers.map(s => ({ host: s.provider, link: s.url }))
-                            }));
-                        });
-                        data.result.downloadLinks = normDl;
-                    }
+    _confirm(opts) { this.confirmModal={show:true,...opts}; },
 
-                    this.streamData = data.result;
-                    const links = this.streamData.streamingLinks || [];
-                    const prefIndex = links.findIndex(s => s.server === this.preferredServerHost);
-                    const startLink = prefIndex !== -1 ? links[prefIndex] : (links[0] || null);
-                    
-                    if (startLink) {
-                        this.changeServer(startLink.link, startLink.server, startLink.isProxy);
-                    }
-                    this.saveHistory();
-                },
-                async fetchSchedule() {
-                    try {
-                        const [aniRes, sameRes] = await Promise.all([
-                            fetch('https://puruboy-api.vercel.app/api/anime/anichin/schedule').then(r => r.json()),
-                            fetch('https://puruboy-api.vercel.app/api/anime/samehadaku/schedule').then(r => r.json())
-                        ]);
-                        
-                        if (aniRes.success) this.scheduleData = aniRes.result;
-                        if (sameRes.success) {
-                            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                            const dayMap = { monday: 'Senin', tuesday: 'Selasa', wednesday: 'Rabu', thursday: 'Kamis', friday: 'Jumat', saturday: 'Sabtu', sunday: 'Minggu' };
-                            this.samehadakuSchedule = days.map(d => ({
-                                day: dayMap[d],
-                                list: sameRes.result[d] || []
-                            }));
-                        }
-                    } catch (e) {
-                        console.error("Schedule fetch error:", e);
-                    }
-                },
+    confirmRemoveHistory(i) {
+      this._confirm({danger:true,title:'Hapus Riwayat?',subtitle:this.watchHistory[i].seriesTitle,message:'History ini akan dipindahkan ke Tong Sampah dan bisa dikembalikan dalam 3 hari.',confirmText:'Pindah ke Sampah',action:()=>this.removeHistory(i)});
+    },
+    confirmClearHistory() {
+      this._confirm({danger:true,title:'Hapus Semua Riwayat?',subtitle:`${this.watchHistory.length} riwayat akan dihapus`,message:'Semua history akan dipindahkan ke Tong Sampah selama 3 hari.',confirmText:'Hapus Semua',action:()=>this.clearHistory()});
+    },
+    confirmEmptyTrash() {
+      this._confirm({danger:true,title:'Kosongkan Tong Sampah?',subtitle:`${this.trashHistory.length} item dihapus permanen`,message:'Tindakan ini tidak bisa dibatalkan.',confirmText:'Hapus Permanen',action:()=>this.emptyTrash()});
+    },
+    confirmDeletePermanent(i) {
+      this._confirm({danger:true,title:'Hapus Permanen?',subtitle:this.trashHistory[i].seriesTitle,message:'History ini akan dihapus selamanya dan tidak bisa dikembalikan.',confirmText:'Hapus Permanen',action:()=>{this.trashHistory.splice(i,1);this._saveAll();}});
+    },
 
-                async changeServer(link, serverName, isProxy = false) {
-                    this.preferredServerHost = serverName;
-                    localStorage.setItem('puruTV_preferredServer', serverName);
-                    if (isProxy) {
-                        try {
-                            const res = await fetch(link);
-                            const d = await res.json();
-                            this.activeServer = d.result.embed_url;
-                        } catch (e) { console.error("Embed fetch error", e); }
-                    } else {
-                        this.activeServer = link;
-                    }
-                },
+    removeHistory(i) { const [r]=this.watchHistory.splice(i,1); r.deletedAt=new Date().toISOString(); this.trashHistory.unshift(r); this._saveAll(); },
+    clearHistory() { const now=new Date().toISOString(); this.trashHistory.unshift(...this.watchHistory.map(h=>({...h,deletedAt:now}))); this.watchHistory=[]; this._saveAll(); },
+    restoreFromTrash(i) {
+      const item={...this.trashHistory[i]}; delete item.deletedAt; this.trashHistory.splice(i,1);
+      const dup=this.watchHistory.findIndex(h=>h.seriesTitle===item.seriesTitle);
+      if (dup!==-1) this.watchHistory.splice(dup,1);
+      this.watchHistory.unshift(item); if (this.watchHistory.length>20) this.watchHistory.length=20; this._saveAll();
+    },
+    restoreAllTrash() {
+      this.trashHistory.forEach(item=>{const c={...item};delete c.deletedAt;const d=this.watchHistory.findIndex(h=>h.seriesTitle===c.seriesTitle);if(d!==-1)this.watchHistory.splice(d,1);this.watchHistory.unshift(c);});
+      if (this.watchHistory.length>20) this.watchHistory.length=20; this.trashHistory=[]; this._saveAll();
+    },
+    emptyTrash() { this.trashHistory=[]; this._saveAll(); },
 
-                async sendChat() {
-                    if (!this.chatInput.trim() || this.chatLoading) return;
-                    const userMsg = this.chatInput;
-                    this.chatInput = '';
-                    this.chatMessages.push({ role: 'user', text: userMsg });
-                    this.chatLoading = true;
+    exportHistory() {
+      const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),version:1,history:this.watchHistory},null,2)],{type:'application/json'});
+      const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`puruTV-history-${new Date().toISOString().slice(0,10)}.json`});
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    },
 
-                    this.$nextTick(() => {
-                        const el = this.$refs.chatBox;
-                        if(el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-                    });
+    importHistory(event) {
+      const file=event.target.files[0]; if (!file) return;
+      const r=new FileReader();
+      r.onload=e=>{
+        try {
+          const parsed=JSON.parse(e.target.result), items=parsed.history||(Array.isArray(parsed)?parsed:null);
+          if (!items) throw new Error();
+          let added=0;
+          items.forEach(item=>{ if(!item.seriesTitle)return; const d=this.watchHistory.findIndex(h=>h.seriesTitle===item.seriesTitle); if(d!==-1)this.watchHistory.splice(d,1); this.watchHistory.push(item); added++; });
+          this.watchHistory.sort((a,b)=>new Date(b.watchedAt)-new Date(a.watchedAt));
+          if (this.watchHistory.length>20) this.watchHistory.length=20;
+          this._saveAll(); this._showToast(true,`${added} riwayat berhasil diimpor!`);
+        } catch(e){ this._showToast(false,'File tidak valid atau rusak.'); }
+        event.target.value='';
+      };
+      r.readAsText(file);
+    },
 
-                    try {
-                        const res = await fetch('https://puruboy-api.vercel.app/api/ai/puruai', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                userid: this.chatSessionId,
-                                prompt: userMsg,
-                                model: "puruboy-flash",
-                                system: "Kamu adalah AI asisten dari PuruTV (PuruBoy) yang ramah. Kamu ahli dalam memberikan rekomendasi Donghua (animasi China) dan menjawab pertanyaan seputar alur cerita, karakter, atau jadwal rilis donghua. Gunakan Bahasa Indonesia yang santai tapi sopan."
-                            })
-                        });
-                        const data = await res.json();
-                        if (data.success && data.result && data.result[0]) {
-                            const aiMsg = data.result[0].parts[0].text;
-                            this.chatMessages.push({ role: 'model', text: aiMsg });
-                        } else {
-                            this.chatMessages.push({ role: 'model', text: 'Maaf, sistem sedang sibuk. Coba tanya lagi nanti ya!' });
-                        }
-                    } catch (err) {
-                        this.chatMessages.push({ role: 'model', text: 'Koneksi error. Pastikan internetmu aktif!' });
-                    } finally {
-                        this.chatLoading = false;
-                        this.$nextTick(() => {
-                            const el = this.$refs.chatBox;
-                            if(el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-                        });
-                    }
-                }
-            }
-        }</script></body></html>
+    _showToast(ok,msg) { this.importToast={show:true,ok,msg}; setTimeout(()=>this.importToast.show=false,3000); },
+
+    async fetchHome() { const d=await fetch('https://puruboy-api.vercel.app/api/anime/anichin/home').then(r=>r.json()); this.homeData=d.result; },
+    async fetchGenres() { const d=await fetch('https://puruboy-api.vercel.app/api/anime/anichin/genres').then(r=>r.json()); this.allGenres=d.result; },
+    async fetchByGenre(slug,page) {
+      this.searchTitle=`Genre: ${slug.replace(/-/g,' ')}`;
+      const d=await fetch(`https://puruboy-api.vercel.app/api/anime/anichin/genre?slug=${slug}&page=${page}`).then(r=>r.json());
+      this.listData=d.result.data; this.hasNextPage=d.result.hasNextPage;
+    },
+    async fetchSearch(q,page) {
+      this.searchTitle=`Hasil Cari: ${q}`;
+      const d=await fetch(`https://puruboy-api.vercel.app/api/anime/anichin/search?q=${q}&page=${page}`).then(r=>r.json());
+      this.listData=d.result.data;
+      this.hasNextPage=d.result.hasNextPage;
+    },
+    async fetchDetail(url) {
+      const d=await fetch(`https://puruboy-api.vercel.app/api/anime/anichin/detail?url=${encodeURIComponent(decodeURIComponent(url))}`).then(r=>r.json());
+      this.animeDetail=d.result;
+    },
+    async fetchStream(url) {
+      const rawUrl=decodeURIComponent(url);
+      const d=await fetch(`https://puruboy-api.vercel.app/api/anime/anichin/stream?url=${encodeURIComponent(rawUrl)}`).then(r=>r.json());
+      this.streamData=d.result;
+      const links=this.streamData.streamingLinks||[];
+      const pref=links.findIndex(s=>s.server===this.preferredServerHost);
+      const start=pref!==-1?links[pref]:(links[0]||null);
+      if (start) this.changeServer(start.link,start.server,start.isProxy);
+      this.saveHistory();
+    },
+    async fetchSchedule() {
+      try {
+        const a=await fetch('https://puruboy-api.vercel.app/api/anime/anichin/schedule').then(r=>r.json());
+        if (a.success) this.scheduleData=a.result;
+      } catch(e){}
+    },
+    async changeServer(link,serverName,isProxy=false) {
+      this.preferredServerHost=serverName;
+      localStorage.setItem('puruTV_preferredServer',serverName);
+      if (isProxy) {
+        try { const d=await fetch(link).then(r=>r.json()); this.activeServer=d.result.embed_url; }
+        catch(e){}
+      } else { this.activeServer=link; }
+    }
+  }
+}
+</script>
+</body>
+</html>
