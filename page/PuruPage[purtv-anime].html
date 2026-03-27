@@ -1,4 +1,4 @@
-<!-- META {"title":"PurTV Anime","desc":"Nonton anime dan history nonton ","date":"2026-03-26T18:50:34.117Z"} -->
+<!-- META {"title":"PurTV Anime","desc":"Nonton anime ","date":"2026-03-27T00:04:17.653Z"} -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,6 +78,34 @@
                 'thursday': 'Kamis', 'friday': 'Jumat', 'saturday': 'Sabtu', 'sunday': 'Minggu'
             };
             return map[day.toLowerCase()] || day;
+        },
+        nav(path, params = {}) {
+            const q = new URLSearchParams(params).toString();
+            location.hash = path + (q ? '?' + q : '');
+        },
+        handleRouting() {
+            const hash = location.hash || '#home';
+            const [path, query] = hash.split('?');
+            const p = new URLSearchParams(query || '');
+            const urlParam = p.get('url');
+
+            if (path === '#home') { 
+                this.view = 'home'; 
+                if(!this.latest.length) this.fetchData(); 
+            } else if (path === '#schedule') {
+                this.fetchSchedule();
+            } else if (path === '#list') {
+                this.fetchList(p.get('page') || 1);
+            } else if (path === '#history') {
+                this.view = 'history';
+            } else if (path === '#search') {
+                this.searchQuery = p.get('q') || '';
+                this.searchAnime();
+            } else if (path === '#detail' && urlParam) {
+                this.fetchDetail(urlParam);
+            } else if (path === '#stream' && urlParam) {
+                this.fetchStream(urlParam);
+            }
         },
         async fetchData() {
             try {
@@ -216,7 +244,7 @@
                 localStorage.setItem('anime_history', JSON.stringify(this.history));
             }
         }
-    }" x-init="fetchData()">
+    }" x-init="handleRouting(); window.onhashchange = () => handleRouting()">
         
         <!-- Header & Toggle Button -->
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -231,14 +259,14 @@
         <div x-show="navOpen" x-collapse x-transition class="bg-dark p-3 rounded border border-secondary mb-4 shadow-sm">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'home' ? 'btn-primary' : 'btn-outline-primary'" @click="view = 'home'">Home</button>
-                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'schedule' ? 'btn-warning' : 'btn-outline-warning'" @click="fetchSchedule()">Jadwal</button>
-                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'list' ? 'btn-info' : 'btn-outline-info'" @click="fetchList(1)">Daftar</button>
-                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'history' ? 'btn-danger' : 'btn-outline-danger'" @click="view = 'history'">Riwayat</button>
+                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'home' ? 'btn-primary' : 'btn-outline-primary'" @click="nav('#home')">Home</button>
+                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'schedule' ? 'btn-warning' : 'btn-outline-warning'" @click="nav('#schedule')">Jadwal</button>
+                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'list' ? 'btn-info' : 'btn-outline-info'" @click="nav('#list', {page:1})">Daftar</button>
+                    <button class="btn btn-sm rounded-pill px-3" :class="view === 'history' ? 'btn-danger' : 'btn-outline-danger'" @click="nav('#history')">Riwayat</button>
                 </div>
                 <div class="input-group input-group-sm" style="max-width: 300px;">
-                    <input type="text" x-model="searchQuery" @keyup.enter="searchAnime()" class="form-control bg-dark text-white border-secondary" placeholder="Cari anime...">
-                    <button class="btn btn-primary" @click="searchAnime()">Cari</button>
+                    <input type="text" x-model="searchQuery" @keyup.enter="nav('#search', {q: searchQuery})" class="form-control bg-dark text-white border-secondary" placeholder="Cari anime...">
+                    <button class="btn btn-primary" @click="nav('#search', {q: searchQuery})">Cari</button>
                 </div>
             </div>
         </div>
@@ -274,7 +302,7 @@
                                 <div class="overflow-hidden">
                                     <h6 class="mb-1 text-truncate small fw-bold" x-text="item.title"></h6>
                                     <div class="badge bg-danger mb-1" style="font-size: 0.6rem;" x-text="item.ep"></div>
-                                    <div class="small text-muted" style="font-size: 0.65rem;">Klik untuk lanjut menonton</div>
+                                    <div class="small text-light opacity-50" style="font-size: 0.65rem;">Klik untuk lanjut menonton</div>
                                 </div>
                             </div>
                         </div>
@@ -303,7 +331,7 @@
                                 </div>
                                 <div class="card-body p-2">
                                     <h6 class="card-title text-truncate-2 mb-1 small fw-bold" x-text="item.title"></h6>
-                                    <p class="card-text text-muted small mb-0" style="font-size: 0.7rem;" x-text="item.status + ' • ' + item.type"></p>
+                                    <p class="card-text text-secondary small mb-0" style="font-size: 0.7rem;" x-text="item.status + ' • ' + item.type"></p>
                                 </div>
                             </div>
                         </div>
@@ -331,7 +359,7 @@
                                             <div>
                                                 <h6 class="mb-1 text-truncate small" x-text="item.title"></h6>
                                                 <div class="badge bg-secondary mb-1" x-text="item.time"></div>
-                                                <div class="small text-muted" x-text="item.genres"></div>
+                                                <div class="small text-secondary" x-text="item.genres"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -366,10 +394,10 @@
                 <!-- Pagination -->
                 <div class="d-flex justify-content-center gap-2 mb-5">
                     <button class="btn btn-secondary" :disabled="animeListData.pagination.current_page === 1" 
-                            @click="fetchList(animeListData.pagination.current_page - 1)">Prev</button>
+                            @click="nav('#list', {page: animeListData.pagination.current_page - 1})">Prev</button>
                     <button class="btn btn-primary" disabled x-text="animeListData.pagination.current_page"></button>
                     <button class="btn btn-secondary" :disabled="!animeListData.pagination.has_next" 
-                            @click="fetchList(animeListData.pagination.current_page + 1)">Next</button>
+                            @click="nav('#list', {page: animeListData.pagination.current_page + 1})">Next</button>
                 </div>
             </div>
         </template>
@@ -384,14 +412,14 @@
                         <div class="row g-3">
                             <template x-for="(item, index) in latest" :key="index">
                                 <div class="col-6 col-md-3">
-                                    <div class="card h-100 border-0 shadow-sm cursor-pointer" @click="fetchDetail(item.url)" style="cursor: pointer;">
+                                    <div class="card h-100 border-0 shadow-sm cursor-pointer" @click="nav('#detail', {url: item.url})" style="cursor: pointer;">
                                         <div class="img-container">
                                             <img :src="item.thumbnail" class="card-img-top" :alt="item.title">
                                             <span class="badge bg-primary position-absolute bottom-0 start-0 m-2" x-text="'Ep ' + item.episode"></span>
                                         </div>
                                         <div class="card-body p-2">
                                             <h6 class="card-title text-truncate-2 mb-1 small fw-bold" x-text="item.title"></h6>
-                                            <p class="card-text text-muted small mb-0" style="font-size: 0.7rem;" x-text="item.released"></p>
+                                            <p class="card-text text-secondary small mb-0" style="font-size: 0.7rem;" x-text="item.released"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -409,7 +437,7 @@
                                     <img :src="item.thumbnail" style="width: 50px; height: 70px; object-fit: cover;" class="rounded">
                                     <div class="overflow-hidden text-start">
                                         <h6 class="mb-0 text-truncate small" x-text="item.title"></h6>
-                                        <small class="text-muted">⭐ <span x-text="item.rating"></span></small>
+                                        <small class="text-warning">⭐ <span class="text-light" x-text="item.rating"></span></small>
                                     </div>
                                 </button>
                             </template>
@@ -446,7 +474,7 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="#" @click.prevent="view = 'home'" class="text-primary text-decoration-none">Beranda</a></li>
                         <li class="breadcrumb-item"><a href="#" @click.prevent="view = 'detail'" class="text-primary text-decoration-none" x-text="detailData?.title || 'Detail'"></a></li>
-                        <li class="breadcrumb-item active text-light" x-text="streamData.title"></li>
+                        <li class="breadcrumb-item active text-white fw-bold" aria-current="page" x-text="streamData.title"></li>
                     </ol>
                 </nav>
 
@@ -562,7 +590,7 @@
                     <!-- Right: Details -->
                     <div class="col-md-8 col-lg-9">
                         <h2 class="fw-bold mb-2" x-text="detailData.title"></h2>
-                        <p class="text-muted italic mb-3" x-text="detailData.details.japanese"></p>
+                        <p class="text-light opacity-50 fst-italic mb-3" x-text="detailData.details.japanese"></p>
                         
                         <div class="mb-4">
                             <template x-for="genre in detailData.genres">
@@ -573,14 +601,14 @@
                         <div class="card bg-dark border-secondary mb-4">
                             <div class="card-header border-secondary bg-secondary bg-opacity-10 fw-bold">Sinopsis</div>
                             <div class="card-body">
-                                <p class="card-text text-light opacity-75" style="white-space: pre-line;" x-text="detailData.synopsis"></p>
+                                <p class="card-text text-light" style="white-space: pre-line; opacity: 0.9;" x-text="detailData.synopsis"></p>
                             </div>
                         </div>
 
                         <h4 class="mb-3 border-start border-4 border-success ps-3">Daftar Episode</h4>
                         <div class="list-group mb-5">
                             <template x-for="ep in detailData.episodeList">
-                                <button @click="fetchStream(ep.url || ep.original_url)" class="list-group-item list-group-item-action bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                                <button @click="nav('#stream', {url: ep.url || ep.original_url})" class="list-group-item list-group-item-action bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
                                     <span x-text="ep.title"></span>
                                     <small class="text-muted" x-text="ep.date"></small>
                                 </button>
@@ -599,7 +627,7 @@
                                         </div>
                                         <div class="card-body p-2 px-0">
                                             <h6 class="card-title text-truncate small fw-bold mb-0" x-text="rec.title"></h6>
-                                            <small class="text-muted" x-text="rec.latest_eps"></small>
+                                            <small class="text-secondary" x-text="rec.latest_eps"></small>
                                         </div>
                                     </div>
                                 </div>
