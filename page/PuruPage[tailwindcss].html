@@ -1,0 +1,265 @@
+<!-- META {"title":"tailwindcss","desc":"Compiler ","date":"2026-03-27T03:03:26.264Z"} -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS Extractor Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        textarea::-webkit-scrollbar { width: 8px; height: 8px; }
+        textarea::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans pb-10">
+
+    <div class="max-w-6xl mx-auto p-6">
+        <header class="mb-8 text-center pt-4">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center justify-center gap-2">
+                <i data-lucide="wind" class="text-sky-500"></i> Tailwind CSS Extractor
+            </h1>
+            <p class="text-slate-500 mt-2">Ekstrak CSS murni dari HTML dan jadikan satu file mandiri (tanpa CDN).</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Bagian Input -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit">
+                <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i data-lucide="code"></i> Input HTML
+                </h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Upload File HTML</label>
+                    <input type="file" id="fileInput" accept=".html" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 transition cursor-pointer">
+                </div>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-semibold tracking-wider">ATAU PASTE KODE</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div class="mb-4">
+                    <textarea id="htmlInput" rows="14" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 font-mono text-sm leading-relaxed whitespace-pre" spellcheck="false" placeholder="Paste kode HTML di sini..."></textarea>
+                </div>
+
+                <div id="errorMessage" class="hidden mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <button id="generateBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <i data-lucide="zap"></i> Generate CSS & HTML
+                </button>
+            </div>
+
+            <!-- Bagian Output -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-[700px]">
+                
+                <div class="flex justify-between items-end mb-4 border-b border-slate-200">
+                    <div class="flex gap-4">
+                        <button id="tabCss" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
+                            CSS Murni
+                        </button>
+                        <button id="tabHtml" class="pb-3 text-sm font-semibold border-b-2 border-sky-500 text-sky-600 transition">
+                            HTML + CSS (Final)
+                        </button>
+                    </div>
+                    <button id="copyBtn" class="mb-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-3 rounded-md flex items-center gap-1 transition hidden">
+                        <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                    </button>
+                </div>
+                
+                <div class="flex-grow relative">
+                    <textarea id="cssOutput" class="output-textarea hidden w-full h-full p-4 border border-slate-300 rounded-lg bg-slate-50 font-mono text-sm text-slate-700 focus:outline-none whitespace-pre" spellcheck="false" readonly placeholder="Hasil ekstrak CSS akan muncul di sini..."></textarea>
+                    
+                    <textarea id="finalHtmlOutput" class="output-textarea w-full h-full p-4 border border-slate-300 rounded-lg bg-slate-50 font-mono text-sm text-slate-700 focus:outline-none whitespace-pre" spellcheck="false" readonly placeholder="Hasil gabungan HTML dan CSS akan muncul di sini..."></textarea>
+
+                    <div id="loadingOverlay" class="absolute inset-0 bg-white/95 hidden flex-col items-center justify-center rounded-lg z-10">
+                        <i data-lucide="loader-2" class="w-12 h-12 text-sky-500 animate-spin mb-4"></i>
+                        <span class="text-base font-bold text-slate-700 mb-2">Merender & Mengekstrak...</span>
+                        <span class="text-xs text-slate-500 text-center px-4 leading-relaxed">Mensimulasikan layar Desktop (1080p).<br>Memastikan semua Alpine.js dan class responsif (md:, lg:) terbaca.<br>Waktu proses: ~3 Detik.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        const htmlInput = document.getElementById('htmlInput');
+        const fileInput = document.getElementById('fileInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const cssOutput = document.getElementById('cssOutput');
+        const finalHtmlOutput = document.getElementById('finalHtmlOutput');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const copyBtn = document.getElementById('copyBtn');
+        const tabCss = document.getElementById('tabCss');
+        const tabHtml = document.getElementById('tabHtml');
+
+        let messageListener = null;
+
+        // RegExp Aman untuk mengganti script CDN (Mendukung http/https dan berbagai format penulisan)
+        const twScriptRegex = new RegExp('<script[^>]*src=["\'](?:https?:)?\\/\\/cdn\\.tailwindcss\\.com[^>]*><\\/script>', 'gi');
+
+        function switchTab(activeTab, inactiveTab, showTextarea, hideTextarea) {
+            activeTab.classList.replace('border-transparent', 'border-sky-500');
+            activeTab.classList.replace('text-slate-500', 'text-sky-600');
+            inactiveTab.classList.replace('border-sky-500', 'border-transparent');
+            inactiveTab.classList.replace('text-sky-600', 'text-slate-500');
+            showTextarea.classList.remove('hidden');
+            hideTextarea.classList.add('hidden');
+        }
+
+        tabCss.addEventListener('click', () => switchTab(tabCss, tabHtml, cssOutput, finalHtmlOutput));
+        tabHtml.addEventListener('click', () => switchTab(tabHtml, tabCss, finalHtmlOutput, cssOutput));
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                htmlInput.value = evt.target.result;
+                hideError();
+            };
+            reader.readAsText(file);
+        });
+
+        htmlInput.addEventListener('input', hideError);
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        copyBtn.addEventListener('click', () => {
+            const activeTextarea = cssOutput.classList.contains('hidden') ? finalHtmlOutput : cssOutput;
+            activeTextarea.select();
+            document.execCommand('copy');
+            
+            const originalHtml = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-500"></i> Copied!';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setTimeout(() => { copyBtn.innerHTML = originalHtml; if (typeof lucide !== 'undefined') lucide.createIcons(); }, 2000);
+        });
+
+        generateBtn.addEventListener('click', () => {
+            const html = htmlInput.value.trim();
+
+            if (!html) {
+                showError("Mohon masukkan kode HTML atau upload file.");
+                return;
+            }
+
+            if (!html.toLowerCase().includes('cdn.tailwindcss.com')) {
+                showError("DITOLAK: Kode HTML tidak mengandung <script src=\"https://cdn.tailwindcss.com\"></scr"+"ipt>");
+                return;
+            }
+
+            hideError();
+            generateBtn.disabled = true;
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
+            cssOutput.value = '';
+            finalHtmlOutput.value = '';
+            copyBtn.classList.add('hidden');
+
+            // 1. Script Injeksi untuk mengirim balik CSS ke halaman utama
+            const injectionScript = `
+            <script>
+                window.addEventListener('load', () => {
+                    // Beri waktu 3 detik agar Alpine.js merender komponen dan Tailwind memindai semua class
+                    setTimeout(() => {
+                        let extracted = '';
+                        const styles = document.querySelectorAll('style');
+                        styles.forEach(style => {
+                            // Deteksi <style> hasil buatan Tailwind CDN
+                            if (style.textContent.includes('tailwindcss')) {
+                                extracted = style.textContent;
+                            }
+                        });
+                        window.parent.postMessage({ type: 'TAILWIND_EXTRACT', css: extracted }, '*');
+                    }, 3000);
+                });
+            <\/script>`.replace(/<\/script>/g, '</s'+'cript>'); 
+
+            // Sisipkan script di akhir HTML
+            const finalBlobHtml = html + injectionScript;
+            
+            // 2. Gunakan BLOB URL (Agar browser menganggap ini file HTML asli, bukan manipulasi Javascript)
+            const blob = new Blob([finalBlobHtml], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // 3. Setup Virtual Monitor (Iframe dengan ukuran 1920x1080px tapi tersembunyi)
+            const iframe = document.createElement('iframe');
+            // Ukuran mutlak diperlukan agar class md: dan lg: tereksekusi
+            iframe.style.cssText = "position: absolute; width: 1920px; height: 1080px; top: -9999px; left: -9999px; visibility: hidden; border: none;";
+            document.body.appendChild(iframe);
+
+            // Timeout Fallback Darurat (Batal jika lebih dari 10 detik)
+            const emergencyTimeout = setTimeout(() => {
+                cleanup(iframe, blobUrl, false);
+                showError("Timeout: Gagal mengekstrak. Pastikan script HTML tidak memblokir proses memuat.");
+            }, 10000);
+
+            // 4. Tangkap pesan (CSS) dari dalam iframe
+            if(messageListener) window.removeEventListener('message', messageListener);
+            
+            messageListener = function(event) {
+                if (event.data && event.data.type === 'TAILWIND_EXTRACT') {
+                    clearTimeout(emergencyTimeout);
+                    const extractedCSS = event.data.css;
+
+                    if (extractedCSS) {
+                        // Tampilkan CSS Asli
+                        cssOutput.value = extractedCSS;
+                        
+                        // Timpa script CDN dengan Tag <style> berisi CSS murni
+                        const styleElement = `<style>\n${extractedCSS}\n</style>`;
+                        const finalHTML = html.replace(twScriptRegex, styleElement);
+                        finalHtmlOutput.value = finalHTML;
+
+                        cleanup(iframe, blobUrl, true);
+                    } else {
+                        cleanup(iframe, blobUrl, false);
+                        showError("CSS Tailwind gagal ditemukan. Mungkin file Anda rusak atau tidak memiliki class Tailwind.");
+                    }
+                }
+            };
+
+            window.addEventListener('message', messageListener);
+
+            // Mulai Muat Iframe
+            iframe.src = blobUrl;
+        });
+
+        function cleanup(iframeElement, blobUrl, isSuccess) {
+            if (document.body.contains(iframeElement)) document.body.removeChild(iframeElement);
+            if (blobUrl) URL.revokeObjectURL(blobUrl); // Bebaskan memori
+            if (messageListener) {
+                window.removeEventListener('message', messageListener);
+                messageListener = null;
+            }
+            
+            generateBtn.disabled = false;
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('flex');
+            
+            if (isSuccess) {
+                copyBtn.classList.remove('hidden');
+                switchTab(tabHtml, tabCss, finalHtmlOutput, cssOutput);
+            }
+        }
+    </script>
+</body>
+</html>
