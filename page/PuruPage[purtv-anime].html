@@ -1,3 +1,4 @@
+
 <!-- META {"title":"PurTV Anime","desc":"Nonton anime ","date":"2026-03-27T00:04:17.653Z"} -->
 <!DOCTYPE html>
 <html lang="en">
@@ -88,6 +89,17 @@
             const [path, query] = hash.split('?');
             const p = new URLSearchParams(query || '');
             const urlParam = p.get('url');
+
+            // Validasi Route (404 Check)
+            const validPaths = ['#home', '#schedule', '#list', '#history', '#search', '#detail', '#stream'];
+            const isInvalidDetail = path === '#detail' && !urlParam;
+            const isInvalidStream = path === '#stream' && !urlParam;
+
+            if (!validPaths.includes(path) || isInvalidDetail || isInvalidStream) {
+                alert('Error 404: Halaman tidak ditemukan!');
+                location.hash = '#home';
+                return;
+            }
 
             if (path === '#home') { 
                 this.view = 'home'; 
