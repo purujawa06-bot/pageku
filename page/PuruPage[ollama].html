@@ -1,0 +1,248 @@
+<!-- META {"title":"Ollama","desc":"OLLAMA","date":"2026-05-13T21:19:58.600Z"} -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Mobile Stream</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .typing-dot { animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-[100dvh] flex flex-col overflow-hidden">
+
+    <!-- Sidebar / Drawer -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm transition-opacity"></div>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-slate-900 border-r border-slate-800 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="p-2 bg-blue-600 rounded-lg"><i data-lucide="cpu" class="w-5 h-5"></i></div>
+                <span class="font-bold text-lg">Ollama Stream</span>
+            </div>
+            <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-800 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-5 space-y-6">
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase block mb-2">Endpoint API</label>
+                <input id="api-host" type="text" value="https://betatestervueui2-puru.hf.space" 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Pilih Model</label>
+                    <button onclick="fetchModels()" class="text-blue-500 hover:rotate-180 transition-all"><i data-lucide="refresh-cw" class="w-3 h-3"></i></button>
+                </div>
+                <select id="model-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none cursor-pointer appearance-none"></select>
+            </div>
+            <div class="pt-4 border-t border-slate-800">
+                <button onclick="clearHistory()" class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-sm transition-colors font-medium">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Padam Sejarah
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <header class="h-16 border-b border-slate-800 flex items-center px-4 shrink-0 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
+        <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-900 rounded-lg text-slate-400"><i data-lucide="menu" class="w-6 h-6"></i></button>
+        <div class="flex-1 px-4 truncate">
+            <h1 id="current-model-name" class="text-sm font-semibold truncate leading-none">Menghubung...</h1>
+            <span id="status-indicator" class="text-[10px] text-slate-500">Menyemak status API</span>
+        </div>
+    </header>
+
+    <main id="chat-container" class="flex-1 overflow-y-auto px-4 py-6 space-y-6 hide-scrollbar flex flex-col items-center">
+        <!-- Messages will appear here -->
+    </main>
+
+    <div class="p-4 md:p-6 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
+        <div class="max-w-3xl mx-auto flex gap-2 items-end">
+            <div class="relative flex-1">
+                <textarea id="user-input" rows="1" placeholder="Tanya sesuatu..." 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-2xl py-4 pl-5 pr-14 text-sm outline-none focus:ring-2 focus:ring-blue-600 transition-all resize-none shadow-xl max-h-40 overflow-y-auto"
+                    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+                <button id="send-btn" onclick="sendMessage()" class="absolute right-2 bottom-2 p-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-xl transition-all shadow-lg shadow-blue-600/20">
+                    <i data-lucide="send-horizontal" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <p class="text-[9px] text-center text-slate-600 mt-3 font-medium uppercase tracking-widest">Ollama Local Stream Engine • Mobile Ready</p>
+    </div>
+
+    <script>
+        let chatHistory = JSON.parse(localStorage.getItem('ollama_history')) || [];
+        const hostInput = document.getElementById('api-host');
+        const modelSelect = document.getElementById('model-select');
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // Initialize
+        window.onload = () => {
+            lucide.createIcons();
+            const savedHost = localStorage.getItem('ollama_host');
+            if (savedHost) hostInput.value = savedHost;
+            renderHistory();
+            fetchModels();
+        };
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = sb.classList.contains('translate-x-0');
+            
+            if (isOpen) {
+                sb.classList.replace('translate-x-0', '-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sb.classList.replace('-translate-x-full', 'translate-x-0');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        async function fetchModels() {
+            const host = hostInput.value.replace(/\/$/, "");
+            localStorage.setItem('ollama_host', host);
+            try {
+                const res = await fetch(`${host}/api/tags`);
+                const data = await res.json();
+                modelSelect.innerHTML = data.models.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+                const savedModel = localStorage.getItem('ollama_model');
+                if (savedModel) modelSelect.value = savedModel;
+                updateStatus(true);
+            } catch (err) {
+                updateStatus(false);
+            }
+        }
+
+        function updateStatus(online) {
+            document.getElementById('status-indicator').innerText = online ? 'Online - Sedia' : 'Ralat Sambungan';
+            document.getElementById('status-indicator').className = `text-[10px] ${online ? 'text-green-500' : 'text-red-500'}`;
+            document.getElementById('current-model-name').innerText = modelSelect.value || 'Tiada Model';
+        }
+
+        modelSelect.onchange = () => {
+            localStorage.setItem('ollama_model', modelSelect.value);
+            document.getElementById('current-model-name').innerText = modelSelect.value;
+        };
+
+        function appendMessage(role, content, id = null) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full max-w-3xl ${role === 'user' ? 'justify-end' : 'justify-start'} mb-6`;
+            
+            const html = `
+                <div class="flex gap-3 max-w-[90%] md:max-w-[85%] ${role === 'user' ? 'flex-row-reverse' : ''}">
+                    <div class="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${role === 'user' ? 'bg-blue-600' : 'bg-slate-800 border border-slate-700'}">
+                        <i data-lucide="${role === 'user' ? 'user' : 'bot'}" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <div id="${id || ''}" class="px-4 py-3 rounded-2xl text-sm leading-relaxed ${role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'}">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            wrapper.innerHTML = html;
+            chatContainer.appendChild(wrapper);
+            lucide.createIcons();
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return wrapper.querySelector(`#${id}`);
+        }
+
+        function renderHistory() {
+            chatContainer.innerHTML = '';
+            chatHistory.forEach(msg => appendMessage(msg.role, msg.content));
+        }
+
+        function clearHistory() {
+            chatHistory = [];
+            localStorage.removeItem('ollama_history');
+            renderHistory();
+            toggleSidebar();
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            const host = hostInput.value.replace(/\/$/, "");
+            const model = modelSelect.value;
+
+            if (!text || !model || sendBtn.disabled) return;
+
+            sendBtn.disabled = true;
+            userInput.value = '';
+            userInput.style.height = '';
+            
+            appendMessage('user', text);
+            chatHistory.push({ role: 'user', content: text });
+
+            const responseId = 'ai-' + Date.now();
+            const responseElement = appendMessage('assistant', '<div class="flex gap-1 py-1"><span class="w-1.5 h-1.5 bg-slate-500 rounded-full typing-dot"></span><span class="w-1.5 h-1.5 bg-slate-500 rounded-full typing-dot"></span><span class="w-1.5 h-1.5 bg-slate-500 rounded-full typing-dot"></span></div>', responseId);
+            
+            let fullAiContent = "";
+
+            try {
+                const response = await fetch(`${host}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: chatHistory.map(m => ({ role: m.role, content: m.content })),
+                        stream: true
+                    })
+                });
+
+                if (!response.ok) throw new Error('Ralat Pelayan');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                responseElement.innerHTML = ''; // Clear dots
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n');
+                    
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        try {
+                            const json = JSON.parse(line);
+                            if (json.message && json.message.content) {
+                                fullAiContent += json.message.content;
+                                responseElement.innerText = fullAiContent;
+                                chatContainer.scrollTop = chatContainer.scrollHeight;
+                            }
+                        } catch (e) { console.error("JSON Parse Error", e); }
+                    }
+                }
+
+                chatHistory.push({ role: 'assistant', content: fullAiContent });
+                localStorage.setItem('ollama_history', JSON.stringify(chatHistory));
+
+            } catch (err) {
+                responseElement.innerHTML = `<span class="text-red-400 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Gagal mendapatkan respons. Semak sambungan API.</span>`;
+                lucide.createIcons();
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Handle Enter key
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
