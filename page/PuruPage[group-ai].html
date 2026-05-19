@@ -1,4 +1,4 @@
-<!-- META {"title":"Group AI","desc":"Group ai","date":"2026-05-19T00:46:16.930Z"} -->
+<!-- META {"title":"Group AI","desc":"Gc AI","date":"2026-05-19T01:02:35.694Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -9,6 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- GPT Tokenizer for OpenAI Standard -->
+    <script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/cl100k_base.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -266,6 +268,10 @@
                 showScrollBtn: false,
                 apiUrl: 'https://puruboy-api.vercel.app/api/ai/gemini-v2',
 
+                sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                },
+
                 getAvatar(name) {
                     if (name === this.userProfile.name) {
                         return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
@@ -279,6 +285,15 @@
 
                 countTokens(str) {
                     if (!str) return 0;
+                    try {
+                        // Menggunakan standar cl100k_base (GPT-3.5/GPT-4)
+                        if (typeof GPTTokenizer_cl100k_base !== 'undefined') {
+                            return GPTTokenizer_cl100k_base.encode(str).length;
+                        }
+                    } catch (e) {
+                        console.error("Tokenizer error:", e);
+                    }
+                    // Fallback ke estimasi kasar jika library gagal dimuat
                     return Math.ceil(str.length / 4);
                 },
 
@@ -377,73 +392,87 @@
                     const char = this.characters.find(c => c.id === this.nextTurnId);
                     if(!char) return;
 
-                    this.isTyping = true; // Mulai proses (Loading API)
+                    this.isTyping = true; // Mulai proses
+                    let retries = 0;
+                    const maxRetries = 5;
 
-                    try {
-                        const prompt = this.buildPrompt(char);
-                        const res = await fetch(this.apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ prompt })
-                        });
-                        
-                        const data = await res.json();
-                        const answer = data?.result?.answer || '';
-                        if (!answer) throw new Error("Response API kosong");
+                    while (retries < maxRetries) {
+                        try {
+                            const prompt = this.buildPrompt(char);
+                            const res = await fetch(this.apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ prompt })
+                            });
+                            
+                            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                            
+                            const data = await res.json();
+                            const answer = data?.result?.answer || '';
+                            if (!answer) throw new Error("Response API kosong");
 
-                        // Parse response XML
-                        let msgFull = answer.match(/<message>([\s\S]*?)<\/message>/i)?.[1] || answer;
-                        msgFull = msgFull.trim().replace(/\n{3,}/g, '\n\n');
-                        const replyId = answer.match(/<reply>([\s\S]*?)<\/reply>/i)?.[1] || null;
-                        const call = (answer.match(/<call>([\s\S]*?)<\/call>/i)?.[1] || '').toLowerCase();
-                        
-                        // Buat objek pesan dan tampilkan langsung
-                        const msgId = 'ai-' + Math.random().toString(36).substr(2, 5);
-                        const newMsg = { 
-                            id: msgId, 
-                            sender: char.name, 
-                            text: msgFull, 
-                            replyTo: (replyId && replyId !== 'null' && replyId !== '') ? replyId : null,
-                            isStreaming: false 
-                        };
-                        this.chatHistory.push(newMsg);
-                        this.isTyping = false;
-                        this.scrollToBottom('smooth');
-                        this.save();
+                            // Parse response XML
+                            let msgFull = answer.match(/<message>([\s\S]*?)<\/message>/i)?.[1] || answer;
+                            msgFull = msgFull.trim().replace(/\n{3,}/g, '\n\n');
+                            const replyId = answer.match(/<reply>([\s\S]*?)<\/reply>/i)?.[1] || null;
+                            const call = (answer.match(/<call>([\s\S]*?)<\/call>/i)?.[1] || '').toLowerCase();
+                            
+                            // Buat objek pesan dan tampilkan langsung
+                            const msgId = 'ai-' + Math.random().toString(36).substr(2, 5);
+                            const newMsg = { 
+                                id: msgId, 
+                                sender: char.name, 
+                                text: msgFull, 
+                                replyTo: (replyId && replyId !== 'null' && replyId !== '') ? replyId : null,
+                                isStreaming: false 
+                            };
+                            this.chatHistory.push(newMsg);
+                            this.isTyping = false;
+                            this.scrollToBottom('smooth');
+                            this.save();
 
-                        // Logika Giliran Selanjutnya
-                        let nextCharId = null;
-                        const lowerCaseCall = call.trim();
-                        // Cek apakah AI memanggil 'user' atau nama spesifik user
-                        const isCallingUser = lowerCaseCall.includes('user') || 
-                                            (this.userProfile.name && lowerCaseCall.includes(this.userProfile.name.toLowerCase()));
-                        
-                        if (lowerCaseCall && !isCallingUser) {
-                            const target = this.characters.find(c => lowerCaseCall.includes(c.name.toLowerCase()));
-                            if (target) nextCharId = target.id;
+                            // Logika Giliran Selanjutnya
+                            let nextCharId = null;
+                            const lowerCaseCall = call.trim();
+                            const isCallingUser = lowerCaseCall.includes('user') || 
+                                                (this.userProfile.name && lowerCaseCall.includes(this.userProfile.name.toLowerCase()));
+                            
+                            if (lowerCaseCall && !isCallingUser) {
+                                const target = this.characters.find(c => lowerCaseCall.includes(c.name.toLowerCase()));
+                                if (target) nextCharId = target.id;
+                            }
+
+                            if (nextCharId) {
+                                this.nextTurnId = nextCharId;
+                                this.isAITurn = true;
+                                setTimeout(() => this.triggerAI(), 1000);
+                            } else if (this.autoLoop && !isCallingUser) {
+                                const otherChars = this.characters.filter(c => c.id !== char.id);
+                                const randomNext = otherChars[Math.floor(Math.random() * otherChars.length)] || char;
+                                this.nextTurnId = randomNext.id;
+                                this.isAITurn = true;
+                                setTimeout(() => this.triggerAI(), 1500);
+                            } else {
+                                this.isAITurn = false;
+                                this.nextTurnId = null;
+                            }
+
+                            return; // Berhasil, keluar dari loop
+
+                        } catch (e) {
+                            retries++;
+                            console.warn(`AI Error (Percobaan ${retries}/${maxRetries}):`, e);
+                            
+                            if (retries < maxRetries) {
+                                const delay = Math.pow(2, retries) * 1000;
+                                await this.sleep(delay);
+                            } else {
+                                console.error("Gagal setelah 5 percobaan.");
+                                this.isTyping = false;
+                                this.isAITurn = false;
+                                this.nextTurnId = null;
+                            }
                         }
-
-                        if (nextCharId) {
-                            this.nextTurnId = nextCharId;
-                            this.isAITurn = true;
-                            setTimeout(() => this.triggerAI(), 1000);
-                        } else if (this.autoLoop && !isCallingUser) {
-                            // Hanya lanjut auto-loop jika TIDAK memanggil user
-                            const otherChars = this.characters.filter(c => c.id !== char.id);
-                            const randomNext = otherChars[Math.floor(Math.random() * otherChars.length)] || char;
-                            this.nextTurnId = randomNext.id;
-                            this.isAITurn = true;
-                            setTimeout(() => this.triggerAI(), 1500);
-                        } else {
-                            this.isAITurn = false;
-                            this.nextTurnId = null;
-                        }
-
-                    } catch (e) {
-                        console.error("AI Error:", e);
-                        this.isTyping = false;
-                        this.isAITurn = false;
-                        this.nextTurnId = null;
                     }
                 },
 
