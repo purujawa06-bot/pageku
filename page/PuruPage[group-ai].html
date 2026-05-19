@@ -1,4 +1,4 @@
-<!-- META {"title":"Group AI","desc":" ","date":"2026-05-19T00:24:47.556Z"} -->
+<!-- META {"title":"Group AI","desc":"Group ai","date":"2026-05-19T00:46:16.930Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -81,10 +81,6 @@
                         <div>
                             <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Persona/Peran</label>
                             <textarea x-model="userProfile.personality" class="input-field h-24 resize-none" placeholder="Siapa kamu di dalam grup ini?"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">API Token (Opsional)</label>
-                            <input type="password" x-model="apiToken" class="input-field" placeholder="Masukkan token/key API Anda">
                         </div>
                     </div>
                 </div>
@@ -186,35 +182,48 @@
             </header>
 
             <!-- Messages Area -->
-            <div id="msg-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scrollbar-hide">
-                <template x-for="(msg, index) in chatHistory" :key="index">
+            <div id="msg-container" 
+                 @scroll="handleScroll"
+                 class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scrollbar-hide scroll-smooth">
+                <template x-for="(msg, index) in chatHistory" :key="msg.id">
                     <div :id="msg.id" :class="`flex gap-2 md:gap-3 transition-all duration-500 ${msg.sender === userProfile.name ? 'flex-row-reverse' : 'flex-row'}`">
                         <img :src="getAvatar(msg.sender)" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-dark-border bg-dark-surface shadow-sm flex-shrink-0 mt-1">
                         <div :class="`flex flex-col min-w-0 max-w-[80%] md:max-w-[70%] ${msg.sender === userProfile.name ? 'items-end' : 'items-start'}`">
-                            <span class="text-[10px] font-mono text-gray-500 mb-1 px-2 uppercase tracking-widest" x-text="`${msg.sender} [${msg.id}]` "></span>
+                            <span class="text-[10px] font-mono text-gray-500 mb-1 px-2 uppercase tracking-widest" x-text="`${msg.sender}`"></span>
                             <div :class="msg.sender === userProfile.name ? 'chat-bubble-user' : 'chat-bubble-ai'" class="max-w-full">
-                                <!-- Reply Preview logic -->
                                 <template x-if="msg.replyTo && getMessageById(msg.replyTo)">
                                     <div class="reply-preview" @click="scrollToMessage(msg.replyTo)">
                                         <div class="font-bold truncate text-[10px]" x-text="getMessageById(msg.replyTo).sender"></div>
-                                        <div class="truncate opacity-80" x-text="getMessageById(msg.replyTo).text"></div>
+                                        <div class="truncate opacity-80 text-[10px]" x-text="getMessageById(msg.replyTo).text"></div>
                                     </div>
                                 </template>
-                                <p x-text="msg.text"></p>
+                                <div class="whitespace-pre-wrap text-sm inline">
+                                    <span x-text="msg.text"></span><span x-show="msg.isStreaming" class="inline-block w-1.5 h-4 bg-accent-primary animate-pulse ml-1 align-middle"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </template>
                 
                 <!-- Typing Indicator -->
-                <div x-show="isAITurn && isTyping" class="flex flex-col items-start">
-                    <div class="bg-dark-panel p-4 rounded-2xl rounded-tl-none flex gap-2 items-center border border-dark-border">
+                <div x-show="isTyping" class="flex flex-col items-start">
+                    <div class="bg-dark-panel p-3 rounded-2xl rounded-tl-none flex gap-2 items-center border border-dark-border">
                         <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce"></div>
                         <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
                         <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- Scroll Bottom Button -->
+            <button x-show="showScrollBtn" 
+                    @click="scrollToBottom()"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-4"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    class="absolute bottom-24 right-6 z-10 bg-accent-primary text-white p-3 rounded-full shadow-xl hover:scale-110 active:scale-90 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </button>
 
             <!-- Input Area -->
             <div class="p-3 md:p-6 bg-dark-surface border-t border-dark-border flex-shrink-0">
@@ -247,7 +256,6 @@
                 screen: 'setup',
                 characters: [],
                 userProfile: { name: '', personality: '' },
-                apiToken: '',
                 chatHistory: [],
                 userInput: '',
                 newAI: { name: '', personality: '' },
@@ -255,6 +263,7 @@
                 isAITurn: false,
                 isTyping: false,
                 autoLoop: false,
+                showScrollBtn: false,
                 apiUrl: 'https://puruboy-api.vercel.app/api/ai/gemini-v2',
 
                 getAvatar(name) {
@@ -285,7 +294,6 @@
                     this.userProfile = JSON.parse(localStorage.getItem('gai_user') || '{"name":"","personality":""}');
                     this.chatHistory = JSON.parse(localStorage.getItem('gai_chat') || '[]');
                     this.autoLoop = JSON.parse(localStorage.getItem('gai_autoloop') || 'false');
-                    this.apiToken = localStorage.getItem('gai_token') || '';
                 },
 
                 save() {
@@ -293,7 +301,6 @@
                     localStorage.setItem('gai_user', JSON.stringify(this.userProfile));
                     localStorage.setItem('gai_chat', JSON.stringify(this.chatHistory));
                     localStorage.setItem('gai_autoloop', JSON.stringify(this.autoLoop));
-                    localStorage.setItem('gai_token', this.apiToken);
                 },
 
                 addChar() {
@@ -315,7 +322,6 @@
                 startChat() {
                     this.save();
                     this.screen = 'chat';
-                    this.$nextTick(() => this.scrollToBottom());
                     
                     if (this.chatHistory.length === 0 && this.characters.length > 0) {
                         this.nextTurnId = this.characters[0].id;
@@ -323,9 +329,17 @@
                     }
                 },
 
-                scrollToBottom() {
+                handleScroll(e) {
+                    const el = e.target;
+                    // Tampilkan tombol jika user scroll ke atas lebih dari 200px dari bawah
+                    this.showScrollBtn = (el.scrollHeight - el.scrollTop - el.clientHeight) > 200;
+                },
+
+                scrollToBottom(behavior = 'smooth') {
                     const el = document.getElementById('msg-container');
-                    if(el) el.scrollTop = el.scrollHeight;
+                    if(el) {
+                        el.scrollTo({ top: el.scrollHeight, behavior: behavior });
+                    }
                 },
 
                 scrollToMessage(id) {
@@ -340,86 +354,96 @@
                 },
 
                 sendMessage() {
-                    if(!this.userInput.trim()) return;
+                    if(!this.userInput.trim() || this.isTyping) return;
                     
-                    // Bersihkan baris baru yang berlebihan (maksimal 2 baris baru berurutan)
                     const text = this.userInput.trim().replace(/\n{3,}/g, '\n\n');
                     const msgId = 'msg-' + Math.random().toString(36).substr(2, 5);
                     this.chatHistory.push({ id: msgId, sender: this.userProfile.name, text: text });
                     this.userInput = '';
                     this.save();
-                    this.$nextTick(() => this.scrollToBottom());
 
                     // Pilih AI secara acak untuk merespon user
                     const randomAI = this.characters[Math.floor(Math.random() * this.characters.length)];
                     this.nextTurnId = randomAI.id;
                     this.isAITurn = true;
 
-                    // Otomatis kirim ke API setelah user kirim pesan
-                    setTimeout(() => {
-                        this.triggerAI();
-                    }, 500);
+                    setTimeout(() => this.triggerAI(), 500);
                 },
 
                 async triggerAI() {
+                    // Mencegah eksekusi ganda jika sedang mengetik atau tidak ada giliran
+                    if (this.isTyping || !this.nextTurnId) return;
+                    
                     const char = this.characters.find(c => c.id === this.nextTurnId);
                     if(!char) return;
 
-                    this.isTyping = true;
-                    this.$nextTick(() => this.scrollToBottom());
+                    this.isTyping = true; // Mulai proses (Loading API)
 
                     try {
                         const prompt = this.buildPrompt(char);
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (this.apiToken) headers['Authorization'] = `Bearer ${this.apiToken}`;
-
                         const res = await fetch(this.apiUrl, {
                             method: 'POST',
-                            headers: headers,
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ prompt })
                         });
                         
                         const data = await res.json();
                         const answer = data?.result?.answer || '';
-                        
-                        if (!answer) throw new Error("API mengembalikan respons kosong");
+                        if (!answer) throw new Error("Response API kosong");
 
-                        let msg = answer.match(/<message>([\s\S]*?)<\/message>/i)?.[1] || answer;
-                        msg = msg.trim().replace(/\n{3,}/g, '\n\n'); // Bersihkan baris kosong berlebih
-
+                        // Parse response XML
+                        let msgFull = answer.match(/<message>([\s\S]*?)<\/message>/i)?.[1] || answer;
+                        msgFull = msgFull.trim().replace(/\n{3,}/g, '\n\n');
                         const replyId = answer.match(/<reply>([\s\S]*?)<\/reply>/i)?.[1] || null;
-                        const call = answer.match(/<call>([\s\S]*?)<\/call>/i)?.[1]?.toLowerCase() || 'user';
+                        const call = (answer.match(/<call>([\s\S]*?)<\/call>/i)?.[1] || '').toLowerCase();
+                        
+                        // Buat objek pesan dan tampilkan langsung
                         const msgId = 'ai-' + Math.random().toString(36).substr(2, 5);
-
-                        this.chatHistory.push({ 
+                        const newMsg = { 
                             id: msgId, 
                             sender: char.name, 
-                            text: msg, 
-                            replyTo: (replyId && replyId !== 'null') ? replyId : null 
-                        });
+                            text: msgFull, 
+                            replyTo: (replyId && replyId !== 'null' && replyId !== '') ? replyId : null,
+                            isStreaming: false 
+                        };
+                        this.chatHistory.push(newMsg);
+                        this.isTyping = false;
+                        this.scrollToBottom('smooth');
                         this.save();
+
+                        // Logika Giliran Selanjutnya
+                        let nextCharId = null;
+                        const lowerCaseCall = call.trim();
+                        // Cek apakah AI memanggil 'user' atau nama spesifik user
+                        const isCallingUser = lowerCaseCall.includes('user') || 
+                                            (this.userProfile.name && lowerCaseCall.includes(this.userProfile.name.toLowerCase()));
                         
-                        if (call.includes('user') || call.includes(this.userProfile.name.toLowerCase())) {
+                        if (lowerCaseCall && !isCallingUser) {
+                            const target = this.characters.find(c => lowerCaseCall.includes(c.name.toLowerCase()));
+                            if (target) nextCharId = target.id;
+                        }
+
+                        if (nextCharId) {
+                            this.nextTurnId = nextCharId;
+                            this.isAITurn = true;
+                            setTimeout(() => this.triggerAI(), 1000);
+                        } else if (this.autoLoop && !isCallingUser) {
+                            // Hanya lanjut auto-loop jika TIDAK memanggil user
+                            const otherChars = this.characters.filter(c => c.id !== char.id);
+                            const randomNext = otherChars[Math.floor(Math.random() * otherChars.length)] || char;
+                            this.nextTurnId = randomNext.id;
+                            this.isAITurn = true;
+                            setTimeout(() => this.triggerAI(), 1500);
+                        } else {
                             this.isAITurn = false;
                             this.nextTurnId = null;
-                        } else {
-                            const target = this.characters.find(c => call.includes(c.name.toLowerCase()));
-                            this.nextTurnId = target ? target.id : null;
-                            this.isAITurn = !!this.nextTurnId;
                         }
+
                     } catch (e) {
-                        alert("Gagal memuat respon AI.");
-                        this.isAITurn = false;
-                    } finally {
+                        console.error("AI Error:", e);
                         this.isTyping = false;
-                        this.$nextTick(() => this.scrollToBottom());
-                        
-                        // Auto Loop Logic
-                        if (this.isAITurn && this.autoLoop && this.nextTurnId) {
-                            setTimeout(() => {
-                                if (this.screen === 'chat') this.triggerAI();
-                            }, 1500); // Jeda 1.5 detik agar terlihat alami
-                        }
+                        this.isAITurn = false;
+                        this.nextTurnId = null;
                     }
                 },
 
