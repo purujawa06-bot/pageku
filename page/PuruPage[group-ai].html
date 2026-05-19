@@ -1,1435 +1,484 @@
-<!-- META {"title":"Group AI","desc":" ","date":"2026-05-18T19:07:04.150Z"} -->
+<!-- META {"title":"Group AI","desc":" ","date":"2026-05-19T00:24:47.556Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Group Chat AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
-:root {
-  --bg:       #080C14;
-  --surface:  #0F1624;
-  --panel:    #131B2E;
-  --border:   rgba(255,255,255,0.06);
-  --border2:  rgba(255,255,255,0.10);
-  --text:     #E8EDF5;
-  --text2:    #7B90B8;
-  --text3:    #45587A;
-  --accent:   #4D96FF;
-  --accent2:  #6BAAFF;
-  --danger:   #FF5C5C;
-  --radius:   14px;
-  --radius-sm:8px;
-  --shadow:   0 8px 32px rgba(0,0,0,0.5);
-  --font-ui:  'Exo 2', sans-serif;
-  --font-chat:'Nunito', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-}
-
-body {
-  font-family: var(--font-ui);
-  background: var(--bg);
-  color: var(--text);
-  height: 100vh;
-  height: 100dvh; /* Better mobile viewport handling */
-  overflow: hidden;
-  position: relative;
-}
-
-/* Subtle background texture */
-body::before {
-  content:'';
-  position:fixed;inset:0;
-  background: 
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(77,150,255,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(107,170,255,0.05) 0%, transparent 60%);
-  pointer-events:none;z-index:0;
-}
-
-.hidden { display:none !important; }
-
-/* ===================== SETUP SCREEN ===================== */
-#setup-screen {
-  position:fixed;inset:0;z-index:10;
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
-  overflow-y:auto;
-}
-
-.setup-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 24px;
-  padding: 40px;
-  width: 100%;
-  max-width: 580px;
-  box-shadow: var(--shadow), 0 0 80px rgba(77,150,255,0.06);
-  position: relative;
-  z-index:1;
-}
-
-.setup-logo {
-  text-align:center;
-  margin-bottom:28px;
-}
-
-.setup-logo .icon {
-  font-size:48px;
-  display:block;
-  margin-bottom:12px;
-  filter: drop-shadow(0 0 20px rgba(77,150,255,0.5));
-}
-
-.setup-logo h1 {
-  font-size:28px;
-  font-weight:800;
-  letter-spacing:-0.5px;
-  background: linear-gradient(135deg, #fff 0%, #4D96FF 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-
-.setup-logo p {
-  color: var(--text2);
-  font-size:14px;
-  margin-top:6px;
-  font-family: var(--font-chat);
-}
-
-/* Character Grid */
-.chars-section {
-  margin-bottom: 24px;
-}
-
-.section-label {
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:1.5px;
-  text-transform:uppercase;
-  color: var(--text3);
-  margin-bottom:12px;
-  font-family: var(--font-mono);
-}
-
-.chars-grid {
-  display:flex;flex-direction:column;gap:8px;
-  max-height:240px;overflow-y:auto;
-  padding-right:4px;
-  scrollbar-width:thin;
-  scrollbar-color: var(--border2) transparent;
-}
-
-.char-card {
-  display:flex;align-items:center;gap:12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  animation: fadeIn 0.3s ease;
-}
-
-.char-card .char-avatar {
-  width:38px;height:38px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:16px;color:#000;
-  flex-shrink:0;
-  box-shadow:0 2px 8px rgba(0,0,0,0.3);
-}
-
-.char-card .char-info { flex:1;min-width:0; }
-.char-card .char-name { font-weight:600;font-size:14px; }
-.char-card .char-pers {
-  font-size:12px;color:var(--text2);
-  font-family:var(--font-chat);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-.btn-del {
-  background:none;border:none;
-  color:var(--text3);font-size:18px;
-  cursor:pointer;padding:4px 6px;
-  border-radius:6px;
-  transition:color 0.2s,background 0.2s;
-  line-height:1;flex-shrink:0;
-}
-.btn-del:hover{color:var(--danger);background:rgba(255,92,92,0.1);}
-
-.empty-state {
-  text-align:center;padding:20px;
-  color:var(--text3);font-size:13px;
-  font-family:var(--font-chat);
-  border: 1px dashed var(--border2);
-  border-radius:var(--radius-sm);
-}
-
-/* Form */
-.add-form {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.add-form h3 {
-  font-size:14px;font-weight:700;
-  color:var(--accent2);
-  margin-bottom:14px;
-  font-family:var(--font-mono);
-  letter-spacing:0.5px;
-}
-
-.form-row { margin-bottom:12px; }
-
-.form-row label {
-  display:block;
-  font-size:11px;font-weight:600;
-  color:var(--text2);
-  margin-bottom:6px;
-  letter-spacing:0.5px;
-}
-
-.form-input, .form-textarea {
-  width:100%;
-  background: var(--bg);
-  border: 1px solid var(--border2);
-  border-radius:var(--radius-sm);
-  color: var(--text);
-  font-family:var(--font-chat);
-  font-size:14px;
-  padding:10px 14px;
-  outline:none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.form-textarea { resize:none;height:80px; }
-.form-input:focus,.form-textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(77,150,255,0.12);
-}
-
-.form-row-inline {
-  display:flex;gap:10px;
-  margin-top:14px;
-}
-
-.btn {
-  padding:10px 18px;
-  border-radius:var(--radius-sm);
-  border:none;cursor:pointer;
-  font-family:var(--font-ui);
-  font-weight:600;font-size:14px;
-  transition:all 0.2s;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color:#fff;
-  flex:1;
-}
-.btn-primary:hover { background:#5BA3FF;box-shadow:0 4px 16px rgba(77,150,255,0.3); }
-.btn-primary:disabled { background:var(--panel);color:var(--text3);cursor:not-allowed;box-shadow:none; }
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--border2);
-  color: var(--text2);
-}
-.btn-ghost:hover{border-color:var(--border2);background:var(--panel);color:var(--text);}
-
-.btn-start {
-  width:100%;padding:14px;
-  background: linear-gradient(135deg, #4D96FF 0%, #6B5BFF 100%);
-  color:#fff;border:none;
-  border-radius:var(--radius);
-  font-size:16px;font-weight:700;
-  cursor:pointer;
-  transition:all 0.2s;
-  letter-spacing:0.3px;
-  box-shadow:0 4px 20px rgba(77,150,255,0.25);
-}
-.btn-start:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 28px rgba(77,150,255,0.4);}
-.btn-start:disabled{background:var(--panel);color:var(--text3);cursor:not-allowed;box-shadow:none;}
-
-.need-more {
-  text-align:center;
-  font-size:12px;color:var(--text3);
-  margin-bottom:12px;
-  font-family:var(--font-chat);
-}
-
-/* ===================== CHAT SCREEN ===================== */
-#chat-screen {
-  position:fixed;inset:0;z-index:5;
-  display:flex;
-}
-
-/* SIDEBAR */
-#sidebar {
-  width:260px;flex-shrink:0;
-  background:var(--surface);
-  border-right: 1px solid var(--border);
-  display:flex;flex-direction:column;
-  position:relative;z-index:100;
-}
-
-.sidebar-head {
-  padding:20px 16px 16px;
-  border-bottom: 1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-}
-
-.sidebar-title {
-  font-size:11px;font-weight:700;
-  letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--text3);
-  font-family:var(--font-mono);
-}
-
-.btn-icon {
-  width:28px;height:28px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--panel);
-  border:1px solid var(--border2);
-  border-radius:6px;
-  color:var(--text2);
-  cursor:pointer;font-size:16px;line-height:1;
-  transition:all 0.2s;
-}
-.btn-icon:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
-
-.sidebar-brand {
-  padding:16px;
-  border-bottom:1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.sidebar-brand-text h2 {
-  font-size:15px;font-weight:800;
-  background: linear-gradient(135deg, #fff 0%, #4D96FF 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.sidebar-brand-text span { font-size:11px;color:var(--text3);font-family:var(--font-mono); }
-.close-sidebar-btn {
-  display: none; /* hidden on desktop */
-  background: none; border: none; color: var(--text2);
-  font-size: 24px; cursor: pointer;
-}
-
-#sidebar-chars {
-  flex:1;overflow-y:auto;
-  padding:10px 8px;
-  scrollbar-width:thin;
-  scrollbar-color: var(--border2) transparent;
-}
-
-.sidebar-char {
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;
-  border-radius:var(--radius-sm);
-  cursor:default;
-  transition:background 0.15s;
-}
-.sidebar-char:hover { background:var(--panel); }
-.sidebar-char .s-avatar {
-  width:32px;height:32px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:13px;color:#000;
-  flex-shrink:0;
-}
-.sidebar-char .s-name { font-size:13px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.sidebar-char .s-dot {
-  width:6px;height:6px;border-radius:50%;
-  background:var(--text3);flex-shrink:0;
-}
-.sidebar-char.active .s-dot { background:#6BCB77; }
-
-.sidebar-footer {
-  padding:12px 8px;
-  border-top:1px solid var(--border);
-  display:flex;flex-direction:column;gap:6px;
-}
-
-.sidebar-footer button {
-  width:100%;padding:10px;
-  background:transparent;border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  color:var(--text2);font-size:13px;font-family:var(--font-ui);
-  cursor:pointer;transition:all 0.2s;font-weight:600;
-  text-align:left;
-}
-.sidebar-footer button:hover{border-color:var(--border2);background:var(--panel);color:var(--text);}
-.sidebar-footer button.danger:hover{border-color:rgba(255,92,92,0.3);background:rgba(255,92,92,0.08);color:var(--danger);}
-
-#sidebar-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(2px);
-  z-index: 90;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-/* MAIN CHAT */
-#chat-main {
-  flex:1;display:flex;flex-direction:column;
-  min-width:0;position:relative;
-}
-
-#chat-topbar {
-  padding:14px 20px;
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;
-  flex-shrink:0;
-}
-
-#btn-menu {
-  display: none; /* hidden on desktop */
-  background: transparent; border: none;
-  color: var(--text); cursor: pointer;
-  padding: 4px; border-radius: 6px;
-}
-#btn-menu:hover { background: var(--panel); }
-
-#chat-topbar h1 { font-size:15px;font-weight:700; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#chat-topbar span { font-size:12px;color:var(--text3);font-family:var(--font-mono); }
-.topbar-dot { width:8px;height:8px;border-radius:50%;background:#6BCB77;box-shadow:0 0 8px #6BCB77; }
-
-#messages {
-  flex:1;overflow-y:auto;
-  padding:20px;
-  display:flex;flex-direction:column;gap:12px; /* Increased gap for better mobile reading */
-  scrollbar-width:thin;
-  scrollbar-color: var(--border2) transparent;
-}
-
-/* Messages */
-.msg-wrapper {
-  display:flex;gap:10px;
-  max-width:75%;
-  animation: msgIn 0.3s ease both;
-}
-
-@keyframes msgIn {
-  from { opacity:0; transform:translateY(12px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.msg-wrapper.ai-msg { align-self:flex-start; }
-.msg-wrapper.user-msg { align-self:flex-end;flex-direction:row-reverse; }
-
-.msg-avatar {
-  width:34px;height:34px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:13px;color:#000;
-  flex-shrink:0;
-  margin-top:2px;
-}
-
-.msg-body { display:flex;flex-direction:column;gap:3px;min-width:0; }
-
-.msg-sender {
-  font-size:11px;font-weight:700;
-  letter-spacing:0.5px;
-  padding-left:2px;
-  font-family:var(--font-mono);
-}
-
-.msg-bubble {
-  padding:10px 14px;
-  border-radius:14px;
-  font-family:var(--font-chat);
-  font-size:14px;line-height:1.6;
-  word-break:break-word;
-}
-
-.ai-bubble {
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-top-left-radius:4px;
-  color:var(--text);
-}
-
-.user-bubble {
-  background: linear-gradient(135deg, #3A7BD5, #4D96FF);
-  color:#fff;
-  border-top-right-radius:4px;
-  box-shadow: 0 2px 12px rgba(77,150,255,0.25);
-}
-
-.msg-time {
-  font-size:10px;color:var(--text3);
-  font-family:var(--font-mono);
-  padding-left:2px;
-}
-.user-msg .msg-time { text-align:right;padding-right:2px;padding-left:0; }
-
-/* System / error messages */
-.sys-msg {
-  align-self:center;
-  text-align:center;
-  font-size:12px;color:var(--text3);
-  font-family:var(--font-mono);
-  padding:6px 14px;
-  background:rgba(255,255,255,0.03);
-  border-radius:20px;
-  margin:4px 0;
-  max-width: 90%;
-}
-.sys-msg.error { color:var(--danger);background:rgba(255,92,92,0.06); }
-
-/* Typing indicator */
-#typing-bar {
-  padding:8px 20px 4px;
-  display:flex;align-items:center;gap:10px;
-  min-height:36px;
-  flex-shrink:0;
-}
-#typing-bar.hidden { display: none !important; }
-
-.typing-avatar-sm {
-  width:24px;height:24px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:10px;color:#000;
-}
-
-#typing-name-label {
-  font-size:12px;
-  font-family:var(--font-mono);
-  font-weight:600;
-}
-
-.typing-dots {
-  display:flex;align-items:center;gap:3px;
-  margin-left:4px;
-}
-.typing-dots span {
-  width:5px;height:5px;
-  border-radius:50%;
-  background:var(--text2);
-  animation: bounce 1.2s infinite;
-}
-.typing-dots span:nth-child(2){animation-delay:.2s;}
-.typing-dots span:nth-child(3){animation-delay:.4s;}
-
-@keyframes bounce {
-  0%,60%,100%{transform:translateY(0);}
-  30%{transform:translateY(-5px);}
-}
-
-/* Input area */
-#input-area {
-  padding:12px 20px 16px;
-  border-top:1px solid var(--border);
-  background:var(--surface);
-  display:flex;gap:10px;align-items:flex-end;
-  flex-shrink:0;
-}
-
-#user-input {
-  flex:1;
-  background:var(--panel);
-  border:1px solid var(--border2);
-  border-radius:12px;
-  color:var(--text);
-  font-family:var(--font-chat);
-  font-size:14px;
-  padding:12px 16px;
-  resize:none;
-  min-height:46px;max-height:120px;
-  outline:none;
-  transition:border-color 0.2s, box-shadow 0.2s;
-  line-height:1.5;
-}
-#user-input:focus { border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,150,255,0.1); }
-#user-input::placeholder { color:var(--text3); }
-#user-input:disabled { opacity:0.5;cursor:not-allowed; }
-
-#btn-send {
-  width:46px;height:46px;flex-shrink:0;
-  background:var(--accent);
-  border:none;border-radius:12px;
-  color:#fff;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;
-}
-#btn-send svg { width: 20px; height: 20px; }
-#btn-send:hover:not(:disabled){background:#5BA3FF;box-shadow:0 4px 14px rgba(77,150,255,0.35);}
-#btn-send:disabled{background:var(--panel);color:var(--text3);cursor:not-allowed;}
-
-.hint-text {
-  font-size:11px;color:var(--text3);
-  font-family:var(--font-chat);
-  padding:0 20px 8px;
-  flex-shrink:0;
-}
-
-/* ===================== MODAL ===================== */
-#modal-overlay {
-  position:fixed;inset:0;z-index:150;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(4px);
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;
-  animation:fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from{opacity:0;}to{opacity:1;}
-}
-
-.modal-card {
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:20px;
-  padding:28px 24px;
-  width:100%;max-width:400px;
-  box-shadow:var(--shadow);
-  animation:slideUp 0.25s ease;
-}
-
-@keyframes slideUp {
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-.modal-head {
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:22px;
-}
-.modal-head h3 { font-size:18px;font-weight:700; }
-
-.modal-close {
-  width:32px;height:32px;background:var(--panel);
-  border:1px solid var(--border);border-radius:8px;
-  color:var(--text2);font-size:18px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;line-height:1;
-}
-.modal-close:hover{background:var(--danger);border-color:var(--danger);color:#fff;}
-
-/* ===================== SCROLLBAR ===================== */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-::-webkit-scrollbar-thumb:hover{background:var(--border2);}
-
-/* ===================== MOBILE RESPONSIVE ===================== */
-@media (max-width: 768px) {
-  /* Setup Screen Mobile Adjustments */
-  .setup-card {
-    padding: 24px 20px;
-    border-radius: 20px;
-    margin: 10px;
-  }
-  .setup-logo h1 { font-size: 24px; }
-  .add-form { padding: 16px; }
-
-  /* Chat Screen Mobile Adjustments */
-  #btn-menu { display: flex; }
-  .close-sidebar-btn { display: block; }
-  
-  #sidebar {
-    position: absolute;
-    top: 0; bottom: 0; left: 0;
-    width: 280px;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.6);
-  }
-  
-  #sidebar.open {
-    transform: translateX(0);
-  }
-
-  #sidebar-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  #chat-topbar {
-    padding: 12px 16px;
-    gap: 8px;
-  }
-  #chat-topbar h1 { font-size: 14px; }
-  #chat-topbar span { display: none; } /* Hide active char count on mobile header to save space */
-  .topbar-dot { margin-left: 4px; }
-
-  #messages {
-    padding: 16px 12px;
-  }
-  .msg-wrapper {
-    max-width: 90%; /* Allow bubbles to stretch further on small screens */
-  }
-
-  #typing-bar {
-    padding: 8px 12px 4px;
-  }
-
-  .hint-text {
-    padding: 0 12px 6px;
-    font-size: 10px;
-  }
-
-  #input-area {
-    padding: 10px 12px 12px;
-  }
-  #user-input {
-    padding: 10px 14px;
-    font-size: 13.5px;
-  }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Group Chat AI - Alpine & Tailwind</title>
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        dark: {
+                            bg: '#080C14',
+                            surface: '#0F1624',
+                            panel: '#131B2E',
+                            border: 'rgba(255,255,255,0.06)',
+                        },
+                        accent: {
+                            primary: '#4D96FF',
+                            secondary: '#6B5BFF',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-dark-bg text-gray-200 antialiased overflow-hidden h-[100dvh]; }
+        }
+        @layer components {
+            .input-field { @apply w-full bg-dark-bg border border-dark-border rounded-xl px-4 py-2 text-sm focus:border-accent-primary focus:ring-1 focus:ring-accent-primary outline-none transition-all; }
+            .btn-primary { @apply bg-gradient-to-r from-accent-primary to-accent-secondary text-white font-bold py-3 px-6 rounded-2xl shadow-lg shadow-blue-500/20 active:scale-95 transition-transform disabled:opacity-50 disabled:grayscale; }
+            .chat-bubble-ai { @apply bg-dark-panel border border-dark-border rounded-2xl rounded-tl-none p-4 text-sm leading-relaxed shadow-sm break-words overflow-hidden whitespace-pre-line w-fit; }
+            .chat-bubble-user { @apply bg-accent-primary text-white rounded-2xl rounded-tr-none p-4 text-sm leading-relaxed shadow-md break-words overflow-hidden whitespace-pre-line w-fit; }
+            .reply-preview { @apply bg-black/20 border-l-2 border-white/30 p-2 mb-2 rounded text-[11px] italic opacity-90 max-w-full overflow-hidden cursor-pointer hover:bg-black/40 transition-colors; }
+            .scrollbar-hide::-webkit-scrollbar { display: none; }
+            .msg-highlight { animation: highlight-pulse 2s ease-out; }
+            @keyframes highlight-pulse {
+                0% { background-color: rgba(77, 150, 255, 0.2); }
+                100% { background-color: transparent; }
+            }
+        }
+    </style>
 </head>
-<body>
+<body x-data="chatApp()" x-init="init()">
 
-<!-- ==================== SETUP SCREEN ==================== -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <div class="setup-logo">
-      <span class="icon">🤖</span>
-      <h1>Group Chat AI</h1>
-      <p>Buat minimal 2 karakter AI untuk memulai percakapan</p>
-    </div>
+    <!-- SETUP SCREEN -->
+    <div x-show="screen === 'setup'" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         class="fixed inset-0 z-50 overflow-y-auto bg-dark-bg p-4 flex justify-center">
+        
+        <div class="w-full max-w-4xl bg-dark-surface border border-dark-border rounded-[2rem] p-6 md:p-10 shadow-2xl my-auto">
+            <div class="text-center mb-10">
+                <span class="text-5xl mb-4 block">🤖</span>
+                <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white to-accent-primary">Group AI Studio</h1>
+                <p class="text-gray-500 mt-2 text-sm">Rancang karakter AI dan mulailah berdiskusi</p>
+            </div>
 
-    <div class="chars-section">
-      <div class="section-label">Karakter tersimpan</div>
-      <div class="chars-grid" id="setup-chars-grid">
-        <div class="empty-state" id="empty-chars">Belum ada karakter. Tambahkan di bawah.</div>
-      </div>
-    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- User Profile Section -->
+                <div class="space-y-6">
+                    <h2 class="text-xs font-mono font-bold text-accent-primary tracking-widest uppercase">Identitas Kamu</h2>
+                    <div class="bg-dark-panel p-6 rounded-2xl border border-dark-border space-y-4">
+                        <div>
+                            <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Nama Kamu</label>
+                            <input type="text" x-model="userProfile.name" class="input-field" placeholder="Contoh: Sang Arsitek">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Persona/Peran</label>
+                            <textarea x-model="userProfile.personality" class="input-field h-24 resize-none" placeholder="Siapa kamu di dalam grup ini?"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">API Token (Opsional)</label>
+                            <input type="password" x-model="apiToken" class="input-field" placeholder="Masukkan token/key API Anda">
+                        </div>
+                    </div>
+                </div>
 
-    <div class="add-form">
-      <h3>// Tambah Karakter Baru</h3>
-      <div class="form-row">
-        <label>NAMA</label>
-        <input type="text" class="form-input" id="setup-name" placeholder="cth: Alice, Budi, Kira...">
-      </div>
-      <div class="form-row">
-        <label>KEPRIBADIAN / DESKRIPSI</label>
-        <textarea class="form-textarea" id="setup-personality" placeholder="cth: Ceria, suka bercanda, dan selalu optimis. Suka topik sains dan teknologi."></textarea>
-      </div>
-      <div class="form-row-inline">
-        <button class="btn btn-primary" id="setup-add-btn">+ Tambah Karakter</button>
-      </div>
-    </div>
+                <!-- AI Characters Section -->
+                <div class="space-y-6">
+                    <h2 class="text-xs font-mono font-bold text-accent-primary tracking-widest uppercase">Karakter AI (<span x-text="characters.length"></span>)</h2>
+                    <div class="max-h-[250px] overflow-y-auto space-y-2 pr-2 scrollbar-hide">
+                        <template x-for="(char, index) in characters" :key="char.id">
+                            <div class="flex items-center gap-3 bg-dark-panel p-3 rounded-xl border border-dark-border group">
+                                <img :src="`https://api.dicebear.com/7.x/bottts/svg?seed=${char.name}`" 
+                                     class="w-10 h-10 rounded-full bg-dark-bg border border-dark-border shadow-inner">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-bold truncate" x-text="char.name"></div>
+                                    <div class="text-[10px] text-gray-500 truncate" x-text="char.personality"></div>
+                                </div>
+                                <button @click="removeChar(char.id)" class="text-gray-600 hover:text-red-400 p-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
 
-    <p class="need-more" id="need-more-msg"></p>
-    <button class="btn-start" id="btn-start-chat" disabled>Mulai Chat →</button>
-  </div>
-</div>
+                    <div class="bg-dark-panel p-4 rounded-2xl border border-dashed border-gray-700 space-y-3">
+                        <input type="text" x-model="newAI.name" class="input-field" placeholder="Nama AI Baru...">
+                        <textarea x-model="newAI.personality" class="input-field h-16 resize-none" placeholder="Sifat AI..."></textarea>
+                        <button @click="addChar()" class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-colors border border-dark-border">
+                            + Tambah Karakter
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-<!-- ==================== CHAT SCREEN ==================== -->
-<div id="chat-screen" class="hidden">
-  
-  <!-- SIDEBAR OVERLAY FOR MOBILE -->
-  <div id="sidebar-overlay"></div>
+            <div class="mt-8 flex items-center justify-center gap-3 bg-dark-panel p-4 rounded-2xl border border-dark-border">
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" x-model="autoLoop" @change="save()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-primary"></div>
+                </label>
+                <span class="text-sm font-medium text-gray-300">Auto Looping AI (AI berdiskusi terus menerus)</span>
+            </div>
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-text">
-        <h2>Group Chat AI</h2>
-        <span>multi-character</span>
-      </div>
-      <button class="close-sidebar-btn" id="btn-close-sidebar">×</button>
-    </div>
-
-    <div class="sidebar-head">
-      <span class="sidebar-title">Karakter</span>
-      <button class="btn-icon" id="btn-open-modal" title="Tambah karakter">+</button>
-    </div>
-
-    <div id="sidebar-chars"></div>
-
-    <div class="sidebar-footer">
-      <button id="btn-back-setup">⚙ Kelola Karakter</button>
-      <button id="btn-reset" class="danger">↺ Reset Percakapan</button>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main id="chat-main">
-    <div id="chat-topbar">
-      <!-- MOBILE MENU BUTTON -->
-      <button id="btn-menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-
-      <div class="topbar-dot"></div>
-      <h1>Percakapan Grup</h1>
-      <span id="topbar-info">memuat...</span>
-    </div>
-
-    <div id="messages"></div>
-
-    <div id="typing-bar" class="hidden">
-      <div class="typing-avatar-sm" id="typing-avatar-sm"></div>
-      <span id="typing-name-label"></span>
-      <span style="font-size:11px;color:var(--text3);font-family:var(--font-chat);margin-left:2px">sedang mengetik</span>
-      <div class="typing-dots">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-
-    <p class="hint-text" id="input-hint"></p>
-
-    <div id="input-area">
-      <textarea id="user-input" placeholder="Tulis pesan... (gunakan @Nama)" rows="1" disabled></textarea>
-      <button id="btn-send" disabled>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </div>
-  </main>
-</div>
-
-<!-- ==================== MODAL (Add Character) ==================== -->
-<div id="modal-overlay" class="hidden">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>Tambah Karakter</h3>
-      <button class="modal-close" id="modal-close">×</button>
-    </div>
-    <div class="form-row">
-      <label>NAMA</label>
-      <input type="text" class="form-input" id="modal-name" placeholder="Nama karakter...">
-    </div>
-    <div class="form-row">
-      <label>KEPRIBADIAN / DESKRIPSI</label>
-      <textarea class="form-textarea" id="modal-personality" placeholder="Deskripsikan kepribadian..."></textarea>
-    </div>
-    <div class="form-row-inline">
-      <button class="btn btn-ghost" id="modal-cancel">Batal</button>
-      <button class="btn btn-primary" id="modal-save">+ Tambahkan</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ================================================================
-//  CONSTANTS & CONFIG
-// ================================================================
-const STORAGE_KEY   = 'groupchat_characters';
-const API_URL       = 'https://puruboy-api.vercel.app/api/ai/gemini-v2';
-const MAX_TOKENS    = 5000;
-const API_DELAY_MS  = 3000;
-const MAX_CHAIN     = 10;
-
-const CHAR_COLORS = [
-  '#FF6B6B','#4ECDC4','#FFD166','#6BCB77',
-  '#4D96FF','#FF9BE2','#F7934C','#B18AFF',
-  '#00D2FF','#FF8C69'
-];
-
-// ================================================================
-//  STATE
-// ================================================================
-let characters   = [];
-let chatHistory  = [];
-let turnQueue    = [];
-let isProcessing = false;
-let chainCount   = 0;
-let loopActive   = false;
-
-// ================================================================
-//  UTILS
-// ================================================================
-const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const tokens = txt => Math.ceil(txt.length / 4);
-const escape = t => t
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
-
-function charColor(char) {
-  const idx = characters.findIndex(c => c.id === char.id);
-  return CHAR_COLORS[(idx >= 0 ? idx : 0) % CHAR_COLORS.length];
-}
-
-function charInitial(name) { return name.charAt(0).toUpperCase(); }
-
-// ================================================================
-//  LOCAL STORAGE
-// ================================================================
-function loadChars() {
-  try { characters = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  catch { characters = []; }
-}
-
-function saveChars() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(characters));
-}
-
-// ================================================================
-//  CHARACTER MANAGEMENT
-// ================================================================
-function addChar(name, personality) {
-  name = name.trim(); personality = personality.trim();
-  if (!name)        return 'Nama tidak boleh kosong.';
-  if (!personality) return 'Kepribadian tidak boleh kosong.';
-  if (name.length > 30) return 'Nama terlalu panjang (maks 30 karakter).';
-  if (characters.some(c => c.name.toLowerCase() === name.toLowerCase()))
-    return `Nama "${name}" sudah digunakan.`;
-  characters.push({ id: uid(), name, personality });
-  saveChars();
-  return null; // no error
-}
-
-function delChar(id) {
-  characters = characters.filter(c => c.id !== id);
-  saveChars();
-}
-
-function getById(id)     { return characters.find(c => c.id === id); }
-function getByName(name) { return characters.find(c => c.name.toLowerCase() === name.toLowerCase()); }
-
-// ================================================================
-//  SCREEN MANAGEMENT
-// ================================================================
-function showSetup() {
-  document.getElementById('setup-screen').classList.remove('hidden');
-  document.getElementById('chat-screen').classList.add('hidden');
-  renderSetupChars();
-}
-
-function showChat() {
-  document.getElementById('setup-screen').classList.add('hidden');
-  document.getElementById('chat-screen').classList.remove('hidden');
-  renderSidebar();
-  updateTopbar();
-}
-
-// ================================================================
-//  MOBILE SIDEBAR MANAGEMENT
-// ================================================================
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebar-overlay').classList.add('active');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('active');
-}
-
-// ================================================================
-//  SETUP SCREEN RENDER
-// ================================================================
-function renderSetupChars() {
-  const grid  = document.getElementById('setup-chars-grid');
-  const empty = document.getElementById('empty-chars');
-  const btn   = document.getElementById('btn-start-chat');
-  const msg   = document.getElementById('need-more-msg');
-
-  grid.innerHTML = '';
-  if (characters.length === 0) {
-    grid.appendChild(empty);
-    empty.classList.remove('hidden');
-  } else {
-    empty.classList.add('hidden');
-    characters.forEach(char => {
-      const color = charColor(char);
-      const card = document.createElement('div');
-      card.className = 'char-card';
-      card.innerHTML = `
-        <div class="char-avatar" style="background:${color}">${charInitial(char.name)}</div>
-        <div class="char-info">
-          <div class="char-name">${escape(char.name)}</div>
-          <div class="char-pers">${escape(char.personality)}</div>
+            <button @click="startChat()" 
+                    :disabled="!userProfile.name || characters.length === 0"
+                    class="btn-primary w-full mt-6">
+                Masuk ke Ruang Chat
+            </button>
         </div>
-        <button class="btn-del" data-id="${char.id}" title="Hapus">×</button>
-      `;
-      grid.appendChild(card);
-    });
-  }
+    </div>
 
-  const need = Math.max(0, 2 - characters.length);
-  msg.textContent = need > 0 ? `Butuh ${need} karakter lagi untuk mulai.` : '';
-  btn.disabled = characters.length < 2;
-}
+    <!-- CHAT SCREEN -->
+    <div x-show="screen === 'chat'" class="flex h-[100dvh] w-full overflow-hidden relative">
+        <!-- Sidebar (Desktop) -->
+        <aside class="hidden md:flex w-72 bg-dark-surface border-r border-dark-border flex-col flex-shrink-0">
+            <div class="p-6 border-b border-dark-border">
+                <h2 class="font-black text-xl italic tracking-tighter">GC<span class="text-accent-primary">AI</span></h2>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                <template x-for="char in characters">
+                    <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
+                        <img :src="`https://api.dicebear.com/7.x/bottts/svg?seed=${char.name}`" 
+                             class="w-8 h-8 rounded-full bg-dark-bg border border-dark-border">
+                        <span class="text-sm font-medium" x-text="char.name"></span>
+                    </div>
+                </template>
+            </div>
+            <div class="p-4 border-t border-dark-border space-y-2 text-xs">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 mb-2">
+                    <span class="text-gray-400">Auto Looping</span>
+                    <input type="checkbox" x-model="autoLoop" @change="save()" class="accent-accent-primary">
+                </div>
+                <button @click="screen = 'setup'" class="w-full p-3 rounded-xl hover:bg-white/5 text-left flex items-center gap-2">
+                    <span>⚙️ Pengaturan</span>
+                </button>
+                <button @click="resetChat()" class="w-full p-3 rounded-xl hover:bg-red-500/10 text-red-400 text-left flex items-center gap-2">
+                    <span>↺ Reset Chat</span>
+                </button>
+            </div>
+        </aside>
 
-// ================================================================
-//  SIDEBAR & TOPBAR RENDER
-// ================================================================
-function renderSidebar() {
-  const cont = document.getElementById('sidebar-chars');
-  cont.innerHTML = '';
-  characters.forEach(char => {
-    const color = charColor(char);
-    const el = document.createElement('div');
-    el.className = 'sidebar-char';
-    el.innerHTML = `
-      <div class="s-avatar" style="background:${color}">${charInitial(char.name)}</div>
-      <span class="s-name">${escape(char.name)}</span>
-      <div class="s-dot"></div>
-    `;
-    cont.appendChild(el);
-  });
-}
+        <!-- Main Chat -->
+        <main class="flex-1 flex flex-col bg-dark-bg relative min-w-0">
+            <!-- Mobile Header -->
+            <header class="md:hidden flex items-center justify-between p-4 bg-dark-surface border-b border-dark-border">
+                <div class="flex items-center gap-3">
+                    <button @click="screen = 'setup'" class="p-1 text-gray-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <h2 class="font-bold text-accent-primary">Group AI</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right leading-none">
+                        <div class="text-[9px] text-gray-500 font-mono uppercase tracking-tighter">Tokens</div>
+                        <div class="text-xs font-bold text-accent-primary" x-text="totalTokens()"></div>
+                    </div>
+                    <button @click="resetChat()" class="text-xs font-bold text-red-400 bg-red-400/10 px-3 py-1 rounded-full">
+                        Clear
+                    </button>
+                </div>
+            </header>
 
-function updateTopbar() {
-  const info = document.getElementById('topbar-info');
-  info.textContent = `${characters.length} karakter aktif`;
-}
+            <!-- Messages Area -->
+            <div id="msg-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scrollbar-hide">
+                <template x-for="(msg, index) in chatHistory" :key="index">
+                    <div :id="msg.id" :class="`flex gap-2 md:gap-3 transition-all duration-500 ${msg.sender === userProfile.name ? 'flex-row-reverse' : 'flex-row'}`">
+                        <img :src="getAvatar(msg.sender)" class="w-8 h-8 md:w-10 md:h-10 rounded-full border border-dark-border bg-dark-surface shadow-sm flex-shrink-0 mt-1">
+                        <div :class="`flex flex-col min-w-0 max-w-[80%] md:max-w-[70%] ${msg.sender === userProfile.name ? 'items-end' : 'items-start'}`">
+                            <span class="text-[10px] font-mono text-gray-500 mb-1 px-2 uppercase tracking-widest" x-text="`${msg.sender} [${msg.id}]` "></span>
+                            <div :class="msg.sender === userProfile.name ? 'chat-bubble-user' : 'chat-bubble-ai'" class="max-w-full">
+                                <!-- Reply Preview logic -->
+                                <template x-if="msg.replyTo && getMessageById(msg.replyTo)">
+                                    <div class="reply-preview" @click="scrollToMessage(msg.replyTo)">
+                                        <div class="font-bold truncate text-[10px]" x-text="getMessageById(msg.replyTo).sender"></div>
+                                        <div class="truncate opacity-80" x-text="getMessageById(msg.replyTo).text"></div>
+                                    </div>
+                                </template>
+                                <p x-text="msg.text"></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- Typing Indicator -->
+                <div x-show="isAITurn && isTyping" class="flex flex-col items-start">
+                    <div class="bg-dark-panel p-4 rounded-2xl rounded-tl-none flex gap-2 items-center border border-dark-border">
+                        <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce"></div>
+                        <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                        <div class="w-1.5 h-1.5 bg-accent-primary rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                    </div>
+                </div>
+            </div>
 
-// ================================================================
-//  CHAT UI
-// ================================================================
-function addMsgUI(sender, text, isUser = false) {
-  const msgs   = document.getElementById('messages');
-  const char   = getByName(sender);
-  const color  = char ? charColor(char) : '#4D96FF';
-  const now    = new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+            <!-- Input Area -->
+            <div class="p-3 md:p-6 bg-dark-surface border-t border-dark-border flex-shrink-0">
+                <div class="max-w-4xl mx-auto flex items-end gap-2 md:gap-3">
+                    <div class="flex-1 bg-dark-panel rounded-2xl border border-dark-border p-1 md:p-2 focus-within:border-accent-primary transition-colors min-w-0">
+                        <textarea x-model="userInput" 
+                                  @keydown.enter.prevent="!isAITurn && sendMessage()"
+                                  :disabled="isAITurn"
+                                  :placeholder="isAITurn ? 'Menunggu AI...' : 'Tulis pesan...'"
+                                  class="w-full bg-transparent border-none outline-none p-2 text-sm resize-none h-10 max-h-24 md:h-12 scrollbar-hide"></textarea>
+                    </div>
+                    
+                    <button x-show="!isAITurn" @click="sendMessage()" class="bg-accent-primary p-3 md:px-6 rounded-2xl font-bold shadow-lg shadow-blue-500/20 active:scale-90 transition-transform">
+                        <span class="hidden md:inline">Kirim</span>
+                        <svg class="md:hidden w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </button>
 
-  const wrap = document.createElement('div');
-  wrap.className = `msg-wrapper ${isUser ? 'user-msg' : 'ai-msg'}`;
+                    <button x-show="isAITurn" @click="triggerAI()" :disabled="isTyping" class="bg-green-500 text-dark-bg p-3 md:px-6 rounded-2xl font-black shadow-lg shadow-green-500/20 active:scale-90 transition-transform disabled:opacity-50">
+                        <span class="hidden md:inline">Lanjutkan AI</span>
+                        <span class="md:hidden text-lg">➔</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
 
-  if (isUser) {
-    wrap.innerHTML = `
-      <div class="msg-body">
-        <div class="msg-bubble user-bubble">${escape(text)}</div>
-        <div class="msg-time">${now}</div>
-      </div>
-    `;
-  } else {
-    wrap.innerHTML = `
-      <div class="msg-avatar" style="background:${color}">${charInitial(sender)}</div>
-      <div class="msg-body">
-        <div class="msg-sender" style="color:${color}">${escape(sender)}</div>
-        <div class="msg-bubble ai-bubble">${escape(text)}</div>
-        <div class="msg-time">${now}</div>
-      </div>
-    `;
-  }
+    <script>
+        function chatApp() {
+            return {
+                screen: 'setup',
+                characters: [],
+                userProfile: { name: '', personality: '' },
+                apiToken: '',
+                chatHistory: [],
+                userInput: '',
+                newAI: { name: '', personality: '' },
+                nextTurnId: null,
+                isAITurn: false,
+                isTyping: false,
+                autoLoop: false,
+                apiUrl: 'https://puruboy-api.vercel.app/api/ai/gemini-v2',
 
-  msgs.appendChild(wrap);
-  scrollBot();
+                getAvatar(name) {
+                    if (name === this.userProfile.name) {
+                        return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
+                    }
+                    return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+                },
 
-  // Add to history
-  chatHistory.push({ sender, message: text, ts: Date.now() });
-}
+                getMessageById(id) {
+                    return this.chatHistory.find(m => m.id === id);
+                },
 
-function addSysMsg(text, isError = false) {
-  const msgs = document.getElementById('messages');
-  const el   = document.createElement('div');
-  el.className = `sys-msg${isError ? ' error' : ''}`;
-  el.textContent = text;
-  msgs.appendChild(el);
-  scrollBot();
-}
+                countTokens(str) {
+                    if (!str) return 0;
+                    return Math.ceil(str.length / 4);
+                },
 
-function scrollBot() {
-  const msgs = document.getElementById('messages');
-  msgs.scrollTop = msgs.scrollHeight;
-}
+                totalTokens() {
+                    let allText = this.userProfile.name + " " + this.userProfile.personality + " ";
+                    this.characters.forEach(c => allText += c.name + " " + c.personality + " ");
+                    this.chatHistory.forEach(m => allText += m.sender + " " + m.text + " ");
+                    return this.countTokens(allText);
+                },
 
-function showTyping(char) {
-  const bar    = document.getElementById('typing-bar');
-  const av     = document.getElementById('typing-avatar-sm');
-  const label  = document.getElementById('typing-name-label');
-  const color  = charColor(char);
+                init() {
+                    this.characters = JSON.parse(localStorage.getItem('gai_chars') || '[]');
+                    this.userProfile = JSON.parse(localStorage.getItem('gai_user') || '{"name":"","personality":""}');
+                    this.chatHistory = JSON.parse(localStorage.getItem('gai_chat') || '[]');
+                    this.autoLoop = JSON.parse(localStorage.getItem('gai_autoloop') || 'false');
+                    this.apiToken = localStorage.getItem('gai_token') || '';
+                },
 
-  av.textContent   = charInitial(char.name);
-  av.style.background = color;
-  label.textContent   = char.name;
-  label.style.color   = color;
-  bar.classList.remove('hidden');
-  scrollBot();
-}
+                save() {
+                    localStorage.setItem('gai_chars', JSON.stringify(this.characters));
+                    localStorage.setItem('gai_user', JSON.stringify(this.userProfile));
+                    localStorage.setItem('gai_chat', JSON.stringify(this.chatHistory));
+                    localStorage.setItem('gai_autoloop', JSON.stringify(this.autoLoop));
+                    localStorage.setItem('gai_token', this.apiToken);
+                },
 
-function hideTyping() {
-  document.getElementById('typing-bar').classList.add('hidden');
-}
+                addChar() {
+                    if(!this.newAI.name || !this.newAI.personality) return;
+                    this.characters.push({
+                        id: Date.now().toString(),
+                        name: this.newAI.name,
+                        personality: this.newAI.personality
+                    });
+                    this.newAI = { name: '', personality: '' };
+                    this.save();
+                },
 
-function setInputOn(on) {
-  const inp = document.getElementById('user-input');
-  const btn = document.getElementById('btn-send');
-  const hint = document.getElementById('input-hint');
-  inp.disabled = !on;
-  btn.disabled = !on;
-  hint.textContent = on ? 'Gunakan @Nama untuk memanggil karakter tertentu.' : '';
-  if (on && window.innerWidth > 768) inp.focus(); // Only auto-focus on desktop to prevent mobile keyboard from blocking UI
-}
+                removeChar(id) {
+                    this.characters = this.characters.filter(c => c.id !== id);
+                    this.save();
+                },
 
-// ================================================================
-//  TOKEN MANAGEMENT
-// ================================================================
-function buildHistoryText(sysPromptLen) {
-  const budget = MAX_TOKENS - sysPromptLen - 150;
-  let usedTokens = 0;
-  const lines = [];
+                startChat() {
+                    this.save();
+                    this.screen = 'chat';
+                    this.$nextTick(() => this.scrollToBottom());
+                    
+                    if (this.chatHistory.length === 0 && this.characters.length > 0) {
+                        this.nextTurnId = this.characters[0].id;
+                        this.isAITurn = true;
+                    }
+                },
 
-  for (let i = chatHistory.length - 1; i >= 0; i--) {
-    const { sender, message } = chatHistory[i];
-    const line = `${sender}: ${message}\n`;
-    const t = tokens(line);
-    if (usedTokens + t > budget) break;
-    lines.unshift(line);
-    usedTokens += t;
-  }
+                scrollToBottom() {
+                    const el = document.getElementById('msg-container');
+                    if(el) el.scrollTop = el.scrollHeight;
+                },
 
-  return lines.join('');
-}
+                scrollToMessage(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('msg-highlight');
+                        setTimeout(() => {
+                            el.classList.remove('msg-highlight');
+                        }, 2000);
+                    }
+                },
 
-// ================================================================
-//  PROMPT BUILDER
-// ================================================================
-function buildPrompt(char) {
-  const others = characters
-    .filter(c => c.id !== char.id)
-    .map(c => `  - ${c.name}: ${c.personality}`)
-    .join('\n');
+                sendMessage() {
+                    if(!this.userInput.trim()) return;
+                    
+                    // Bersihkan baris baru yang berlebihan (maksimal 2 baris baru berurutan)
+                    const text = this.userInput.trim().replace(/\n{3,}/g, '\n\n');
+                    const msgId = 'msg-' + Math.random().toString(36).substr(2, 5);
+                    this.chatHistory.push({ id: msgId, sender: this.userProfile.name, text: text });
+                    this.userInput = '';
+                    this.save();
+                    this.$nextTick(() => this.scrollToBottom());
 
-  const charList = characters
-    .filter(c => c.id !== char.id)
-    .map(c => c.name)
-    .join(', ');
+                    // Pilih AI secara acak untuk merespon user
+                    const randomAI = this.characters[Math.floor(Math.random() * this.characters.length)];
+                    this.nextTurnId = randomAI.id;
+                    this.isAITurn = true;
 
-  const sys = `Kamu adalah ${char.name}.
+                    // Otomatis kirim ke API setelah user kirim pesan
+                    setTimeout(() => {
+                        this.triggerAI();
+                    }, 500);
+                },
+
+                async triggerAI() {
+                    const char = this.characters.find(c => c.id === this.nextTurnId);
+                    if(!char) return;
+
+                    this.isTyping = true;
+                    this.$nextTick(() => this.scrollToBottom());
+
+                    try {
+                        const prompt = this.buildPrompt(char);
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (this.apiToken) headers['Authorization'] = `Bearer ${this.apiToken}`;
+
+                        const res = await fetch(this.apiUrl, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({ prompt })
+                        });
+                        
+                        const data = await res.json();
+                        const answer = data?.result?.answer || '';
+                        
+                        if (!answer) throw new Error("API mengembalikan respons kosong");
+
+                        let msg = answer.match(/<message>([\s\S]*?)<\/message>/i)?.[1] || answer;
+                        msg = msg.trim().replace(/\n{3,}/g, '\n\n'); // Bersihkan baris kosong berlebih
+
+                        const replyId = answer.match(/<reply>([\s\S]*?)<\/reply>/i)?.[1] || null;
+                        const call = answer.match(/<call>([\s\S]*?)<\/call>/i)?.[1]?.toLowerCase() || 'user';
+                        const msgId = 'ai-' + Math.random().toString(36).substr(2, 5);
+
+                        this.chatHistory.push({ 
+                            id: msgId, 
+                            sender: char.name, 
+                            text: msg, 
+                            replyTo: (replyId && replyId !== 'null') ? replyId : null 
+                        });
+                        this.save();
+                        
+                        if (call.includes('user') || call.includes(this.userProfile.name.toLowerCase())) {
+                            this.isAITurn = false;
+                            this.nextTurnId = null;
+                        } else {
+                            const target = this.characters.find(c => call.includes(c.name.toLowerCase()));
+                            this.nextTurnId = target ? target.id : null;
+                            this.isAITurn = !!this.nextTurnId;
+                        }
+                    } catch (e) {
+                        alert("Gagal memuat respon AI.");
+                        this.isAITurn = false;
+                    } finally {
+                        this.isTyping = false;
+                        this.$nextTick(() => this.scrollToBottom());
+                        
+                        // Auto Loop Logic
+                        if (this.isAITurn && this.autoLoop && this.nextTurnId) {
+                            setTimeout(() => {
+                                if (this.screen === 'chat') this.triggerAI();
+                            }, 1500); // Jeda 1.5 detik agar terlihat alami
+                        }
+                    }
+                },
+
+                buildPrompt(char) {
+                    const charList = this.characters.map(c => `- ${c.name}: ${c.personality}`).join('\n');
+                    const systemInstruction = `Kamu adalah ${char.name}. 
 Kepribadianmu: ${char.personality}
 
-Kamu sedang dalam obrolan grup bersama karakter-karakter berikut:
-${others}
+Anggota Grup:
+- ${this.userProfile.name} (User): ${this.userProfile.personality}
+${charList}
 
-ATURAN — WAJIB DIPATUHI:
-1. Balas HANYA dalam format XML berikut (tidak ada teks di luar tag):
-<response>
-<message>pesan kamu</message>
-<call>target</call>
-</response>
+ATURAN:
+1. Jawab HANYA dalam format XML: <response><reply>id_pesan_yang_dibalas_atau_kosong</reply><message>isi pesan</message><call>nama_karakter_selanjutnya_atau_user</call></response>
+2. Jika ingin membalas pesan spesifik, masukkan ID pesan tersebut di tag <reply>. Jika tidak, kosongkan atau isi null.
+3. Berinteraksilah secara natural seperti di grup WA/Telegram.
+4. Gunakan bahasa Indonesia santai jika perlu.`;
 
-2. Nilai <call> yang valid:
-   - null         → kamu selesai, tunggu pengguna/user
-   - user         → minta pengguna untuk berbicara
-   - ${charList ? charList + '   → panggil karakter tersebut' : '(nama karakter lain)'}
+                    const footer = `\n\nGiliran ${char.name} menjawab:`;
+                    
+                    // Hitung token awal (instruksi + footer)
+                    let currentTokens = this.countTokens(systemInstruction) + this.countTokens(footer);
+                    const maxTokens = 5000;
+                    let historyStrings = [];
 
-3. Jangan tambahkan apapun di luar tag XML.
-4. Bicara secara natural sesuai kepribadianmu.
-5. Pastikan tag XML tertutup sempurna.
+                    // Ambil history dari yang terbaru, masukkan selama belum limit
+                    for (let i = this.chatHistory.length - 1; i >= 0; i--) {
+                        const m = this.chatHistory[i];
+                        const msgStr = `[ID: ${m.id}] ${m.sender}: ${m.text}`;
+                        const msgTokens = this.countTokens(msgStr) + 2; // +2 untuk estimasi newline/overhead
+                        
+                        if (currentTokens + msgTokens > maxTokens) break;
+                        
+                        historyStrings.unshift(msgStr);
+                        currentTokens += msgTokens;
+                    }
+                    
+                    const historySection = historyStrings.length > 0 ? `\n\nRIWAYAT:\n${historyStrings.join('\n')}` : '';
 
-RIWAYAT PERCAKAPAN:
-`;
+                    return `${systemInstruction}${historySection}${footer}`;
+                },
 
-  const hist = buildHistoryText(tokens(sys));
-  return sys + hist + `\nGiliran ${char.name} sekarang. Tulis respons XML.`;
-}
-
-// ================================================================
-//  API CLIENT
-// ================================================================
-async function callAPI(prompt) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
-  });
-
-  if (!res.ok) {
-    const txt = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status}${txt ? ': ' + txt.slice(0,100) : ''}`);
-  }
-
-  const data = await res.json();
-
-  if (!data.success) throw new Error('API mengembalikan error');
-  if (!data.result?.answer) throw new Error('Respons API tidak valid');
-
-  return data.result.answer;
-}
-
-// ================================================================
-//  XML PARSER
-// ================================================================
-function parseResp(answer) {
-  const m = answer.match(/<message>([\s\S]*?)<\/message>[\s\S]*?<call>([\s\S]*?)<\/call>/i);
-  if (m) {
-    return {
-      message: m[1].trim(),
-      call:    m[2].trim()
-    };
-  }
-  const m2 = answer.match(/<message>([\s\S]*?)<\/message>/i);
-  if (m2) {
-    return { message: m2[1].trim(), call: 'null' };
-  }
-  const stripped = answer.replace(/<[^>]+>/g, '').trim();
-  return { message: stripped || answer.trim(), call: 'null' };
-}
-
-// ================================================================
-//  ORCHESTRATOR LOOP
-// ================================================================
-async function runLoop() {
-  if (loopActive) return;
-  loopActive = true;
-
-  while (turnQueue.length > 0 && isProcessing) {
-    if (chainCount >= MAX_CHAIN) {
-      addSysMsg(`⚡ Batas ${MAX_CHAIN} giliran AI tercapai. Giliranmu!`);
-      break;
-    }
-
-    const charId = turnQueue.shift();
-    const char   = getById(charId);
-    if (!char) continue;
-
-    highlightSidebarChar(char.id);
-    showTyping(char);
-    await sleep(API_DELAY_MS);
-
-    let message, callTarget;
-
-    try {
-      const prompt = buildPrompt(char);
-      const answer = await callAPI(prompt);
-      const parsed = parseResp(answer);
-      message     = parsed.message;
-      callTarget  = parsed.call;
-    } catch (err) {
-      hideTyping();
-      addSysMsg(`⚠️ Gagal mendapat respons dari ${char.name}: ${err.message}`, true);
-      isProcessing = false;
-      setInputOn(true);
-      break;
-    }
-
-    hideTyping();
-    addMsgUI(char.name, message);
-    chainCount++;
-
-    const ct = callTarget.toLowerCase().trim();
-
-    if (ct === 'null' || ct === '' || ct === 'stop') {
-      isProcessing = false;
-      setInputOn(true);
-      break;
-    } else if (ct === 'user') {
-      isProcessing = false;
-      setInputOn(true);
-      break;
-    } else {
-      const target = getByName(callTarget);
-      if (target) {
-        turnQueue.push(target.id);
-      } else {
-        addSysMsg(`(${char.name} memanggil "${callTarget}" tapi karakter tidak ditemukan)`);
-        isProcessing = false;
-        setInputOn(true);
-        break;
-      }
-    }
-  }
-
-  if (turnQueue.length === 0 && isProcessing) {
-    isProcessing = false;
-    setInputOn(true);
-  }
-
-  highlightSidebarChar(null);
-  loopActive = false;
-}
-
-function highlightSidebarChar(id) {
-  document.querySelectorAll('.sidebar-char').forEach((el, i) => {
-    const char = characters[i];
-    el.classList.toggle('active', char && char.id === id);
-  });
-}
-
-// ================================================================
-//  INIT CHAT
-// ================================================================
-async function initChat() {
-  showChat();
-
-  if (chatHistory.length === 0) {
-    const first = characters[Math.floor(Math.random() * characters.length)];
-    addSysMsg(`🎲 ${first.name} akan memulai percakapan...`);
-    turnQueue    = [first.id];
-    isProcessing = true;
-    chainCount   = 0;
-    setInputOn(false);
-    runLoop();
-  } else {
-    setInputOn(true);
-  }
-}
-
-// ================================================================
-//  USER MESSAGE HANDLER
-// ================================================================
-async function handleUser(text) {
-  setInputOn(false);
-  addMsgUI('Kamu', text, true);
-
-  const mention = text.match(/@([^\s]+)/);
-  let next = null;
-  if (mention) next = getByName(mention[1]);
-  if (!next)   next = characters[Math.floor(Math.random() * characters.length)];
-
-  turnQueue    = [next.id];
-  isProcessing = true;
-  chainCount   = 0;
-  runLoop();
-}
-
-// ================================================================
-//  MODAL HELPERS
-// ================================================================
-function openModal() {
-  closeSidebar(); // Ensure sidebar closes when opening modal on mobile
-  document.getElementById('modal-name').value = '';
-  document.getElementById('modal-personality').value = '';
-  document.getElementById('modal-overlay').classList.remove('hidden');
-  document.getElementById('modal-name').focus();
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.add('hidden');
-}
-
-// ================================================================
-//  EVENT LISTENERS
-// ================================================================
-document.addEventListener('DOMContentLoaded', () => {
-  loadChars();
-
-  if (characters.length >= 2) {
-    initChat();
-  } else {
-    showSetup();
-  }
-
-  // ===== SETUP SCREEN =====
-  document.getElementById('setup-add-btn').addEventListener('click', () => {
-    const name = document.getElementById('setup-name').value;
-    const pers = document.getElementById('setup-personality').value;
-    const err  = addChar(name, pers);
-    if (err) { alert(err); return; }
-    document.getElementById('setup-name').value = '';
-    document.getElementById('setup-personality').value = '';
-    renderSetupChars();
-    if(window.innerWidth > 768) document.getElementById('setup-name').focus();
-  });
-
-  document.getElementById('setup-name').addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('setup-personality').focus(); }
-  });
-
-  document.getElementById('setup-chars-grid').addEventListener('click', e => {
-    const btn = e.target.closest('.btn-del');
-    if (!btn) return;
-    if (!confirm('Hapus karakter ini?')) return;
-    delChar(btn.dataset.id);
-    renderSetupChars();
-  });
-
-  document.getElementById('btn-start-chat').addEventListener('click', () => {
-    if (characters.length >= 2) initChat();
-  });
-
-  // ===== MOBILE SIDEBAR =====
-  document.getElementById('btn-menu').addEventListener('click', openSidebar);
-  document.getElementById('btn-close-sidebar').addEventListener('click', closeSidebar);
-  document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
-
-  // ===== CHAT SCREEN =====
-  document.getElementById('btn-send').addEventListener('click', () => {
-    const inp  = document.getElementById('user-input');
-    const text = inp.value.trim();
-    if (!text) return;
-    inp.value = '';
-    inp.style.height = '';
-    handleUser(text);
-  });
-
-  document.getElementById('user-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      // Allow enter to send on desktop, but on mobile let it behave natively (newline)
-      // or optionally keep it to send. We will keep it to send across devices for consistency.
-      e.preventDefault();
-      document.getElementById('btn-send').click();
-    }
-  });
-
-  document.getElementById('user-input').addEventListener('input', function() {
-    this.style.height = '';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
-
-  document.getElementById('btn-reset').addEventListener('click', () => {
-    closeSidebar();
-    if (!confirm('Reset semua percakapan? Riwayat chat akan dihapus.')) return;
-
-    chatHistory  = [];
-    turnQueue    = [];
-    isProcessing = false;
-    loopActive   = false;
-    chainCount   = 0;
-
-    document.getElementById('messages').innerHTML = '';
-    hideTyping();
-    setInputOn(false);
-
-    const first = characters[Math.floor(Math.random() * characters.length)];
-    addSysMsg(`🔄 Chat direset. ${first.name} akan memulai...`);
-    turnQueue    = [first.id];
-    isProcessing = true;
-    runLoop();
-  });
-
-  document.getElementById('btn-back-setup').addEventListener('click', () => {
-    closeSidebar();
-    isProcessing = false;
-    loopActive   = false;
-    turnQueue    = [];
-    hideTyping();
-    showSetup();
-  });
-
-  // ===== MODAL =====
-  document.getElementById('btn-open-modal').addEventListener('click', openModal);
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  document.getElementById('modal-cancel').addEventListener('click', closeModal);
-
-  document.getElementById('modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  });
-
-  document.getElementById('modal-save').addEventListener('click', () => {
-    const name = document.getElementById('modal-name').value;
-    const pers = document.getElementById('modal-personality').value;
-    const err  = addChar(name, pers);
-    if (err) { alert(err); return; }
-    closeModal();
-    renderSidebar();
-    updateTopbar();
-    addSysMsg(`✨ Karakter ${name} ditambahkan ke percakapan.`);
-  });
-
-  document.getElementById('modal-name').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('modal-personality').focus();
-  });
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-  });
-});
-</script>
+                resetChat() {
+                    if(confirm("Hapus semua riwayat percakapan?")) {
+                        this.chatHistory = [];
+                        this.isAITurn = false;
+                        this.isTyping = false;
+                        this.nextTurnId = null;
+                        this.save();
+                        
+                        // Jika ada karakter, siapkan giliran AI pertama jika ingin memulai diskusi lagi
+                        if(this.characters.length > 0) {
+                            this.nextTurnId = this.characters[0].id;
+                            this.isAITurn = true;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
