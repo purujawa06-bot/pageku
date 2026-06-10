@@ -1,10 +1,11 @@
-<!-- META {"title":"editor","desc":"Teknik prompting","date":"2026-06-10T16:16:34.233Z"} -->
+<!-- META {"title":"editor","desc":"Replace AI","date":"2026-06-10T19:27:08.870Z"} -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>AI Writer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -167,6 +168,7 @@
       font-weight: 500;
       transition: 0.2s;
       position: relative;
+      text-decoration: none;
     }
     .nav-btn.active {
       color: var(--accent2);
@@ -180,13 +182,8 @@
       background: var(--accent);
       border-radius: 0 0 4px 4px;
     }
-    .nav-btn svg {
-      width: 22px; height: 22px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .nav-btn i {
+      font-size: 1.2rem;
       margin-bottom: 2px;
     }
     .nav-badge {
@@ -242,15 +239,16 @@
     .line-numbers {
       background: #0f111c;
       color: var(--text3);
-      padding: 12px 8px;
+      padding: 12px 10px 12px 8px;
       font-family: var(--font-mono);
       font-size: 12px;
       line-height: 1.6;
       text-align: right;
       user-select: none;
-      min-width: 36px;
+      min-width: 44px;
       border-right: 1px solid var(--border);
       overflow: hidden;
+      white-space: pre;
     }
     .code-textarea {
       flex: 1;
@@ -441,14 +439,13 @@
   <!-- HEADER -->
   <header class="header">
     <div class="logo">
-      <div class="logo-icon">✨</div>
+      <div class="logo-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
       <span class="logo-text">AI Writer</span>
     </div>
     <div class="header-actions">
-      <span class="badge" id="lineCountBadge">0 baris</span>
-      <button class="btn btn-outline btn-sm" onclick="openInNewTab()" title="Buka di tab baru (about:blank)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        Tab Baru
+      <span class="badge" id="lineCountBadge"><i class="far fa-file-code"></i> 0 baris</span>
+      <button class="btn btn-outline btn-sm" onclick="openInNewTab()" title="Buka di tab baru">
+        <i class="fas fa-external-link-alt"></i> Tab Baru
       </button>
     </div>
   </header>
@@ -459,52 +456,60 @@
     <div class="tab-panel active" id="panelCode">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">📝 Kode Editor</span>
+          <span class="card-title"><i class="fas fa-code"></i> Kode Editor</span>
           <div class="btn-row">
-            <button class="btn btn-outline btn-sm" onclick="resetCode()">↺ Reset</button>
-            <button class="btn btn-outline btn-sm" onclick="formatCode()">{ } Format</button>
+            <button class="btn btn-outline btn-sm" onclick="resetCode()"><i class="fas fa-undo-alt"></i> Reset</button>
+            <button class="btn btn-outline btn-sm" onclick="formatCode()"><i class="fas fa-indent"></i> Format</button>
           </div>
         </div>
         <div class="editor-wrapper">
-          <div class="line-numbers" id="lineNumbers">1</div>
+          <div class="line-numbers" id="lineNumbers">1|</div>
           <textarea class="code-textarea" id="codeTextarea" placeholder="Tulis kode di sini..." spellcheck="false"></textarea>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><span class="card-title">💬 Perubahan yang Diinginkan</span></div>
-        <textarea class="text-input" id="changeInput" placeholder="Contoh: Ubah warna latar jadi gelap..." rows="2"></textarea>
-        <div class="btn-row" style="margin-top:8px;">
-          <button class="btn btn-primary" onclick="generatePrompt()">⚡ Generate Prompt</button>
-          <button class="btn btn-outline btn-sm" onclick="clearChangeInput()">Clear</button>
-        </div>
-      </div>
-      <div class="card" id="promptCard" style="display:none;">
         <div class="card-header">
-          <span class="card-title">📋 Prompt AI</span>
-          <div class="btn-row">
-            <button class="btn btn-success btn-sm" onclick="copyPrompt()">📋 Salin</button>
-            <a class="btn btn-outline btn-sm" href="https://chatgpt.com" target="_blank">ChatGPT</a>
-            <a class="btn btn-outline btn-sm" href="https://gemini.google.com" target="_blank">Gemini</a>
-          </div>
+          <span class="card-title"><i class="fas fa-robot"></i> Response AI (XML)</span>
         </div>
-        <div class="prompt-output" id="promptOutput"></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">🤖 Response AI (XML)</span></div>
         <textarea class="text-input" id="responseInput" placeholder="Paste XML dari AI..." rows="4" style="font-family:var(--font-mono);"></textarea>
         <div class="btn-row" style="margin-top:8px;">
-          <button class="btn btn-success" onclick="parseAndApply()">✅ Parse & Terapkan</button>
-          <button class="btn btn-outline btn-sm" onclick="clearResponseInput()">Clear</button>
+          <button class="btn btn-success" onclick="parseAndApply()"><i class="fas fa-check-circle"></i> Parse & Terapkan</button>
+          <button class="btn btn-outline btn-sm" onclick="clearResponseInput()"><i class="fas fa-eraser"></i> Clear</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB PASTE -->
-    <div class="tab-panel" id="panelPaste">
+    <!-- TAB CONVERT -->
+    <div class="tab-panel" id="panelConvert">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-pen-to-square"></i> Perubahan yang Diinginkan</span>
+        </div>
+        <textarea class="text-input" id="changeInput" placeholder="Contoh: Ubah warna latar jadi gelap, tambahkan animasi..." rows="3"></textarea>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn btn-primary" onclick="generatePrompt()"><i class="fas fa-bolt"></i> Generate Prompt</button>
+          <button class="btn btn-outline btn-sm" onclick="clearChangeInput()"><i class="fas fa-eraser"></i> Clear</button>
+        </div>
+      </div>
+      <div class="card" id="promptCard" style="display:none;">
+        <div class="card-header">
+          <span class="card-title"><i class="fas fa-clipboard-list"></i> Prompt AI</span>
+          <div class="btn-row">
+            <button class="btn btn-success btn-sm" onclick="copyPrompt()"><i class="fas fa-copy"></i> Salin</button>
+            <a class="btn btn-outline btn-sm" href="https://chatgpt.com" target="_blank"><i class="fas fa-comment-dots"></i> ChatGPT</a>
+            <a class="btn btn-outline btn-sm" href="https://gemini.google.com" target="_blank"><i class="fas fa-gem"></i> Gemini</a>
+          </div>
+        </div>
+        <div class="prompt-output" id="promptOutput"></div>
+      </div>
+    </div>
+
+    <!-- TAB HISTORY -->
+    <div class="tab-panel" id="panelHistory">
       <div class="card" style="flex:1; display:flex; flex-direction:column;">
         <div class="card-header">
-          <span class="card-title">📚 Riwayat (10 terakhir)</span>
-          <button class="btn btn-outline btn-xs" onclick="clearHistory()">Hapus Semua</button>
+          <span class="card-title"><i class="fas fa-history"></i> Riwayat Perubahan (10 terakhir)</span>
+          <button class="btn btn-outline btn-xs" onclick="clearHistory()"><i class="fas fa-trash-can"></i> Hapus Semua</button>
         </div>
         <div class="history-list" id="historyList" style="flex:1; overflow-y:auto;"></div>
       </div>
@@ -514,21 +519,21 @@
     <div class="tab-panel" id="panelPreview">
       <div class="preview-area">
         <div class="card-header">
-          <span class="card-title">👁 Preview</span>
-          <button class="btn btn-outline btn-sm" onclick="refreshPreview()">🔄 Refresh</button>
+          <span class="card-title"><i class="fas fa-eye"></i> Preview</span>
+          <button class="btn btn-outline btn-sm" onclick="refreshPreview()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
         <div class="preview-frame-wrap" id="previewFrameWrap">
           <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#aaa;" id="previewPlaceholder">
-            Klik Refresh untuk melihat hasil
+            <i class="fas fa-image" style="font-size:2rem; margin-right:8px;"></i> Klik Refresh untuk melihat hasil
           </div>
           <iframe id="previewIframe" style="display:none;" sandbox="allow-scripts allow-same-origin"></iframe>
         </div>
         <div class="console-panel">
           <div class="console-header">
-            <span>📟 Console</span>
+            <span><i class="fas fa-terminal"></i> Console</span>
             <div>
-              <button class="console-btn" onclick="copyConsole()">📋 Salin</button>
-              <button class="console-btn" onclick="clearConsole()">🗑 Clear</button>
+              <button class="console-btn" onclick="copyConsole()"><i class="fas fa-copy"></i> Salin</button>
+              <button class="console-btn" onclick="clearConsole()"><i class="fas fa-eraser"></i> Clear</button>
             </div>
           </div>
           <div class="console-output" id="consoleOutput"></div>
@@ -539,18 +544,22 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn" data-tab="paste" onclick="switchTab('paste')">
-      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      <span>PASTE</span>
+    <button class="nav-btn" data-tab="history" onclick="switchTab('history')">
+      <i class="fas fa-history"></i>
+      <span>History</span>
       <span class="nav-badge hidden" id="pasteBadge">0</span>
     </button>
+    <button class="nav-btn" data-tab="convert" onclick="switchTab('convert')">
+      <i class="fas fa-arrow-right-arrow-left"></i>
+      <span>Convert</span>
+    </button>
     <button class="nav-btn active" data-tab="code" onclick="switchTab('code')">
-      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      <span>CODE</span>
+      <i class="fas fa-code"></i>
+      <span>Code</span>
     </button>
     <button class="nav-btn" data-tab="preview" onclick="switchTab('preview')">
-      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      <span>PREVIEW</span>
+      <i class="fas fa-eye"></i>
+      <span>Preview</span>
     </button>
   </nav>
 
@@ -559,12 +568,12 @@
     <div class="modal-box" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between;">
         <h3 id="modalTitle">Detail</h3>
-        <button class="btn btn-xs" onclick="closeModalDirect()">✕</button>
+        <button class="btn btn-xs" onclick="closeModalDirect()"><i class="fas fa-times"></i></button>
       </div>
       <p id="modalDate" style="font-size:0.7rem; color:var(--text3);"></p>
       <p id="modalMessage" style="color:var(--green); margin:6px 0;"></p>
       <pre id="modalXml" style="background:#0b0e17; padding:8px; border-radius:6px; font-size:0.7rem; overflow:auto; max-height:200px;"></pre>
-      <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="applyFromModal()">Terapkan Ulang</button>
+      <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="applyFromModal()"><i class="fas fa-check-circle"></i> Terapkan Ulang</button>
     </div>
   </div>
 
@@ -596,8 +605,8 @@
       let modalCurrentIndex = null;
       let consoleMessages = [];
 
-      const STORAGE_CODE = 'ai_writer_code_v2';
-      const STORAGE_HISTORY = 'ai_writer_history_v2';
+      const STORAGE_CODE = 'ai_writer_code_v4';
+      const STORAGE_HISTORY = 'ai_writer_history_v4';
 
       const DEFAULT_CODE = `<!DOCTYPE html>
 <html lang="id">
@@ -607,7 +616,6 @@
 <body><div class="card"><h1>Halo Dunia!</h1><p>Edit kode ini dan gunakan AI Writer.</p><button onclick="alert('Klik!')">Klik Saya</button></div></body>
 </html>`;
 
-      // Init
       function init() {
         const saved = localStorage.getItem(STORAGE_CODE);
         codeTextarea.value = (saved && saved.trim()) ? saved : DEFAULT_CODE;
@@ -622,7 +630,7 @@
           if (e.key === 'Tab') { e.preventDefault(); const s=codeTextarea.selectionStart, v=codeTextarea.value; codeTextarea.value=v.substring(0,s)+'  '+v.substring(codeTextarea.selectionEnd); codeTextarea.selectionStart=codeTextarea.selectionEnd=s+2; updateLineNumbers(); }
         });
         document.addEventListener('keydown', (e) => {
-          if ((e.ctrlKey||e.metaKey) && e.key==='g') { e.preventDefault(); generatePrompt(); }
+          if ((e.ctrlKey||e.metaKey) && e.key==='g') { e.preventDefault(); generatePrompt(); switchTab('convert'); }
           if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); parseAndApply(); }
         });
         refreshPreviewSilent();
@@ -630,15 +638,16 @@
 
       function updateLineNumbers() {
         const lines = codeTextarea.value.split('\n').length;
-        lineNumbers.textContent = Array.from({length: lines}, (_,i)=> i+1).join('\n');
+        // Format: 1|, 2|, 3|, ...
+        lineNumbers.textContent = Array.from({length: lines}, (_,i) => (i+1)+'|').join('\n');
       }
       function updateLineCount() {
-        lineCountBadge.textContent = codeTextarea.value.split('\n').length + ' baris';
+        lineCountBadge.innerHTML = `<i class="far fa-file-code"></i> ${codeTextarea.value.split('\n').length} baris`;
       }
       function saveCode() { localStorage.setItem(STORAGE_CODE, codeTextarea.value); }
 
       function showToast(msg, type='') {
-        const t = document.createElement('div'); t.className=`toast ${type}`; t.textContent=msg;
+        const t = document.createElement('div'); t.className=`toast ${type}`; t.innerHTML = msg;
         toastContainer.appendChild(t);
         setTimeout(() => t.remove(), 2200);
       }
@@ -647,11 +656,17 @@
       window.switchTab = (tab) => {
         currentTab = tab;
         document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-        document.getElementById('panel'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+        const panelMap = {
+          'history': 'panelHistory',
+          'convert': 'panelConvert',
+          'code': 'panelCode',
+          'preview': 'panelPreview'
+        };
+        document.getElementById(panelMap[tab]).classList.add('active');
         document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
         document.querySelector(`.nav-btn[data-tab="${tab}"]`).classList.add('active');
         if(tab==='preview') refreshPreviewSilent();
-        if(tab==='paste') { renderHistory(); updatePasteBadge(); }
+        if(tab==='history') { renderHistory(); updatePasteBadge(); }
         if(tab==='code') updateLineNumbers();
       };
 
@@ -676,7 +691,7 @@
       window.clearConsole = () => { consoleMessages = []; renderConsole(); };
       window.copyConsole = () => {
         const text = consoleMessages.map(m=>`[${m.time}] [${m.level}] ${m.msg}`).join('\n');
-        navigator.clipboard.writeText(text).then(()=>showToast('Console disalin','success'));
+        navigator.clipboard.writeText(text).then(()=>showToast('<i class="fas fa-check"></i> Console disalin','success'));
       };
 
       function getPreviewHTML() {
@@ -723,59 +738,84 @@
       }
       window.refreshPreview = () => {
         refreshPreviewSilent();
-        showToast('Preview diperbarui','success');
+        showToast('<i class="fas fa-eye"></i> Preview diperbarui','success');
       };
 
-      // Open in new tab (about:blank)
+      // Open in new tab
       window.openInNewTab = () => {
         const html = getPreviewHTML();
-        if (!html) { showToast('Kode kosong','error'); return; }
+        if (!html) { showToast('<i class="fas fa-exclamation-triangle"></i> Kode kosong','error'); return; }
         const w = window.open('about:blank', '_blank');
-        if (!w) { showToast('Pop-up diblokir!','error'); return; }
+        if (!w) { showToast('<i class="fas fa-exclamation-triangle"></i> Pop-up diblokir!','error'); return; }
         w.document.write(injectConsoleScript(html));
         w.document.close();
-        showToast('Dibuka di tab baru','success');
+        showToast('<i class="fas fa-external-link-alt"></i> Dibuka di tab baru','success');
       };
 
-      // Generate prompt
+      // Generate prompt with multi‑edit instruction
       window.generatePrompt = () => {
         const code = codeTextarea.value.trim();
         const change = changeInput.value.trim();
-        if(!code || !change) { showToast('Isi kode dan perubahan','error'); return; }
+        if(!code || !change) { showToast('<i class="fas fa-exclamation-circle"></i> Isi kode dan perubahan','error'); return; }
         const lines = code.split('\n');
         let numbered = lines.map((l,i)=> `${i+1}| ${l}`).join('\n');
-        const sys = `[SYSTEM INSTRUCTION]\nAnda adalah AI code editor. BALAS HANYA DENGAN FORMAT XML DI BAWAH INI, TANPA TEKS LAIN!\n\n<response>\n<message>penjelasan singkat</message>\n<edit>\n<start_line>nomor</start_line>\n<end_line>nomor</end_line>\n<replace><![CDATA[\nkode baru\n]]></replace>\n</edit>\n</response>\n\nATURAN: Gunakan CDATA, nomor baris mulai 1, untuk menambah gunakan start=end, hapus dengan replace kosong.`;
-        promptOutput.textContent = `${sys}\n\nKODE:\n${numbered}\n\nPERUBAHAN:\n${change}`;
+        const sys = `[SYSTEM INSTRUCTION]
+Anda adalah AI code editor yang sangat presisi. Tugas Anda adalah mengubah kode berdasarkan permintaan user.
+BALAS HANYA DENGAN FORMAT XML BERIKUT. JANGAN ADA TEKS LAIN DI LUAR BLOK XML!
+
+FORMAT WAJIB (bisa berisi lebih dari satu <edit>):
+<response>
+<message>Penjelasan singkat perubahan yang dilakukan</message>
+<edit>
+<start_line>nomor_baris_awal</start_line>
+<end_line>nomor_baris_akhir</end_line>
+<replace><![CDATA[
+kode pengganti lengkap di sini (jaga indentasi)
+]]></replace>
+</edit>
+<!-- Ulangi <edit> untuk setiap bagian kode yang diubah -->
+</response>
+
+ATURAN PENTING:
+1. HANYA keluarkan XML, TIDAK BOLEH ada teks pembuka/penutup/markdown di luar <response>.
+2. Gunakan <![CDATA[ ... ]]> untuk membungkus kode di dalam <replace>.
+3. Nomor baris dimulai dari 1 (baris pertama = 1).
+4. Untuk MENAMBAH kode baru di antara baris, gunakan start_line dan end_line yang SAMA (baris tempat penyisipan), lalu kode baru akan disisipkan SETELAH baris tersebut.
+5. Untuk MENGHAPUS baris, gunakan <replace> kosong.
+6. Pastikan indentasi dan format kode tetap rapi.
+7. Jangan mengubah baris yang tidak perlu diubah.
+8. Anda BOLEH menambahkan LEBIH DARI SATU <edit> jika perubahan mencakup beberapa bagian kode.`;
+        promptOutput.textContent = `${sys}\n\nKODE LENGKAP DENGAN NOMOR BARIS:\n${numbered}\n\nPERUBAHAN YANG DIINGINKAN:\n${change}\n\nIngat: Balas HANYA dengan format XML <response>...</response> tanpa teks lain!`;
         promptCard.style.display='';
         promptCard.scrollIntoView({behavior:'smooth'});
-        showToast('Prompt siap disalin','success');
+        showToast('<i class="fas fa-bolt"></i> Prompt siap disalin','success');
       };
       window.copyPrompt = () => {
-        navigator.clipboard.writeText(promptOutput.textContent).then(()=>showToast('Prompt disalin','success'));
+        navigator.clipboard.writeText(promptOutput.textContent).then(()=>showToast('<i class="fas fa-copy"></i> Prompt disalin','success'));
       };
       window.clearChangeInput = () => changeInput.value = '';
       window.clearResponseInput = () => responseInput.value = '';
 
-      // Parse & Apply
+      // Parse & Apply (supports multiple edits)
       window.parseAndApply = () => {
         const xmlStr = responseInput.value.trim();
-        if(!xmlStr) { showToast('Paste XML dulu','error'); return; }
+        if(!xmlStr) { showToast('<i class="fas fa-exclamation-circle"></i> Paste XML dulu','error'); return; }
         let clean = xmlStr;
         const m = clean.match(/```(?:xml)?\s*([\s\S]*?)```/i);
         if(m) clean = m[1].trim();
         const respMatch = clean.match(/<response>[\s\S]*<\/response>/i);
-        if(!respMatch) { showToast('Blok <response> tidak ditemukan','error'); return; }
+        if(!respMatch) { showToast('<i class="fas fa-times-circle"></i> Blok <response> tidak ditemukan','error'); return; }
         clean = respMatch[0];
         let doc;
         try {
           const parser = new DOMParser();
           doc = parser.parseFromString(clean, 'text/xml');
           if(doc.querySelector('parsererror')) throw new Error('XML invalid');
-        } catch(e) { showToast('Gagal parse XML','error'); return; }
+        } catch(e) { showToast('<i class="fas fa-exclamation-circle"></i> Gagal parse XML','error'); return; }
         const msgEl = doc.querySelector('response > message');
         const message = msgEl ? msgEl.textContent.trim() : '';
         const editEls = doc.querySelectorAll('response > edit');
-        if(!editEls.length) { showToast('Tidak ada <edit>','error'); return; }
+        if(!editEls.length) { showToast('<i class="fas fa-exclamation-circle"></i> Tidak ada <edit>','error'); return; }
         const edits = [];
         editEls.forEach(edit => {
           const s = edit.querySelector('start_line')?.textContent.trim();
@@ -783,8 +823,8 @@
           const r = edit.querySelector('replace')?.textContent || '';
           if(s && e) edits.push({start:parseInt(s), end:parseInt(e), replace:r.replace(/^\n+/,'').replace(/\n+$/,'')});
         });
-        if(!edits.length) { showToast('Edit tidak valid','error'); return; }
-        if(!confirm(`Terapkan ${edits.length} perubahan?\n${message}`)) return;
+        if(!edits.length) { showToast('<i class="fas fa-exclamation-circle"></i> Edit tidak valid','error'); return; }
+        if(!confirm(`Terapkan ${edits.length} perubahan?\n\n${message}`)) return;
         const before = codeTextarea.value;
         let lines = before.split('\n');
         edits.sort((a,b)=> b.start - a.start);
@@ -799,7 +839,7 @@
         saveToHistory(clean, message, before, codeTextarea.value);
         responseInput.value = '';
         refreshPreviewSilent();
-        showToast('Perubahan diterapkan!','success');
+        showToast(`<i class="fas fa-check-circle"></i> ${edits.length} perubahan diterapkan!`,'success');
         updatePasteBadge(); renderHistory();
       };
 
@@ -814,10 +854,14 @@
         const h = getHistory();
         historyList.innerHTML = h.length ? h.map((item,i)=>`
           <div class="history-item" onclick="viewHistoryDetail(${i})">
-            <span>📝</span><div style="flex:1"><div style="font-size:0.8rem;">${escapeHtml(item.message||'')}</div><div style="font-size:0.65rem;color:var(--text3);">${new Date(item.date).toLocaleString('id')}</div></div>
-            <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();applyHistory(${i})">↺</button>
-            <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();deleteHistory(${i})">✕</button>
-          </div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--text3);">Belum ada riwayat</div>';
+            <i class="fas fa-file-pen"></i>
+            <div style="flex:1">
+              <div style="font-size:0.8rem;">${escapeHtml(item.message||'')}</div>
+              <div style="font-size:0.65rem;color:var(--text3);">${new Date(item.date).toLocaleString('id')}</div>
+            </div>
+            <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();applyHistory(${i})"><i class="fas fa-rotate-left"></i></button>
+            <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();deleteHistory(${i})"><i class="fas fa-xmark"></i></button>
+          </div>`).join('') : '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-inbox" style="font-size:2rem;"></i><p>Belum ada riwayat</p></div>';
       }
       window.viewHistoryDetail = (i) => {
         const item = getHistory()[i];
